@@ -10,6 +10,9 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "isolatedModules": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 	"strictNullChecks": true,
     "lib": [
       "DOM",
@@ -20,5 +23,5 @@
   },
   "include": [
     "**/*.ts"
-  ]
+, "main.ts", "review.tsx", "singleLineStyle.tsx"  ]
 }

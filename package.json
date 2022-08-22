@@ -12,7 +12,10 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
+		"@types/js-yaml": "^4.0.5",
 		"@types/node": "^16.11.6",
+		"@types/react": "^18.0.17",
+		"@types/react-dom": "^18.0.6",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
@@ -20,5 +23,22 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.10.0",
+		"@emotion/styled": "^11.10.0",
+		"@mui/material": "^5.10.0",
+		"antd": "^4.22.4",
+		"eventemitter3": "^4.0.7",
+		"js-yaml": "^4.1.0",
+		"minhash": "^0.0.9",
+		"moment": "^2.29.4",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"simhash-js": "^1.0.0",
+		"string-similarity-algorithm": "^1.1.0",
+		"toml": "^3.0.0",
+		"ts-md5": "^1.3.1",
+		"yaml": "^2.1.1"
 	}
 }
