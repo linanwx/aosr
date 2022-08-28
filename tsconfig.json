@@ -13,7 +13,7 @@
     "jsx": "react",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-	"strictNullChecks": true,
+    "strictNullChecks": true,
     "lib": [
       "DOM",
       "ES5",
@@ -22,6 +22,8 @@
     ]
   },
   "include": [
-    "**/*.ts"
-, "main.ts", "review.tsx", "singleLineStyle.tsx"  ]
+    "**/*.ts",
+    "main.ts",
+    "**/*.tsx"
+  ]
 }

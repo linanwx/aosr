@@ -1,11 +1,9 @@
-// import toml from "toml"
-import { parseYaml, stringifyYaml } from "obsidian"
 import { CardSchedule } from "schedule"
 import yaml from "yaml"
 
 export class AnnotationWrapper {
-    static defaultRegAnnotation = String.raw`%%[\s\S]+?\^blockID`
-    static defaultRegWrapper = /%%\n([\s\S]+?)%%\n\^.+/gm
+    static defaultRegAnnotation = String.raw`%%[^\^]+?%%\n\^blockID`
+    static defaultRegWrapper = /%%\n\`\`\`YAML\n([\s\S]+?)\`\`\`\n%%\n\^.+/gm
     static findAnnotationWrapper(fileText:string, blockID:string) {
         let regAnnotation = this.defaultRegAnnotation.replace("blockID", blockID)
         let matchReg = new RegExp(regAnnotation, "gm")
@@ -23,32 +21,31 @@ export class AnnotationWrapper {
         return ""
     }
     static enWrapper(ID:string, annotation:string):string{
-        return "%%\n" + annotation + "\n%%\n^" + ID
+        return "%%\n\`\`\`YAML\n" + annotation + "\`\`\`\n%%\n^" + ID
     }
 }
 
-
-export class AnnotationFormat {
-    copy(obj: AnnotationFormat) {
+export class AnnotationObject {
+    copy(obj: AnnotationObject) {
         this.cardSchedule.copy(obj.cardSchedule)
     }
     cardSchedule:CardSchedule
     constructor() {
         this.cardSchedule = new CardSchedule()
     }
-}
-
-export function AnnotationParseFormat(annotation:string):AnnotationFormat {
-    if (!annotation) {
-        return new AnnotationFormat()
+    static Parse(annotation:string):AnnotationObject {
+        if (!annotation) {
+            return new AnnotationObject()
+        }
+        let ret = new AnnotationObject()
+        let obj:AnnotationObject = yaml.parse(annotation)
+        ret.copy(obj)
+        return ret
     }
-    let ret = new AnnotationFormat()
-    let obj:AnnotationFormat = yaml.parse(annotation)
-    ret.copy(obj)
-    return ret
-}
-
-export function AnnotationStringifyFormat(fmt:AnnotationFormat):string {
-    let s = yaml.stringify(fmt)
-    return s
+    static Stringify(fmt:AnnotationObject):string {
+        let s = yaml.stringify(fmt, (key, value)=> {
+            if (value !== null) return value
+        })
+        return s
+    }
 }

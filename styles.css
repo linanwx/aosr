@@ -1,0 +1,8 @@
+.markdown-rendered mark.fuzzy {
+    filter: blur(5px);
+    transition: 2s;
+}
+
+.markdown-rendered mark.fuzzy:hover {
+    filter: blur(0px);
+}

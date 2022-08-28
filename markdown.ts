@@ -1,18 +1,7 @@
 
 import {
-    Modal,
-    App,
-    Notice,
-    Platform,
-    TFile,
-    MarkdownView,
-    WorkspaceLeaf,
-    moment,
-    MarkdownRenderChild,
-    MarkdownPreviewRenderer,
-    MarkdownPreviewView,
     Component,
-    MarkdownRenderer,
+    MarkdownRenderer, TFile
 } from "obsidian";
 
 const imageExt = ['bmp', 'png', 'jpg', 'jpeg', 'gif', 'svg'];

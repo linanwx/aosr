@@ -1,79 +1,54 @@
-import { TFile, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext, MarkdownRenderer, MarkdownRenderChild, MarkdownEditView, ItemView, WorkspaceLeaf, Vault, MarkdownPreviewView, Component, MarkdownPreviewRenderer } from 'obsidian';
-import { CardsWatcher, NewCardsWatch } from "./cardWatcher"
-import { NewCardSearch, SearchResult } from "./cardSearch"
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { createRoot, Root } from "react-dom/client";
-import { DatePicker } from 'antd';
+import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup"
-import FormControl from "@mui/material/FormControl"
-import InputLabel from "@mui/material/InputLabel"
-import ListItemButton from "@mui/material/ListItemButton"
-import Select from "@mui/material/Select"
-import MenuItem from "@mui/material/MenuItem"
-import ButtonUnstyled, {
-	buttonUnstyledClasses
-} from "@mui/base/ButtonUnstyled";
-import { renderMarkdown } from 'markdown';
-import { SingleLineMethod } from 'singleLineStyle';
-import { Operation } from 'schedule';
-import moment from 'moment';
-import { Arrangement, NewArrangement } from 'arrangement';
-import { Card } from 'card';
+import { Arrangement } from 'arrangement';
+import { ItemView } from 'obsidian';
 import { Pattern } from "Pattern";
-
-
+import * as React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { Operation } from "schedule";
 
 export const VIEW_TYPE_REVIEW = "review-view"
-
-// class ReviewBase {
-// 	controller: ReviewController
-// 	constructor(controller: ReviewController) {
-// 		this.controller = controller
-// 	}
-// 	get root(): Root {
-// 		return this.controller.root
-// 	}
-// }
 
 // 状态机 表示视图的状态
 interface ReviewViewer {
 	render(): void
 }
 
-type ReviewingState = {
-	nowPattern: Pattern | undefined
-}
-
 type ReviewingProps = {
-	allCards: Card[]
+	arrangement: Arrangement
 	goStage: (stage: ReviewStage) => void
 	view: ItemView
+	arrangeName: string
 }
 
-// function Welcome(props) {
-// 	return <h1>Hello, {props.name}</h1>;
-//   }
+type ReviewingState = {
+	nowPattern: Pattern | undefined
+	showAns: boolean
+	patternIter: AsyncGenerator<Pattern, boolean, unknown>
+}
 
-class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
-	private arrangement: Arrangement
-	private patternIter: Generator<Pattern, boolean, unknown>
+class Reviewing extends React.Component<ReviewingProps, ReviewingState> { 
+	initFlag:boolean
 	constructor(props: ReviewingProps) {
 		super(props)
 		this.state = {
-			nowPattern: undefined
+			nowPattern: undefined,
+			showAns: false,
+			patternIter: this.props.arrangement.PatternSequence(this.props.arrangeName),
+		}
+		this.initFlag = false
+	}
+	async componentDidMount() {
+		if (!this.initFlag) {
+			this.initFlag = true
+			await this.next()
 		}
 	}
-	componentDidMount() {
-		this.arrangement = NewArrangement(this.props.allCards)
-		this.patternIter = this.arrangement.PatternSequence()
-		this.next()
-	}
-	next = () => {
-		let result = this.patternIter.next()
-		console.log(result)
+	next = async () => {
+		console.log("next 被调用")
+		let result = await this.state.patternIter.next()
 		if (result.done) {
+			console.log("结束")
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}
@@ -81,16 +56,41 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			nowPattern: result.value
 		})
 	}
+	clickShowAns = () => {
+		this.setState({
+			showAns: true
+		})
+	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
-			return <this.state.nowPattern.Component view={this.props.view}></this.state.nowPattern.Component>
+			return <this.state.nowPattern.Component view={this.props.view} clickShowAns={this.clickShowAns}></this.state.nowPattern.Component>
 		}
 		return <div></div>
 	}
+	async submit(opt: Operation) {
+		await this.state.nowPattern?.submitOpt(opt)
+		await this.next()
+		this.setState({
+			showAns: false
+		})
+	}
 	render() {
 		return <div>
+			<this.PatternComponent></this.PatternComponent>
 			{
-				<this.PatternComponent></this.PatternComponent>
+				this.state.showAns && this.props.arrangeName != "learn" &&
+				<div>
+					<Button color="error" size="large"  onClick={() => this.submit(Operation.HARD)}>Hard</Button>
+					<Button color="info" size="large"  onClick={() => this.submit(Operation.FAIR)}>Fair</Button>
+					<Button color="success" size="large"  onClick={() => this.submit(Operation.EASE)}>Easy</Button>
+				</div>
+			}
+			{
+				this.state.showAns && this.props.arrangeName == "learn" &&
+				<div>
+					<Button color="error" size="large"  onClick={() => this.submit(Operation.NOTLEARN)}>Hard</Button>
+					<Button color="info" size="large"  onClick={() => this.submit(Operation.LEARN)}>Fair</Button>
+				</div>
 			}
 		</div>
 	}
@@ -104,8 +104,9 @@ class LoadingComponent extends React.Component<any, any> {
 }
 
 type MaindeskProps = {
-	allCards: SearchResult
+	arrangement: Arrangement
 	goStage: (stage: ReviewStage) => void
+	setArrangement: (arrangeName: string) => void
 }
 
 type MaindeskState = {
@@ -113,14 +114,31 @@ type MaindeskState = {
 }
 
 class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
+	constructor(props: any) {
+		super(props)
+	}
 	render(): React.ReactNode {
 		return <div>
-			<ul>
-				<li><Button onClick={
-					() =>
-						this.props.goStage(ReviewStage.Reviewing)
-				} >{`${this.props.allCards.SearchName} : ${this.props.allCards.AllCard.length}`}</Button></li>
-			</ul>
+			{this.props.arrangement.ArrangementList().length != 0 &&
+				<List>
+					{
+						this.props.arrangement.ArrangementList().map((value) => (
+							<ListItem key={value.Name}>
+								<ListItemButton onClick={() => {
+									this.props.setArrangement(value.Name);
+									this.props.goStage(ReviewStage.Reviewing);
+								}}>
+									<ListItemText primary={`${value.Name} : ${value.Count}`} />
+								</ListItemButton>
+							</ListItem>
+						))
+					}
+				</List>
+			}
+			{
+				this.props.arrangement.ArrangementList().length == 0 &&
+				<p>All Done.</p>
+			}
 		</div>
 	}
 }
@@ -137,58 +155,70 @@ enum ReviewStage {
 
 type ReviewState = {
 	stage: ReviewStage
-	searchResult: SearchResult
+	arrangement: Arrangement
+	arrangeName: string
 }
 
 class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
-	changeStage(stage: ReviewStage) {
-		this.setState({
-			stage: stage
-		})
-	}
+	private syncFlag:boolean;
 	async sync() {
-		await new Promise((e) => setTimeout(e, 200))
-		let search = NewCardSearch()
-		let allcards = await search.search()
-		console.log(this)
+		if (this.syncFlag) {
+			return
+		}
+		this.syncFlag = true
+		let arrangement = this.state.arrangement
+		await arrangement.init()
 		this.setState({
-			searchResult: allcards
+			arrangement: arrangement
 		})
 		this.setState({
 			stage: ReviewStage.Maindesk
 		})
+		this.syncFlag = false
 	}
 	componentDidMount() {
 		this.sync()
 	}
 	constructor(props: ReviewProps) {
 		super(props)
+		this.syncFlag = false
 		this.state = {
 			stage: ReviewStage.Loading,
-			searchResult: new SearchResult()
+			arrangement: new Arrangement(),
+			arrangeName: "",
 		}
 	}
 	goStage = (stage: ReviewStage) => {
 		this.setState({
 			stage: stage
 		})
+		if (stage == ReviewStage.Loading) {
+			this.sync()
+		}
 	}
-
+	setArrangement = (arrangeName: string) => {
+		this.setState({
+			arrangeName: arrangeName
+		})
+	}
 	render(): React.ReactNode {
 		if (this.state.stage == ReviewStage.Loading) {
 			return <LoadingComponent></LoadingComponent>
 		}
 		if (this.state.stage == ReviewStage.Maindesk) {
 			return <MaindeskComponent
+				setArrangement={this.setArrangement}
 				goStage={this.goStage}
-				allCards={this.state.searchResult}
+				arrangement={this.state.arrangement}
 			></MaindeskComponent>
 		}
 		if (this.state.stage == ReviewStage.Reviewing) {
 			return <Reviewing
-				allCards={this.state.searchResult.AllCard}
+				arrangeName={this.state.arrangeName}
+				arrangement={this.state.arrangement}
 				goStage={this.goStage}
-				view={this.props.view}></Reviewing>
+				view={this.props.view}
+			></Reviewing>
 		}
 	}
 }
@@ -207,10 +237,13 @@ export class ReviewView extends ItemView {
 	async onload() {
 		let rootDiv = this.containerEl.children[1].createDiv()
 		this.root = createRoot(rootDiv);
-		this.root.render(<React.StrictMode>
-
-			<ReviewComponent view={this}></ReviewComponent>
-		</React.StrictMode>)
+		this.root.render(
+			<React.StrictMode>
+				<div className="markdown-preview-view markdown-rendered">
+					<ReviewComponent view={this}></ReviewComponent>
+				</div>
+			</React.StrictMode>
+		)
 	}
 	onunload(): void {
 		this.root.unmount()

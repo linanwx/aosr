@@ -1,31 +1,27 @@
 import { ItemView } from 'obsidian';
 import { Operation, PatternSchedule } from 'schedule';
-import { PatternMethod, Card } from './card';
+import { Card } from './card';
 
 
 export type PatternProps ={
 	view:ItemView
+	clickShowAns:() => void
 }
 
-// import { Md5 } from 'ts-md5';
-// 卡片解析的结果 为卡片所持有
-export interface Pattern {
-	set ID(mark: string);
-	get method(): PatternMethod;
-	get schedule(): PatternSchedule;
-	get card(): Card;
-	submitOpt(opt: Operation): Promise<void>;
-	Component(props:PatternProps): JSX.Element;
-}
-
-export class PatternBase {
-	ID: string;
-	method: PatternMethod;
-	card: Card;
-	constructor(card: Card) {
-		this.card = card;
+// 卡片的展示模式
+export abstract class Pattern {
+	TagID: string;
+	private pcard: Card;
+	get schedule(): PatternSchedule {
+		return this.card.getSchedule(this.TagID)
 	}
-	get schedule():PatternSchedule {
-		return this.card.getSchedule(this.ID)
+	get card(): Card {
+		return this.pcard
 	}
+	constructor(card:Card, id:string) {
+		this.pcard = card
+		this.TagID = id
+	}
+	abstract submitOpt(opt: Operation): Promise<void>;
+	abstract Component(props:PatternProps): JSX.Element;
 }

@@ -3,6 +3,7 @@ class TagInfo {
     Head:string
     Suffix:string
     Original:string
+    SubTag:TagInfo
     constructor(original:string, head:string, suffix:string) {
         this.Head = head
         if (suffix.at(0) == "/") {
@@ -10,6 +11,10 @@ class TagInfo {
         }
         this.Suffix = suffix
         this.Original = original
+        if (suffix.contains("/")) {
+            let [subhead, subsuffix] = suffix.split("/")
+            this.SubTag = new TagInfo(original, subhead, subsuffix)
+        }
     }
 }
 
@@ -18,10 +23,18 @@ class TagsInfo {
     constructor(tags:TagInfo[]) {
         this.Tags = tags
     }
-    findTag(head:string) {
+    findTag(head:string, subhead?:string) {
         for (let tag of this.Tags) {
             if (tag.Head == head) {
-                return tag
+                if(!subhead) {
+                    return tag
+                } else {
+                    if (tag.SubTag) {
+                        if (tag.SubTag.Head == subhead) {
+                            return tag
+                        }
+                    }
+                }
             }
         }
     }

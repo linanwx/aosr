@@ -1,8 +1,8 @@
 import { AnnotationWrapper } from 'annotationParse';
 import { CardIDTag } from 'cardHead';
-import { TFile, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext, MarkdownRenderer, MarkdownRenderChild, MarkdownEditView, ItemView, WorkspaceLeaf, Vault } from 'obsidian';
+import { TFile } from 'obsidian';
 import { TagParser } from 'tag';
-import { Card, NewCard } from "./card"
+import { Card, NewCard } from "./card";
 
 // 搜索的结果
 export class SearchResult {

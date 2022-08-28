@@ -9,8 +9,8 @@ export interface AOSRSettings {
 
 export const DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
-    EasyBonus: 3,
-    HardBonus: 3,
+    EasyBonus: 2,
+    HardBonus: 2,
 }
 
 export class AOSRSettingTab extends PluginSettingTab {

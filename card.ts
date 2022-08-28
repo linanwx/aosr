@@ -1,10 +1,12 @@
-import { AnnotationFormat, AnnotationWrapper, AnnotationParseFormat, AnnotationStringifyFormat } from 'annotationParse';
+import { AnnotationObject, AnnotationWrapper } from 'annotationParse';
 import { UpdateCardIDTag } from 'cardHead';
 // import { randomUUID } from 'crypto';
-import { TFile, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext, MarkdownRenderer, MarkdownRenderChild, MarkdownEditView, ItemView, WorkspaceLeaf, Vault } from 'obsidian';
-import React from 'react';
+import { TFile } from 'obsidian';
 import { CardSchedule, PatternSchedule } from 'schedule';
+import { cyrb53 } from './hash';
+import { ParserCollection } from './ParserCollection';
 import { Pattern } from './Pattern';
+
 // 卡片
 // 卡片由源码和注释两部分组成，
 // 源码是卡片的正文，书写的内容
@@ -22,10 +24,10 @@ export interface Card {
 	get patterns(): Pattern[]
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
-	// 更新注释
-	update(info: updateInfo): void
-	// 更新结果
-	commit(): Promise<void>
+	// 更新文件
+	updateFile(info: updateInfo): void
+	// 提交文件变更
+	commitFile(): Promise<void>
 }
 
 export function NewCard(content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
@@ -46,7 +48,7 @@ class defaultCard implements Card {
 	patterns: Pattern[];
 	schedules: CardSchedule
 	index: number
-	annotationFmt: AnnotationFormat
+	annotationObj: AnnotationObject
 	updateList: updateInfo[];
 	// 1为source 2为注释
 	constructor(content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
@@ -60,141 +62,66 @@ class defaultCard implements Card {
 		this.initAnnotation(annotationStr);
 
 		let parser = ParserCollection.getInstance()
-		this.patterns = parser.parse(this)
-		this.assignBlankMark()
+		this.patterns = parser.Parse(this)
+		// this.assignBlankMark()
 	}
 	private initAnnotation(annotationStr: string) {
-		this.annotationFmt = AnnotationParseFormat(annotationStr);
-		this.schedules = this.annotationFmt.cardSchedule
+		this.annotationObj = AnnotationObject.Parse(annotationStr);
+		this.schedules = this.annotationObj.cardSchedule
 	}
-	update(info: updateInfo) {
+	updateFile(info: updateInfo) {
 		this.updateList.push(info)
 	}
 	getSchedule(patternID: string): PatternSchedule {
 		return this.schedules.getSchedule(patternID)
 	}
-	private assignBlankMark() {
-		this.patterns.forEach((result, index) => {
-			if (result.ID?.length > 0) {
-				return
-			}
-			result.ID = "#" + this.ID + "\/q" + (index + 1)
-		})
-	}
+	// ID 优先使用原始ID 不存在时为卡片hash结果
 	get ID(): string {
 		if (this.originalID?.length > 0) {
 			return this.originalID
 		}
-		return "q" + cyrb53(this.source).slice(0, 5);
+		return cyrb53(this.source).slice(0, 5);
 	}
-
+	// 更新注释块内容
 	private updateAnnotation(fileText: string): string {
-		let newAnnotation = AnnotationStringifyFormat(this.annotationFmt)
+		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
 		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation)
 		if (this.annotationWrapperStr?.length > 0) {
 			fileText = fileText.replace(this.annotationWrapperStr, newAnnotation)
 		} else {
 			if (fileText.at(-1) != "\n") {
+				fileText += "\n" + "\n"
+			} else if (fileText.at(-2) != "\n") {
 				fileText += "\n"
 			}
-			fileText = fileText + "\n" + newAnnotation
+			fileText = fileText + newAnnotation
 		}
 		return fileText
 	}
-	async commit() {
+	async commitFile() {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
+		// 如果原文已被改变，停止写入
+		if (!fileText.contains(this.source)) {
+			console.info("File has been changed, ignore commit.")
+			return
+		}
+		// 如果不存在复习块ID 则先更新复习块块ID
+		// 必须先执行此步骤 否则index会变化
+		if (this.originalID == "") {
+			fileText = UpdateCardIDTag(this.ID, fileText, this.index)
+		}
+		// 更新复习块注释 包括复习进度
+		fileText = this.updateAnnotation(fileText)
 		// 更新复习块
 		for (let updateInfo of this.updateList) {
 			fileText = updateInfo.updateFunc(fileText)
 		}
 		this.updateList = []
-		// 更新复习块块ID
-		if (this.originalID == "") {
-			fileText = UpdateCardIDTag(this.ID, fileText, this.index)
-		}
-		// 更新复习块注释
-		fileText = this.updateAnnotation(fileText)
 		// 更新注释段内容
 		await app.vault.modify(this.note, fileText)
+		console.log("done write")
 	}
 }
 
 
-/**
- * Returns the cyrb53 hash (hex string) of the input string
- * Please see https://stackoverflow.com/a/52171480 for more details
- *
- * @param str - The string to be hashed
- * @param seed - The seed for the cyrb53 function
- * @returns The cyrb53 hash (hex string) of `str` seeded using `seed`
- */
-type Hex = number;
-export function cyrb53(str: string, seed = 0): string {
-	let h1: Hex = 0xdeadbeef ^ seed,
-		h2: Hex = 0x41c6ce57 ^ seed;
-	for (let i = 0, ch; i < str.length; i++) {
-		ch = str.charCodeAt(i);
-		h1 = Math.imul(h1 ^ ch, 2654435761);
-		h2 = Math.imul(h2 ^ ch, 1597334677);
-	}
-	h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-	h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-	return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
-}
-
-// 解析器集合
-export class ParserCollection implements PatternParser {
-	private parsers: PatternParser[]
-	private static instance: ParserCollection;
-	private constructor() {
-		this.parsers = []
-	}
-	public parse(card: Card): Pattern[] {
-		if (this.parsers.length == 0) {
-			throw new Error('No parsers implemented.');
-		}
-		let tmpResults: Pattern[] = []
-		for (let parser of this.parsers) {
-			let results = parser.parse(card)
-			tmpResults.push(...results)
-		}
-		return tmpResults
-	}
-	public static getInstance(): ParserCollection {
-		if (!ParserCollection.instance) {
-			ParserCollection.instance = new ParserCollection();
-		}
-
-		return ParserCollection.instance;
-	}
-	public registerParser(parser: PatternParser): void {
-		this.parsers.push(parser);
-	}
-	private sortResults(results: Pattern[]) {
-
-	}
-}
-
-// 卡片解析器 将卡片解析成为视图
-// 卡片解析器负责解析卡片
-export interface PatternParser {
-	parse(card: Card): Pattern[]
-}
-
-// 卡片视图 卡片的视图
-// 卡片视图管理视图的展示
-export interface PatternViewer {
-	render(parseInfo: Pattern): void
-}
-
-// 卡片更新
-// 更新卡片
-export interface PatternUpdater {
-	update(parseInfo: Pattern): void
-}
-
-// 卡片模式 代表卡片可能出现的结果 类似小卡片
-export interface PatternMethod extends PatternParser, PatternViewer, PatternUpdater {
-
-}
