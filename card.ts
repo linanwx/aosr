@@ -80,7 +80,7 @@ class defaultCard implements Card {
 		if (this.originalID?.length > 0) {
 			return this.originalID
 		}
-		return cyrb53(this.source).slice(0, 5);
+		return cyrb53(this.source, 5);
 	}
 	// 更新注释块内容
 	private updateAnnotation(fileText: string): string {

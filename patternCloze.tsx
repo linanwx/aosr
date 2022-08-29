@@ -111,7 +111,7 @@ export class ClozeParser implements PatternParser {
             if (regArr == null) {
                 break
             }
-            let newID = "#" + card.ID + "\/c\/" + cyrb53(regArr[0]).slice(0, 4)
+            let newID = "#" + card.ID + "\/c\/" + cyrb53(regArr[0], 4)
             let tagInfo = TagParser.parse(regArr[2] || "")
             let originalID = tagInfo.findTag(card.ID)?.Original || ""
             let result = new clozePattern(card, card.source, regArr[0], regArr[1], originalID, originalID || newID)

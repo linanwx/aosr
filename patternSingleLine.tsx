@@ -131,11 +131,10 @@ export class SingleLineParser implements PatternParser {
 				break
 			}
 			
-			let newID = "#" + card.ID + "\/s\/" + cyrb53(regArr[0]).slice(0, 4)
+			let newID = "#" + card.ID + "\/s\/" + cyrb53(regArr[0], 4)
 			let tagInfo = TagParser.parse(regArr[0])
 			let originalID = tagInfo.findTag(card.ID, "s")?.Original || ""
 			let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[2], originalID, originalID || newID)
-			console.log(result)
 			results.push(result)
 		}
 		return results
@@ -151,7 +150,7 @@ export class MultiLineParser implements PatternParser {
 			if (regArr == null) {
 				break
 			}
-			let newID = "#" + card.ID + "\/m\/" + cyrb53(regArr[0]).slice(0, 4)
+			let newID = "#" + card.ID + "\/m\/" + cyrb53(regArr[0], 4)
 			let tagInfo = TagParser.parse(regArr[2] || "")
 			let originalID = tagInfo.findTag(card.ID)?.Original || ""
 			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID)

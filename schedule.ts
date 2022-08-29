@@ -60,7 +60,10 @@ export class defaultSchedule implements PatternSchedule {
         if (!this.Learned) {
             return this.LastTime
         }
-        return moment(this.Learned, "YYYY-MM-DD HH:mm")
+        return moment(this.Learned, "YYYY-MM-DD HH:mm:ss")
+    }
+    set LearnedTime(t: moment.Moment) {
+        this.Learned = t.format("YYYY-MM-DD HH:mm:ss")
     }
     get LastTime(): moment.Moment {
         if (!this.Last) {
@@ -70,9 +73,6 @@ export class defaultSchedule implements PatternSchedule {
     }
     set LastTime(t: moment.Moment) {
         this.Last = t.format("YYYY-MM-DD HH:mm")
-    }
-    set LearnedTime(t: moment.Moment) {
-        this.Learned = t.format("YYYY-MM-DD HH:mm")
     }
     get NextTime(): moment.Moment {
         if (!this.Next) {
@@ -126,6 +126,12 @@ export class defaultSchedule implements PatternSchedule {
         if (this.LearnedCount && this.LearnedCount >= 2) {
             return true
         }
+        // 短期记忆内的信息不需要学习
+        // 这部分内容会在过了短期记忆的时长变为需要学习的内容
+        let checkPoint = moment().add(-1, "minutes")
+        if (this.LearnedTime.isAfter(checkPoint)) {
+            return true
+        }
         return false
     }
     private applyLearnResult(opt: Operation) {
@@ -136,7 +142,7 @@ export class defaultSchedule implements PatternSchedule {
             this.LearnedCount ++
         }
         if (opt == Operation.NOTLEARN) {
-            this.LearnedCount = 0
+            this.LearnedCount --
         }
         this.LearnedTime = moment()
     }
@@ -157,7 +163,12 @@ export class defaultSchedule implements PatternSchedule {
         // duration同样可能为正值（表示在规划之后的某天复习）负值（表示这个内容需要将下次规划的时间提早，如果提早到当前时间以前，则需要立即复习）
         this.NextTime = this.NextTime.add(duration);
         if (this.NextTime.unix() < moment().unix()) {
-            // 如果需要立即复习，则将时间推迟到3小时以后，来确保复习检验的不是短期记忆
+            // 如果需要立即复习，说明复习间隔已被缩短到0以下
+            // 这种情况意味着提交了一次Hard，时间间隔为负值，且叠加在安排计划上之后的下次时间点仍然为过去
+            // 安排计划时间通常就代表记忆的强度，安排的越早，记忆强度就越弱，安排的越晚，记忆强度越强
+            // 安排在过去意味着记忆强度为0以下，对于记忆强度为0以下的pattern，用户需要通过学习来保证记忆强度为0以上
+            // 这里假设用户会在之后进行学习，或者本次复习时进行了学习
+            // 因此，在3小时以后，重新进行检测。3小时的间隔可以确保复习检验的不是中期记忆
             this.NextTime = moment().add(3, "hours");
         }
         this.clearLearn();

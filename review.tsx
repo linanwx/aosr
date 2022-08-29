@@ -240,7 +240,9 @@ export class ReviewView extends ItemView {
 		this.root.render(
 			<React.StrictMode>
 				<div className="markdown-preview-view markdown-rendered">
-					<ReviewComponent view={this}></ReviewComponent>
+					<div className="markdown-preview-sizer markdown-preview-section">
+						<ReviewComponent view={this} ></ReviewComponent>
+					</div>
 				</div>
 			</React.StrictMode>
 		)
