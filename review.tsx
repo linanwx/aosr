@@ -1,7 +1,7 @@
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
 import { Arrangement } from 'arrangement';
-import { ItemView } from 'obsidian';
+import { ItemView, MarkdownView } from 'obsidian';
 import { Pattern } from "Pattern";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
@@ -61,6 +61,31 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			showAns: true
 		})
 	}
+	openPatternFile = async () => {
+		if (!this.state.nowPattern) {
+			return
+		}
+		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
+		if (!leaf) {
+			leaf = app.workspace.getLeaf(true)
+		}
+		await leaf.openFile(this.state.nowPattern.card.note)
+		let view = app.workspace.getActiveViewOfType(MarkdownView)
+		if (!view) {
+			return
+		}
+		let range1 = view.editor.offsetToPos(this.state.nowPattern.card.index)
+		let range2 = view.editor.offsetToPos(this.state.nowPattern.card.index + this.state.nowPattern.card.cardText.length)
+		const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+		view.currentMode.applyScroll(range1.line);
+		sleep(10)
+		view.editor.setSelection(range2, range1)
+		sleep(10)
+		view.editor.scrollIntoView({
+			from: range1,
+			to: range2,
+		}, true)
+	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
 			return <this.state.nowPattern.Component view={this.props.view} clickShowAns={this.clickShowAns}></this.state.nowPattern.Component>
@@ -76,6 +101,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	}
 	render() {
 		return <div>
+			<Button color="info" size="large"  onClick={() => this.openPatternFile()}>OpenFile</Button>
 			<this.PatternComponent></this.PatternComponent>
 			{
 				this.state.showAns && this.props.arrangeName != "learn" &&

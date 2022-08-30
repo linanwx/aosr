@@ -18,10 +18,13 @@ export interface Card {
 	get note(): TFile
 	// 获取卡片ID
 	get ID(): string
+	get cardText():string
 	// 获取源码
-	get source(): string
+	get body(): string
 	// 获取卡片模式
 	get patterns(): Pattern[]
+	// 获取卡片偏移量
+	get index():number
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
 	// 更新文件
@@ -30,8 +33,8 @@ export interface Card {
 	commitFile(): Promise<void>
 }
 
-export function NewCard(content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
-	return new defaultCard(content, annotation, cardID, index, note)
+export function NewCard(cardText:string, content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
+	return new defaultCard(cardText, content, annotation, cardID, index, note)
 }
 
 // 更新原文
@@ -42,7 +45,7 @@ class updateInfo {
 // 默认卡片的实现
 class defaultCard implements Card {
 	annotationWrapperStr: string = ""
-	source: string = ""
+	body: string = ""
 	note: TFile
 	originalID: string = ""
 	patterns: Pattern[];
@@ -50,11 +53,13 @@ class defaultCard implements Card {
 	index: number
 	annotationObj: AnnotationObject
 	updateList: updateInfo[];
+	cardText:string
 	// 1为source 2为注释
-	constructor(content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
+	constructor(cardText:string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
 		this.index = index
-		this.source = content || ""
+		this.cardText = cardText || ""
+		this.body = content || ""
 		this.annotationWrapperStr = annotationWrapperStr || ""
 		this.note = note
 		this.originalID = cardID || ""
@@ -63,7 +68,6 @@ class defaultCard implements Card {
 
 		let parser = ParserCollection.getInstance()
 		this.patterns = parser.Parse(this)
-		// this.assignBlankMark()
 	}
 	private initAnnotation(annotationStr: string) {
 		this.annotationObj = AnnotationObject.Parse(annotationStr);
@@ -80,7 +84,7 @@ class defaultCard implements Card {
 		if (this.originalID?.length > 0) {
 			return this.originalID
 		}
-		return cyrb53(this.source, 5);
+		return cyrb53(this.body, 5);
 	}
 	// 更新注释块内容
 	private updateAnnotation(fileText: string): string {
@@ -102,7 +106,7 @@ class defaultCard implements Card {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
 		// 如果原文已被改变，停止写入
-		if (!fileText.contains(this.source)) {
+		if (!fileText.contains(this.body)) {
 			console.info("File has been changed, ignore commit.")
 			return
 		}

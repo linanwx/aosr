@@ -114,7 +114,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 			<br></br>
 			{
 				this.state.showAns == false &&
-				<Button onClick={this.showAns}>答案</Button>
+				<Button onClick={this.showAns}>Answer</Button>
 			}
 		</div>
 	}
@@ -126,7 +126,7 @@ export class SingleLineParser implements PatternParser {
 		let reg = /^(.+)::(.+?)$/gm
 		let results: Pattern[] = []
 		for (let i = 0; i < 10000; i++) {
-			let regArr = reg.exec(card.source)
+			let regArr = reg.exec(card.body)
 			if (regArr == null) {
 				break
 			}
@@ -146,7 +146,7 @@ export class MultiLineParser implements PatternParser {
 		let reg = /^([\s\S]+)\n\?( #.+)?\n([\s\S]+)$/gm
 		let results: Pattern[] = []
 		for (let i = 0; i < 1; i++) {
-			let regArr = reg.exec(card.source)
+			let regArr = reg.exec(card.body)
 			if (regArr == null) {
 				break
 			}

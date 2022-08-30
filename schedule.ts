@@ -116,7 +116,6 @@ export class defaultSchedule implements PatternSchedule {
         this.Next = ""
     }
     get LearnedOK(): boolean {
-        console.log(this.Opts)
         if (!this.Opts) {
             return true
         }

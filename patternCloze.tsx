@@ -92,7 +92,7 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
                 !this.state.showAns &&
                 <div>
                     <NodeContainer node={this.state.markdownDivMask}></NodeContainer>
-                    <Button onClick={this.showAns}>答案</Button>
+                    <Button onClick={this.showAns}>Answer</Button>
                 </div>
             }
             {this.state.showAns &&
@@ -107,14 +107,14 @@ export class ClozeParser implements PatternParser {
         let reg = /==(\w[\s\S]*?)==( #[\w\/]+\b)*/gm
         let results: Pattern[] = []
         for (let i = 0; i < 10000; i++) {
-            let regArr = reg.exec(card.source)
+            let regArr = reg.exec(card.body)
             if (regArr == null) {
                 break
             }
             let newID = "#" + card.ID + "\/c\/" + cyrb53(regArr[0], 4)
             let tagInfo = TagParser.parse(regArr[2] || "")
             let originalID = tagInfo.findTag(card.ID)?.Original || ""
-            let result = new clozePattern(card, card.source, regArr[0], regArr[1], originalID, originalID || newID)
+            let result = new clozePattern(card, card.body, regArr[0], regArr[1], originalID, originalID || newID)
             results.push(result)
         }
         return results

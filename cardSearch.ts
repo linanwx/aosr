@@ -58,6 +58,7 @@ class defaultCardSearch implements cardSearcher {
 		let results = fileText.matchAll(this.matchReg)
 		for (let result of results) {
 			// 匹配注释段
+			let cardText = result[0]
 			let index = result.index || 0
 			let content = result[2]
 			let tags = TagParser.parse(result[1])
@@ -67,7 +68,7 @@ class defaultCardSearch implements cardSearcher {
 			if (blockID != "") {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID)
 			}
-			let card: Card = NewCard(content, annotation, blockID, index, note)
+			let card: Card = NewCard(cardText, content, annotation, blockID, index, note)
 			callback(card)
 		}
 	}
