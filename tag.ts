@@ -1,40 +1,46 @@
 
 class TagInfo {
-    Head:string
-    Suffix:string
-    Original:string
-    SubTag:TagInfo
-    constructor(original:string, head:string, suffix:string) {
-        this.Head = head
-        if (suffix.at(0) == "/") {
-            suffix = suffix.substring(1)
-        }
-        this.Suffix = suffix
+    Head: string
+    Suffix: string
+    Original: string
+    SubTag: TagInfo
+    constructor(original: string, tagstr: string) {
         this.Original = original
-        if (suffix.contains("/")) {
-            let [subhead, subsuffix] = suffix.split("/")
-            this.SubTag = new TagInfo(original, subhead, subsuffix)
+        if (tagstr.at(0) == "#") {
+            tagstr = tagstr.substring(1)
+        }
+        if (tagstr.contains("/")) {
+            let idx = tagstr.indexOf('/');
+            let head = tagstr.slice(0, idx);
+            let suffix = tagstr.slice(idx + 1)
+            this.Head = head
+            this.Suffix = suffix
+            this.SubTag = new TagInfo(original, suffix)
+        } else {
+            this.Head = tagstr
         }
     }
 }
 
 class TagsInfo {
-    private Tags:TagInfo[]
-    constructor(tags:TagInfo[]) {
+    private Tags: TagInfo[]
+    constructor(tags: TagInfo[]) {
         this.Tags = tags
     }
-    findTag(head:string, subhead?:string) {
+    findTag(...heads: string[]) {
         for (let tag of this.Tags) {
-            if (tag.Head == head) {
-                if(!subhead) {
-                    return tag
-                } else {
-                    if (tag.SubTag) {
-                        if (tag.SubTag.Head == subhead) {
-                            return tag
-                        }
-                    }
+            let flag = true
+            heads.forEach((value: string, index: number) => {
+                let subtag = tag
+                for (let i = 0; i < index; i++) {
+                    subtag = subtag?.SubTag
                 }
+                if (subtag?.Head != value) {
+                    flag = false
+                }
+            })
+            if (flag) {
+                return tag
             }
         }
     }
@@ -42,12 +48,11 @@ class TagsInfo {
 
 
 export class TagParser {
-    static reg = /(?<=^| |\t)#(\w+)((\/\w+)*)\b/gm
-    static parse(str:string) {
-        let tags:TagInfo[] = [] 
-        let results = str.matchAll(TagParser.reg)
-        for (let result of results ) {
-            tags.push(new TagInfo(result[0], result[1], result[2]))
+    static parse(str: string) {
+        let tags: TagInfo[] = []
+        let results = str.matchAll(/#[\/\w]+/gm)
+        for (let result of results) {
+            tags.push(new TagInfo(result[0], result[0]))
         }
         return new TagsInfo(tags)
     }

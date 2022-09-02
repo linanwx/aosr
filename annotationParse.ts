@@ -2,7 +2,7 @@ import { CardSchedule } from "schedule"
 import yaml from "yaml"
 
 export class AnnotationWrapper {
-    static defaultRegAnnotation = String.raw`%%[^\^]+?%%\n\^blockID`
+    static defaultRegAnnotation = String.raw`%%[^\%\^]+?%%\n\^blockID`
     static defaultRegWrapper = /%%\n\`\`\`YAML\n([\s\S]+?)\`\`\`\n%%\n\^.+/gm
     static findAnnotationWrapper(fileText:string, blockID:string) {
         let regAnnotation = this.defaultRegAnnotation.replace("blockID", blockID)

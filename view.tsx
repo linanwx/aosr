@@ -27,8 +27,9 @@ type ReviewingState = {
 	patternIter: AsyncGenerator<Pattern, boolean, unknown>
 }
 
-class Reviewing extends React.Component<ReviewingProps, ReviewingState> { 
-	initFlag:boolean
+class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
+	initFlag: boolean
+	lastPattern: Pattern | undefined
 	constructor(props: ReviewingProps) {
 		super(props)
 		this.state = {
@@ -46,6 +47,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	}
 	next = async () => {
 		console.log("next 被调用")
+		this.lastPattern = this.state.nowPattern
 		let result = await this.state.patternIter.next()
 		if (result.done) {
 			console.log("结束")
@@ -61,21 +63,21 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			showAns: true
 		})
 	}
-	openPatternFile = async () => {
-		if (!this.state.nowPattern) {
+	openPatternFile = async (pattern: Pattern | undefined) => {
+		if (!pattern) {
 			return
 		}
 		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
 		if (!leaf) {
 			leaf = app.workspace.getLeaf(true)
 		}
-		await leaf.openFile(this.state.nowPattern.card.note)
+		await leaf.openFile(pattern.card.note)
 		let view = app.workspace.getActiveViewOfType(MarkdownView)
 		if (!view) {
 			return
 		}
-		let range1 = view.editor.offsetToPos(this.state.nowPattern.card.index)
-		let range2 = view.editor.offsetToPos(this.state.nowPattern.card.index + this.state.nowPattern.card.cardText.length)
+		let range1 = view.editor.offsetToPos(pattern.card.indexBuff)
+		let range2 = view.editor.offsetToPos(pattern.card.indexBuff + pattern.card.cardText.length)
 		const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 		view.currentMode.applyScroll(range1.line);
 		sleep(10)
@@ -101,21 +103,24 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	}
 	render() {
 		return <div>
-			<Button color="info" size="large"  onClick={() => this.openPatternFile()}>OpenFile</Button>
+			<div>
+				<Button  size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
+				<Button  size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
+			</div>
 			<this.PatternComponent></this.PatternComponent>
 			{
 				this.state.showAns && this.props.arrangeName != "learn" &&
 				<div>
-					<Button color="error" size="large"  onClick={() => this.submit(Operation.HARD)}>Hard</Button>
-					<Button color="info" size="large"  onClick={() => this.submit(Operation.FAIR)}>Fair</Button>
-					<Button color="success" size="large"  onClick={() => this.submit(Operation.EASE)}>Easy</Button>
+					<Button color="error" size="large" onClick={() => this.submit(Operation.HARD)}>Hard</Button>
+					<Button color="info" size="large" onClick={() => this.submit(Operation.FAIR)}>Fair</Button>
+					<Button color="success" size="large" onClick={() => this.submit(Operation.EASE)}>Easy</Button>
 				</div>
 			}
 			{
 				this.state.showAns && this.props.arrangeName == "learn" &&
 				<div>
-					<Button color="error" size="large"  onClick={() => this.submit(Operation.NOTLEARN)}>Hard</Button>
-					<Button color="info" size="large"  onClick={() => this.submit(Operation.LEARN)}>Fair</Button>
+					<Button color="error" size="large" onClick={() => this.submit(Operation.NOTLEARN)}>Hard</Button>
+					<Button color="info" size="large" onClick={() => this.submit(Operation.LEARN)}>Fair</Button>
 				</div>
 			}
 		</div>
@@ -186,7 +191,7 @@ type ReviewState = {
 }
 
 class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
-	private syncFlag:boolean;
+	private syncFlag: boolean;
 	async sync() {
 		if (this.syncFlag) {
 			return

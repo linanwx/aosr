@@ -1,6 +1,5 @@
 import { AnnotationObject, AnnotationWrapper } from 'annotationParse';
 import { UpdateCardIDTag } from 'cardHead';
-// import { randomUUID } from 'crypto';
 import { TFile } from 'obsidian';
 import { CardSchedule, PatternSchedule } from 'schedule';
 import { cyrb53 } from './hash';
@@ -24,7 +23,7 @@ export interface Card {
 	// 获取卡片模式
 	get patterns(): Pattern[]
 	// 获取卡片偏移量
-	get index():number
+	get indexBuff():number
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
 	// 更新文件
@@ -50,14 +49,14 @@ class defaultCard implements Card {
 	originalID: string = ""
 	patterns: Pattern[];
 	schedules: CardSchedule
-	index: number
+	indexBuff: number
 	annotationObj: AnnotationObject
 	updateList: updateInfo[];
 	cardText:string
 	// 1为source 2为注释
 	constructor(cardText:string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
-		this.index = index
+		this.indexBuff = index
 		this.cardText = cardText || ""
 		this.body = content || ""
 		this.annotationWrapperStr = annotationWrapperStr || ""
@@ -111,9 +110,11 @@ class defaultCard implements Card {
 			return
 		}
 		// 如果不存在复习块ID 则先更新复习块块ID
-		// 必须先执行此步骤 否则index会变化
 		if (this.originalID == "") {
-			fileText = UpdateCardIDTag(this.ID, fileText, this.index)
+			let index = fileText.indexOf(this.cardText)
+			if (index >= 0) {
+				fileText = UpdateCardIDTag(this.ID, fileText, index)
+			}
 		}
 		// 更新复习块注释 包括复习进度
 		fileText = this.updateAnnotation(fileText)

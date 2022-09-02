@@ -27,7 +27,7 @@ export function NewCardSearch(tagName?: string): cardSearcher {
 class defaultCardSearch implements cardSearcher {
 	private tagName = "Q"
 	// 匹配所有 标签 开头行 到该段落的结束为止
-	private defaultRegText = String.raw`(^#tagName\b.*)\n((?=\S)[\s\S]+?)(?=\n$)`
+	private defaultRegText = String.raw`(^#tagName\b.*)\n((?:^.+$\n)+)`
 	private matchReg: RegExp
 	async search(file?: TFile): Promise<SearchResult> {
 		let result = new SearchResult()

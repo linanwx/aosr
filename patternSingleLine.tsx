@@ -33,7 +33,7 @@ abstract class linePattern extends Pattern {
 	}
 	// 展示组件
 	Component = (props: PatternProps): JSX.Element => {
-		return <LinePatternComponent pattern={this} patternProps={props}></LinePatternComponent>
+		return <LinePatternComponent front={this.front} back={this.back} path={this.card.note.path} patternProps={props}></LinePatternComponent>
 	}
 }
 
@@ -66,7 +66,9 @@ class multiLinePattern extends linePattern {
 }
 
 type singleLinePatternComponentProps = {
-	pattern: singleLinePattern
+	front:string
+	back:string
+	path:string
 	patternProps: PatternProps
 }
 
@@ -82,8 +84,8 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		markdownDivFront.empty()
 		let markdownDivBack = this.state.markdownDivBack
 		markdownDivBack.empty()
-		await renderMarkdown(this.props.pattern.front, markdownDivFront, this.props.pattern.card.note.path, this.props.patternProps.view)
-		await renderMarkdown(this.props.pattern.back, markdownDivBack, this.props.pattern.card.note.path, this.props.patternProps.view)
+		await renderMarkdown(this.props.front, markdownDivFront, this.props.path, this.props.patternProps.view)
+		await renderMarkdown(this.props.back, markdownDivBack, this.props.path, this.props.patternProps.view)
 		this.setState({
 			markdownDivFront: markdownDivFront,
 			markdownDivBack: markdownDivBack,
@@ -130,10 +132,9 @@ export class SingleLineParser implements PatternParser {
 			if (regArr == null) {
 				break
 			}
-			
-			let newID = "#" + card.ID + "\/s\/" + cyrb53(regArr[0], 4)
+			let newID = "#AOSR\/" + card.ID + "\/s\/" + cyrb53(regArr[0], 4)
 			let tagInfo = TagParser.parse(regArr[0])
-			let originalID = tagInfo.findTag(card.ID, "s")?.Original || ""
+			let originalID = tagInfo.findTag("AOSR", card.ID, "s")?.Original || ""
 			let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[2], originalID, originalID || newID)
 			results.push(result)
 		}
@@ -143,16 +144,16 @@ export class SingleLineParser implements PatternParser {
 
 export class MultiLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
-		let reg = /^([\s\S]+)\n\?( #.+)?\n([\s\S]+)$/gm
+		let reg = /^([\s\S]+)\n\?( #.+)?\n([\s\S]+)$/
 		let results: Pattern[] = []
 		for (let i = 0; i < 1; i++) {
 			let regArr = reg.exec(card.body)
 			if (regArr == null) {
 				break
 			}
-			let newID = "#" + card.ID + "\/m\/" + cyrb53(regArr[0], 4)
+			let newID = "#AOSR\/" + card.ID + "\/m\/" + cyrb53(regArr[0], 4)
 			let tagInfo = TagParser.parse(regArr[2] || "")
-			let originalID = tagInfo.findTag(card.ID)?.Original || ""
+			let originalID = tagInfo.findTag("AOSR", card.ID)?.Original || ""
 			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID)
 			results.push(result)
 		}

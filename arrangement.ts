@@ -1,8 +1,7 @@
-import { Card } from "card"
-import { Pattern } from "Pattern"
+import { NewCardSearch } from "cardSearch"
 import { CardsWatcher, NewCardsWatch } from "cardWatcher"
 import moment from "moment"
-import { NewCardSearch } from "cardSearch"
+import { Pattern } from "Pattern"
 
 class ArrangementItem {
     Name:string

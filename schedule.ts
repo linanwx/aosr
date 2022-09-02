@@ -122,12 +122,12 @@ export class defaultSchedule implements PatternSchedule {
         if (this.Opts.at(-1) != String(Operation.HARD)) {
             return true
         }
-        if (this.LearnedCount && this.LearnedCount >= 2) {
+        if (this.LearnedCount && this.LearnedCount >= 1) {
             return true
         }
         // 短期记忆内的信息不需要学习
-        // 这部分内容会在过了短期记忆的时长变为需要学习的内容
-        let checkPoint = moment().add(-1, "minutes")
+        // 这部分内容会在过了短期记忆从记忆区中清空后重新安排学习
+        let checkPoint = moment().add(-90, "seconds")
         if (this.LearnedTime.isAfter(checkPoint)) {
             return true
         }
@@ -188,7 +188,7 @@ export class defaultSchedule implements PatternSchedule {
     get Ease(): number {
         // hard扣除
         let hardBonus = 0
-        for (let opt of this.OptArr.slice(-7)) {
+        for (let opt of this.OptArr.slice(-10)) {
             if (opt == Operation.HARD) {
                 hardBonus = hardBonus + 20
             }
@@ -210,7 +210,7 @@ export class defaultSchedule implements PatternSchedule {
 
         // 简单奖励
         let easeBouns = 0
-        for (let opt of this.OptArr.slice(-7)) {
+        for (let opt of this.OptArr.slice(-10)) {
             if (opt == Operation.EASE) {
                 easeBouns += 20
             }

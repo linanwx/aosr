@@ -31,7 +31,7 @@ class clozePattern extends Pattern {
         })
     }
     Component = (props: PatternProps): JSX.Element => {
-        return <ClozePatternComponent pattern={this} patternProps={props}></ClozePatternComponent>
+        return <ClozePatternComponent text={this.text} patternProps={props} clozeOriginal={this.clozeOriginal} clozeInner={this.clozeInner} path={this.card.note.path}></ClozePatternComponent>
     }
     constructor(card: Card, text: string, clozeOriginal: string, clozeInner: string, originalID: string, tagid: string) {
         super(card, tagid)
@@ -43,7 +43,11 @@ class clozePattern extends Pattern {
 }
 
 type clozePatternComponentProps = {
-    pattern: clozePattern
+    // pattern: clozePattern
+    text:string
+    clozeOriginal:string
+    clozeInner:string
+    path:string
     patternProps: PatternProps
 }
 
@@ -62,10 +66,10 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
         this.loadFlag = true
         this.state.markdownDivMask.empty()
         this.state.markdownDivUnmask.empty()
-        let masktext = this.props.pattern.text.replace(this.props.pattern.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.pattern.clozeInner}</mark></span>`)
-        let unmasktext = this.props.pattern.text.replace(this.props.pattern.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.pattern.clozeInner}</span>`)
-        await renderMarkdown(masktext, this.state.markdownDivMask, this.props.pattern.card.note.path, this.props.patternProps.view)
-        await renderMarkdown(unmasktext, this.state.markdownDivUnmask, this.props.pattern.card.note.path, this.props.patternProps.view)
+        let masktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.clozeInner}</mark></span>`)
+        let unmasktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.clozeInner}</span>`)
+        await renderMarkdown(masktext, this.state.markdownDivMask, this.props.path, this.props.patternProps.view)
+        await renderMarkdown(unmasktext, this.state.markdownDivUnmask, this.props.path, this.props.patternProps.view)
         this.setState({
             markdownDivMask: this.state.markdownDivMask,
             markdownDivUnmask: this.state.markdownDivUnmask,
@@ -111,9 +115,9 @@ export class ClozeParser implements PatternParser {
             if (regArr == null) {
                 break
             }
-            let newID = "#" + card.ID + "\/c\/" + cyrb53(regArr[0], 4)
+            let newID = "#AOSR\/" + card.ID + "\/c\/" + cyrb53(regArr[0], 4)
             let tagInfo = TagParser.parse(regArr[2] || "")
-            let originalID = tagInfo.findTag(card.ID)?.Original || ""
+            let originalID = tagInfo.findTag("AOSR", card.ID)?.Original || ""
             let result = new clozePattern(card, card.body, regArr[0], regArr[1], originalID, originalID || newID)
             results.push(result)
         }
