@@ -1,6 +1,5 @@
 import { NewCardSearch } from "cardSearch"
 import { CardsWatcher, NewCardsWatch } from "cardWatcher"
-import moment from "moment"
 import { Pattern } from "Pattern"
 
 class ArrangementItem {
@@ -56,7 +55,7 @@ export class Arrangement implements ArrangementBase{
         return retlist
     }
     private sort() {
-        let now = moment()
+        let now = window.moment()
         this.newPattern = []
         this.needReviewPattern = []
         this.needLearn = []
@@ -71,6 +70,12 @@ export class Arrangement implements ArrangementBase{
                 this.needLearn.push(p)
             }
         }
+        this.newPattern.sort(()=>{
+            return .5 - Math.random()
+        })
+        this.needReviewPattern.sort(()=>{
+            return .5 - Math.random()
+        })
         this.needLearn.sort((a,b)=>{
             if (a.schedule.LearnedTime.isAfter(b.schedule.LearnedTime)) {
                 return 1

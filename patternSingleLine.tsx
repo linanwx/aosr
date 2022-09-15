@@ -1,8 +1,9 @@
 import { Button } from "@mui/material";
 import { Card } from "card";
+import { CardIDTag } from "cardHead";
 import { cyrb53 } from "hash";
 import { PatternParser } from "ParserCollection";
-import { Pattern, PatternProps } from "Pattern";
+import { Pattern, PatternProps, prettyText } from "Pattern";
 import React from "react";
 import { Operation } from "schedule";
 import { TagParser } from "tag";
@@ -14,7 +15,7 @@ abstract class linePattern extends Pattern {
 	front: string
 	back: string
 	originalID: string
-	constructor(card: Card, keyText:string, front:string, back:string, originalID:string, tagid:string) {
+	constructor(card: Card, keyText: string, front: string, back: string, originalID: string, tagid: string) {
 		super(card, tagid)
 		this.front = front
 		this.keyText = keyText
@@ -23,7 +24,7 @@ abstract class linePattern extends Pattern {
 	}
 	abstract insertPatternID(): void
 	// 界面按钮点击
-	async submitOpt(opt: Operation): Promise<void> {
+	async SubmitOpt(opt: Operation): Promise<void> {
 		// 计算调度情况
 		this.card.getSchedule(this.TagID).apply(opt)
 		// 原文中不一定包含pattern的ID 可能需要更新
@@ -58,7 +59,7 @@ class multiLinePattern extends linePattern {
 		}
 		this.card.updateFile({
 			updateFunc: (fileText): string => {
-				let newContent = `${this.front}\n? ${this.TagID}\n${this.back}`
+				let newContent = `${this.front}? ${this.TagID}\n${this.back}`
 				return fileText.replace(this.keyText, newContent)
 			}
 		})
@@ -66,14 +67,13 @@ class multiLinePattern extends linePattern {
 }
 
 type singleLinePatternComponentProps = {
-	front:string
-	back:string
-	path:string
+	front: string
+	back: string
+	path: string
 	patternProps: PatternProps
 }
 
 type singleLinePatternComponentState = {
-	showAns: boolean
 	markdownDivFront: HTMLDivElement
 	markdownDivBack: HTMLDivElement
 }
@@ -85,7 +85,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		let markdownDivBack = this.state.markdownDivBack
 		markdownDivBack.empty()
 		await renderMarkdown(this.props.front, markdownDivFront, this.props.path, this.props.patternProps.view)
-		await renderMarkdown(this.props.back, markdownDivBack, this.props.path, this.props.patternProps.view)
+		await renderMarkdown(prettyText(this.props.back), markdownDivBack, this.props.path, this.props.patternProps.view)
 		this.setState({
 			markdownDivFront: markdownDivFront,
 			markdownDivBack: markdownDivBack,
@@ -94,30 +94,19 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 	constructor(props: singleLinePatternComponentProps) {
 		super(props)
 		this.state = {
-			showAns: false,
 			markdownDivFront: createDiv(),
 			markdownDivBack: createDiv(),
 		}
-	}
-	showAns = () => {
-		this.setState({
-			showAns: true
-		})
-		this.props.patternProps.clickShowAns()
 	}
 	render() {
 		return <div>
 			<NodeContainer node={this.state.markdownDivFront}></NodeContainer>
 			<br></br>
 			{
-				this.state.showAns &&
+				this.props.patternProps.showAns &&
 				<NodeContainer node={this.state.markdownDivBack}></NodeContainer>
 			}
 			<br></br>
-			{
-				this.state.showAns == false &&
-				<Button onClick={this.showAns}>Answer</Button>
-			}
 		</div>
 	}
 }
@@ -127,16 +116,18 @@ export class SingleLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
 		let reg = /^(.+)::(.+?)$/gm
 		let results: Pattern[] = []
-		for (let i = 0; i < 10000; i++) {
-			let regArr = reg.exec(card.body)
-			if (regArr == null) {
-				break
+		for (let body of card.bodyList) {
+			for (let i = 0; i < 10000; i++) {
+				let regArr = reg.exec(body)
+				if (regArr == null) {
+					break
+				}
+				let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(regArr[0], 4)}`
+				let tagInfo = TagParser.parse(regArr[0])
+				let originalID = tagInfo.findTag(CardIDTag, card.ID, "s")?.Original || ""
+				let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[2], originalID, originalID || newID)
+				results.push(result)
 			}
-			let newID = "#AOSR\/" + card.ID + "\/s\/" + cyrb53(regArr[0], 4)
-			let tagInfo = TagParser.parse(regArr[0])
-			let originalID = tagInfo.findTag("AOSR", card.ID, "s")?.Original || ""
-			let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[2], originalID, originalID || newID)
-			results.push(result)
 		}
 		return results
 	}
@@ -144,16 +135,18 @@ export class SingleLineParser implements PatternParser {
 
 export class MultiLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
-		let reg = /^([\s\S]+)\n\?( #.+)?\n([\s\S]+)$/
+		// 注意不需要gm
+		let reg = /^((?:(?!\? ?).+\n)+)\?( #.+)?\n((?:.+\n?)+)$/
+		// 捕获不包含? 开头的连续行 然后捕获标签 然后捕获剩余行
 		let results: Pattern[] = []
-		for (let i = 0; i < 1; i++) {
-			let regArr = reg.exec(card.body)
+		for (let body of card.bodyList) {
+			let regArr = reg.exec(body)
 			if (regArr == null) {
-				break
+				continue
 			}
-			let newID = "#AOSR\/" + card.ID + "\/m\/" + cyrb53(regArr[0], 4)
+			let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(regArr[0], 4)}`
 			let tagInfo = TagParser.parse(regArr[2] || "")
-			let originalID = tagInfo.findTag("AOSR", card.ID)?.Original || ""
+			let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
 			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID)
 			results.push(result)
 		}

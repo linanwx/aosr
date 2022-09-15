@@ -20,5 +20,10 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"@mui/icons-material": "^5.10.3",
+		"@mui/lab": "^5.0.0-alpha.99",
+		"yaml": "^2.1.1"
 	}
 }

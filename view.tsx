@@ -1,18 +1,20 @@
+import SaveIcon from '@mui/icons-material/Save';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
+import CircularProgress from '@mui/material/CircularProgress';
 import { Arrangement } from 'arrangement';
-import { ItemView, MarkdownView } from 'obsidian';
+import { EditorPosition, ItemView, MarkdownView } from 'obsidian';
 import { Pattern } from "Pattern";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
-import { Operation } from "schedule";
+import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
 
 export const VIEW_TYPE_REVIEW = "review-view"
-
-// 状态机 表示视图的状态
-interface ReviewViewer {
-	render(): void
-}
 
 type ReviewingProps = {
 	arrangement: Arrangement
@@ -21,10 +23,72 @@ type ReviewingProps = {
 	arrangeName: string
 }
 
+// 未看到答案时大脑状态标记
+enum markEnum {
+	NOTSURE,
+	KNOWN,
+	FORGET,
+}
+
 type ReviewingState = {
 	nowPattern: Pattern | undefined
 	showAns: boolean
+	mark: markEnum
 	patternIter: AsyncGenerator<Pattern, boolean, unknown>
+}
+
+
+type DelayButtonState = {
+	leftTime: number
+	loading: boolean
+}
+
+type DelayButtonProps = {
+	initTime: number
+	onClick: () => {}
+	color: "inherit" | "primary" | "secondary" | "success" | "error" | "info" | "warning" | undefined
+	size: "small" | "medium" | "large" | undefined
+	children?: React.ReactNode;
+}
+
+class DelayButton extends React.Component<DelayButtonProps, DelayButtonState> {
+	timeID: NodeJS.Timer
+	tick = () => {
+		if (this.state.leftTime <= 0) {
+			this.setState({
+				loading: false,
+			})
+			return
+		}
+		this.setState({
+			leftTime: this.state.leftTime - 0.5,
+		})
+	}
+	componentDidMount(): void {
+		this.timeID = setInterval(this.tick, 500)
+	}
+	componentWillUnmount(): void {
+		clearInterval(this.timeID)
+	}
+	constructor(props: DelayButtonProps) {
+		super(props)
+		this.state = {
+			leftTime: this.props.initTime,
+			loading: true,
+		}
+	}
+	render(): React.ReactNode {
+		return <LoadingButton loading={this.state.loading} loadingPosition="start" startIcon={<SaveIcon />}
+			color={this.props.color}
+			size={this.props.size}
+			sx={{
+				":disabled":{
+					color: "rgba(128,128,128,0.5)"
+				}
+			}}
+			loadingIndicator={<CircularProgress size={16} variant="determinate" value={100 - this.state.leftTime / this.props.initTime * 100} />}
+			onClick={() => this.props.onClick()}>{this.props.children}</LoadingButton>
+	}
 }
 
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
@@ -36,6 +100,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			nowPattern: undefined,
 			showAns: false,
 			patternIter: this.props.arrangement.PatternSequence(this.props.arrangeName),
+			mark: markEnum.NOTSURE,
 		}
 		this.initFlag = false
 	}
@@ -58,11 +123,6 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			nowPattern: result.value
 		})
 	}
-	clickShowAns = () => {
-		this.setState({
-			showAns: true
-		})
-	}
 	openPatternFile = async (pattern: Pattern | undefined) => {
 		if (!pattern) {
 			return
@@ -78,49 +138,97 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		}
 		let range1 = view.editor.offsetToPos(pattern.card.indexBuff)
 		let range2 = view.editor.offsetToPos(pattern.card.indexBuff + pattern.card.cardText.length)
-		const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+		let range2next: EditorPosition = {
+			line: range2.line + 1,
+			ch: 0,
+		}
 		view.currentMode.applyScroll(range1.line);
-		sleep(10)
-		view.editor.setSelection(range2, range1)
-		sleep(10)
+		view.editor.setSelection(range2next, range1)
 		view.editor.scrollIntoView({
 			from: range1,
-			to: range2,
+			to: range2next,
 		}, true)
 	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
-			return <this.state.nowPattern.Component view={this.props.view} clickShowAns={this.clickShowAns}></this.state.nowPattern.Component>
+			return <this.state.nowPattern.Component view={this.props.view} showAns={this.state.showAns}></this.state.nowPattern.Component>
 		}
 		return <div></div>
 	}
 	async submit(opt: Operation) {
-		await this.state.nowPattern?.submitOpt(opt)
+		await this.state.nowPattern?.SubmitOpt(opt)
 		await this.next()
 		this.setState({
 			showAns: false
 		})
 	}
+	getOptDate = (opt: ReviewEnum): string => {
+		let date = this.state.nowPattern?.schedule.CalcNextTime(opt)
+		return date?.fromNow() || ""
+	}
+	markAs = (mark: markEnum) => {
+		this.setState({
+			showAns: true,
+			mark: mark,
+		})
+	}
 	render() {
 		return <div>
 			<div>
-				<Button  size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
-				<Button  size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
+				<Button size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
+				<Button size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
 			</div>
 			<this.PatternComponent></this.PatternComponent>
 			{
+				!this.state.showAns &&
+				<div>
+					<Button color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</Button>
+					<Button color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</Button>
+					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
+				</div>
+			}
+			{
 				this.state.showAns && this.props.arrangeName != "learn" &&
 				<div>
-					<Button color="error" size="large" onClick={() => this.submit(Operation.HARD)}>Hard</Button>
-					<Button color="info" size="large" onClick={() => this.submit(Operation.FAIR)}>Fair</Button>
-					<Button color="success" size="large" onClick={() => this.submit(Operation.EASE)}>Easy</Button>
+					{
+						this.state.mark == markEnum.FORGET &&
+						<DelayButton initTime={5} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget{this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+					}
+					{
+						this.state.mark == markEnum.NOTSURE &&
+						<div>
+							<DelayButton initTime={10} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard{this.getOptDate(ReviewEnum.HARD)}</DelayButton>
+							<Button color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</Button>
+						</div>
+					}
+					{
+						this.state.mark == markEnum.KNOWN &&
+						<div>
+							<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong{this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+							<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy{this.getOptDate(ReviewEnum.EASY)}</Button>
+						</div>
+					}
 				</div>
 			}
 			{
 				this.state.showAns && this.props.arrangeName == "learn" &&
 				<div>
-					<Button color="error" size="large" onClick={() => this.submit(Operation.NOTLEARN)}>Hard</Button>
-					<Button color="info" size="large" onClick={() => this.submit(Operation.LEARN)}>Fair</Button>
+					{
+						this.state.mark == markEnum.FORGET &&
+						<DelayButton initTime={5} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget</DelayButton>
+					}
+					{
+						this.state.mark == markEnum.NOTSURE && <div>
+							<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard</DelayButton>
+							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair</Button>
+						</div>
+					}
+					{
+						this.state.mark == markEnum.KNOWN && <div>
+							<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong</DelayButton>
+							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy</Button>
+						</div>
+					}
 				</div>
 			}
 		</div>
@@ -254,7 +362,38 @@ class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
 	}
 }
 
-export const ViewContext = React.createContext<ReviewView>(undefined as any);
+// export const ViewContext = React.createContext<ReviewView>(undefined as any);
+
+type props = {
+	view: ItemView
+}
+
+function App(props: props) {
+	const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+	console.log("prefersDarkMode", prefersDarkMode)
+	console.log("dark", window.matchMedia('(prefers-color-scheme: dark)'))
+	const theme = React.useMemo(
+		() =>
+			createTheme({
+				palette: {
+					mode: prefersDarkMode ? 'dark' : 'light',
+				},
+			}),
+		[prefersDarkMode],
+	);
+
+	return (
+		// <ThemeProvider theme={theme}>
+		// 	<CssBaseline />
+		<div className="markdown-preview-view markdown-rendered is-readable-line-width allow-fold-headings">
+			<div className="markdown-preview-sizer markdown-preview-section">
+				<ReviewComponent view={props.view} ></ReviewComponent>
+			</div>
+		</div>
+		// </ThemeProvider>
+	);
+
+}
 
 // 卡片复习视图
 export class ReviewView extends ItemView {
@@ -269,13 +408,7 @@ export class ReviewView extends ItemView {
 		let rootDiv = this.containerEl.children[1].createDiv()
 		this.root = createRoot(rootDiv);
 		this.root.render(
-			<React.StrictMode>
-				<div className="markdown-preview-view markdown-rendered">
-					<div className="markdown-preview-sizer markdown-preview-section">
-						<ReviewComponent view={this} ></ReviewComponent>
-					</div>
-				</div>
-			</React.StrictMode>
+			<App view={this}></App>
 		)
 	}
 	onunload(): void {

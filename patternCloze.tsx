@@ -1,20 +1,21 @@
 import Button from "@mui/material/Button";
 import { Card } from "card";
+import { CardIDTag } from "cardHead";
 import { cyrb53 } from "hash";
 import { renderMarkdown } from "markdown";
 import { NodeContainer } from "nodeContainer";
 import { PatternParser } from "ParserCollection";
-import { Pattern, PatternProps } from "Pattern";
+import { Pattern, PatternProps, prettyText } from "Pattern";
 import React from "react";
-import { Operation } from "schedule";
+import { Operation, ReviewEnum } from "schedule";
 import { TagParser } from "tag";
 
 class clozePattern extends Pattern {
-    text: string
-    clozeOriginal: string
-    clozeInner: string
+    text: string // 整段文本
+    clozeOriginal: string // 带==和标签的完形文本
+    clozeInner: string // ==内部的文本
     originalID: string
-    async submitOpt(opt: Operation): Promise<void> {
+    async SubmitOpt(opt: Operation): Promise<void> {
         this.card.getSchedule(this.TagID).apply(opt)
         this.insertPatternID()
         await this.card.commitFile()
@@ -43,7 +44,6 @@ class clozePattern extends Pattern {
 }
 
 type clozePatternComponentProps = {
-    // pattern: clozePattern
     text:string
     clozeOriginal:string
     clozeInner:string
@@ -52,7 +52,6 @@ type clozePatternComponentProps = {
 }
 
 type clozePatternComponentState = {
-    showAns: boolean
     markdownDivMask: HTMLDivElement
     markdownDivUnmask: HTMLDivElement
 }
@@ -68,6 +67,8 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
         this.state.markdownDivUnmask.empty()
         let masktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.clozeInner}</mark></span>`)
         let unmasktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.clozeInner}</span>`)
+        masktext = prettyText(masktext)
+        unmasktext = prettyText(unmasktext)
         await renderMarkdown(masktext, this.state.markdownDivMask, this.props.path, this.props.patternProps.view)
         await renderMarkdown(unmasktext, this.state.markdownDivUnmask, this.props.path, this.props.patternProps.view)
         this.setState({
@@ -78,28 +79,20 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
     constructor(props: clozePatternComponentProps) {
         super(props)
         this.state = {
-            showAns: false,
             markdownDivMask: createDiv(),
             markdownDivUnmask: createDiv(),
         }
         this.loadFlag = false
     }
-    showAns = () => {
-        this.setState({
-            showAns: true
-        })
-        this.props.patternProps.clickShowAns()
-    }
     render() {
         return <div>
             {
-                !this.state.showAns &&
+                !this.props.patternProps.showAns &&
                 <div>
                     <NodeContainer node={this.state.markdownDivMask}></NodeContainer>
-                    <Button onClick={this.showAns}>Answer</Button>
                 </div>
             }
-            {this.state.showAns &&
+            {this.props.patternProps.showAns &&
                 <NodeContainer node={this.state.markdownDivUnmask}></NodeContainer>
             }
         </div>
@@ -108,18 +101,20 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
 
 export class ClozeParser implements PatternParser {
     Parse(card: Card): Pattern[] {
-        let reg = /==(\w[\s\S]*?)==( #[\w\/]+\b)*/gm
+        let reg = /==(\w[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
         let results: Pattern[] = []
-        for (let i = 0; i < 10000; i++) {
-            let regArr = reg.exec(card.body)
-            if (regArr == null) {
-                break
+        for (let body of card.bodyList) {
+            for (let i = 0; i < 10000; i++) {
+                let regArr = reg.exec(body)
+                if (regArr == null) {
+                    break
+                }
+                let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(regArr[0], 4)}`
+                let tagInfo = TagParser.parse(regArr[2] || "")
+                let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || ""
+                let result = new clozePattern(card, body, regArr[0], regArr[1], originalID, originalID || newID)
+                results.push(result)
             }
-            let newID = "#AOSR\/" + card.ID + "\/c\/" + cyrb53(regArr[0], 4)
-            let tagInfo = TagParser.parse(regArr[2] || "")
-            let originalID = tagInfo.findTag("AOSR", card.ID)?.Original || ""
-            let result = new clozePattern(card, card.body, regArr[0], regArr[1], originalID, originalID || newID)
-            results.push(result)
         }
         return results
     }

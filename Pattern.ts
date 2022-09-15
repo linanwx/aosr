@@ -1,11 +1,13 @@
+import { CardIDTag } from 'cardHead';
 import { ItemView } from 'obsidian';
 import { Operation, PatternSchedule } from 'schedule';
+import { TagParser } from 'tag';
 import { Card } from './card';
 
 
 export type PatternProps ={
 	view:ItemView
-	clickShowAns:() => void
+	showAns:boolean
 }
 
 // 卡片的展示模式
@@ -22,6 +24,17 @@ export abstract class Pattern {
 		this.pcard = card
 		this.TagID = id
 	}
-	abstract submitOpt(opt: Operation): Promise<void>;
+	abstract SubmitOpt(opt: Operation): Promise<void>;
 	abstract Component(props:PatternProps): JSX.Element;
+}
+
+export function prettyText (text:string):string {
+	let tags = TagParser.parse(text)
+	for (let tag of tags.Tags) {
+		if (tag.Head != CardIDTag) {
+			continue
+		}
+		text = text.replace(tag.Original, "")
+	}
+	return text
 }

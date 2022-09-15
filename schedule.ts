@@ -1,40 +1,80 @@
-import moment, { Duration } from "moment";
 import { DEFAULT_SETTINGS } from "setting";
 
-export enum Operation {
+export enum ReviewEnum {
     // 不会
-    HARD,
+    HARD = 0,
     // 尚可
-    FAIR,
+    FAIR = 1,
     // 简单
-    EASE,
-    // 知道了
-    LEARN,
-    // 不知道
-    NOTLEARN
+    EASY = 2,
+    // 完全不会
+    FORGET = 3,
 }
 
-export interface PatternSchedule {
-    apply(opt: Operation): void
-    copy(v: PatternSchedule): void
-    // Gap 返回距离上次复习间隔时间是多久
+export enum LearnEnum {
+    // 简单
+    EASY,
+    // 会了
+    FAIR,
+    // 不太会
+    HARD,
+    // 不会
+    FORGET,
+}
+
+// 包含两个子操作
+export abstract class Operation {
+}
+
+// 复习操作
+export class ReviewOpt extends Operation {
+    value: ReviewEnum
+    constructor(value: ReviewEnum) {
+        super()
+        this.value = value
+    }
+}
+
+// 学习操作
+export class LearnOpt extends Operation {
+    value: LearnEnum
+    constructor(value: LearnEnum) {
+        super()
+        this.value = value
+    }
+}
+
+export interface scheduleCalc {
     get Gap(): moment.Duration
     get Ease(): number
-    get OptArr(): Operation[]
+}
+
+export interface scheduleArrange {
+    // 获取当前是否是新pattern 用于安排
     get IsNew(): boolean
-    // NextTime 返回规划的下次复习的时间
+    // NextTime 返回规划的下次复习的时间 用于安排
     get NextTime(): moment.Moment
-    // LastTime 返回上一次复习时间
-    get LastTime(): moment.Moment
-    // 获取学习结束
+    // 获取学习结束 用于安排
     get LearnedOK(): boolean
-    // 获取上次学习的时间
+    // 获取上次学习的时间 用于安排排序
     get LearnedTime(): moment.Moment
+    // 根据操作更新复习计划
+    apply(opt: Operation): void
+    // 获取下次需要复习的时间
+    CalcNextTime(opt: ReviewEnum): moment.Moment
+}
+
+export interface PatternYaml {
     Last: string
     Next: string
     Opts: string
     Learned: string | null
     LearnedCount: number | null
+    // 用于读取存储的schedule yaml格式 需要复制对象
+    copy(v: PatternYaml): void
+}
+
+export interface PatternSchedule extends scheduleCalc, scheduleArrange, PatternYaml {
 }
 
 export function NewSchedule(id: string) {
@@ -43,7 +83,7 @@ export function NewSchedule(id: string) {
 
 // 一个模式的复习信息
 export class defaultSchedule implements PatternSchedule {
-    copy(v: PatternSchedule) {
+    copy(v: PatternYaml) {
         this.Opts = v.Opts
         this.Last = v.Last
         this.Next = v.Next
@@ -60,31 +100,31 @@ export class defaultSchedule implements PatternSchedule {
         if (!this.Learned) {
             return this.LastTime
         }
-        return moment(this.Learned, "YYYY-MM-DD HH:mm:ss")
+        return window.moment(this.Learned, "YYYY-MM-DD HH:mm:ss")
     }
     set LearnedTime(t: moment.Moment) {
         this.Learned = t.format("YYYY-MM-DD HH:mm:ss")
     }
     get LastTime(): moment.Moment {
         if (!this.Last) {
-            return moment()
+            return window.moment()
         }
-        return moment(this.Last, "YYYY-MM-DD HH:mm")
+        return window.moment(this.Last, "YYYY-MM-DD HH:mm")
     }
     set LastTime(t: moment.Moment) {
         this.Last = t.format("YYYY-MM-DD HH:mm")
     }
     get NextTime(): moment.Moment {
         if (!this.Next) {
-            return moment()
+            return window.moment()
         }
-        return moment(this.Next, "YYYY-MM-DD HH:mm")
+        return window.moment(this.Next, "YYYY-MM-DD HH:mm")
     }
     set NextTime(t: moment.Moment) {
         this.Next = t.format("YYYY-MM-DD HH:mm")
     }
-    get OptArr(): Operation[] {
-        let ret: Operation[] = []
+    get OptArr(): ReviewEnum[] {
+        let ret: ReviewEnum[] = []
         for (let c of this.Opts) {
             ret.push(Number(c))
         }
@@ -92,21 +132,21 @@ export class defaultSchedule implements PatternSchedule {
     }
     get Gap(): moment.Duration {
         if (!this.Last) {
-            return moment.duration(1, "days")
+            return window.moment.duration(1, "days")
         }
-        let now = moment()
-        let gap = moment.duration(now.diff(this.LastTime, "seconds"), "seconds")
+        let now = window.moment()
+        let gap = window.moment.duration(now.diff(this.LastTime, "seconds"), "seconds")
         return gap
     }
     get ID(): string {
         return this.id;
     }
     apply(opt: Operation) {
-        if (opt == Operation.EASE || opt == Operation.FAIR || opt == Operation.HARD) {
-            this.applyReviewResult(opt);
+        if (opt instanceof ReviewOpt) {
+            this.applyReviewResult(opt.value);
         }
-        if (opt == Operation.LEARN || opt == Operation.NOTLEARN) {
-            this.applyLearnResult(opt);
+        if (opt instanceof LearnOpt) {
+            this.applyLearnResult(opt.value);
         }
     }
     constructor(id: string) {
@@ -119,60 +159,85 @@ export class defaultSchedule implements PatternSchedule {
         if (!this.Opts) {
             return true
         }
-        if (this.Opts.at(-1) != String(Operation.HARD)) {
+        if (this.Opts.at(-1) == String(ReviewEnum.EASY)) {
             return true
         }
-        if (this.LearnedCount && this.LearnedCount >= 1) {
+        if (this.Opts.at(-1) == String(ReviewEnum.FAIR)) {
+            return true
+        }
+        if (this.LearnedCount && this.LearnedCount >= 2) {
             return true
         }
         // 短期记忆内的信息不需要学习
         // 这部分内容会在过了短期记忆从记忆区中清空后重新安排学习
-        let checkPoint = moment().add(-90, "seconds")
+        let checkPoint = window.moment().add(-60, "seconds")
         if (this.LearnedTime.isAfter(checkPoint)) {
             return true
         }
         return false
     }
-    private applyLearnResult(opt: Operation) {
+    private applyLearnResult(opt: LearnEnum) {
         if (!this.LearnedCount) {
             this.LearnedCount = 0
         }
-        if (opt == Operation.LEARN) {
-            this.LearnedCount ++
+        if (opt == LearnEnum.FAIR) {
+            this.LearnedCount++
         }
-        if (opt == Operation.NOTLEARN) {
-            this.LearnedCount --
+        if (opt == LearnEnum.HARD) {
+            this.LearnedCount--
         }
-        this.LearnedTime = moment()
+        if (opt == LearnEnum.FORGET) {
+            this.LearnedCount -= 2
+        }
+        if (opt == LearnEnum.EASY) {
+            this.LearnedCount += 2
+        }
+        if (this.LearnedCount < -5) {
+            this.LearnedCount = -5
+        }
+        this.LearnedTime = window.moment()
     }
-    private applyReviewResult(opt: Operation) {
-        let duration: Duration;
-        if (opt == Operation.EASE) {
-            duration = new easeSchedule(this).calculate(opt);
-        } else if (opt == Operation.FAIR) {
-            duration = new fairSchedule(this).calculate(opt);
-        } else if (opt == Operation.HARD) {
-            duration = new hardSchedule(this).calculate(opt);
+    private applyReviewResult(opt: ReviewEnum) {
+        let nextTime = this.CalcNextTime(opt)
+        // console.info(`ease ${this.Ease} next ${nextTime.format()} gap ${this.Gap.asDays()} opts ${this.Opts}`);
+        this.clearLearn();
+        this.NextTime = nextTime
+        this.Opts += opt.toString();
+        this.LastTime = window.moment();
+    }
+    CalcNextTime(opt: ReviewEnum): moment.Moment {
+        let duration: moment.Duration;
+        if (opt == ReviewEnum.EASY) {
+            duration = new easeSchedule(this).calculate();
+            console.info(`ease choice Ease`)
+        } else if (opt == ReviewEnum.FAIR) {
+            console.info(`ease choice Fair`)
+            duration = new fairSchedule(this).calculate();
+        } else if (opt == ReviewEnum.HARD) {
+            console.info(`ease choice Hard`)
+            duration = new hardSchedule(this).calculate();
+        } else if (opt == ReviewEnum. FORGET) {
+            console.info(`ease choice Unknow`)
+            duration = new unknowSchedule(this).calculate();
         } else {
             throw new Error("unknow operation");
         }
-        console.log(`ease ${this.Ease} duration ${duration.asDays()}`);
+        console.info(`gap ${this.Gap.asDays()} duration ${duration.asDays()}`)
         // 在原来规划的下次复习时间上叠加这次复习的结果
         // 通常NextTime为now，如果提早或晚复习，则NextTime可能为过去和将来
         // duration同样可能为正值（表示在规划之后的某天复习）负值（表示这个内容需要将下次规划的时间提早，如果提早到当前时间以前，则需要立即复习）
-        this.NextTime = this.NextTime.add(duration);
-        if (this.NextTime.unix() < moment().unix()) {
+        let nextTime = this.NextTime.add(duration);
+        if (nextTime.unix() < window.moment().unix()) {
             // 如果需要立即复习，说明复习间隔已被缩短到0以下
             // 这种情况意味着提交了一次Hard，时间间隔为负值，且叠加在安排计划上之后的下次时间点仍然为过去
-            // 安排计划时间通常就代表记忆的强度，安排的越早，记忆强度就越弱，安排的越晚，记忆强度越强
-            // 安排在过去意味着记忆强度为0以下，对于记忆强度为0以下的pattern，用户需要通过学习来保证记忆强度为0以上
-            // 这里假设用户会在之后进行学习，或者本次复习时进行了学习
-            // 因此，在3小时以后，重新进行检测。3小时的间隔可以确保复习检验的不是中期记忆
-            this.NextTime = moment().add(3, "hours");
+            // 此时需要立刻进行学习，而不是立刻进行复习检测
+            // 因为复习检测并不意味着用户进行了学习，且学会了（尽管很多情况下，复习时用户在压力小的情况下可以同时进行学习并且学会）
+            // 只有学习才能保证用户一定学会了
+            // 假设用户在此刻进行了学习
+            // 如论是否用户真的进行了学习，或者用户在复习过程中顺带进行了学习，我们都将在3小时之后进行复习检测
+            nextTime = window.moment().add(3, "hours");
         }
-        this.clearLearn();
-        this.Opts += opt.toString();
-        this.LastTime = moment();
+        return nextTime
     }
     // 清除学习结果
     private clearLearn() {
@@ -186,36 +251,26 @@ export class defaultSchedule implements PatternSchedule {
         return false
     }
     get Ease(): number {
-        // hard扣除
+        console.info(`opts is ${this.OptArr}`)
+        // 困难扣除
         let hardBonus = 0
         for (let opt of this.OptArr.slice(-10)) {
-            if (opt == Operation.HARD) {
-                hardBonus = hardBonus + 20
+            if (opt == ReviewEnum. FORGET) {
+                hardBonus += 25
+            }
+            if (opt == ReviewEnum.HARD) {
+                hardBonus += 10
             }
         }
-
-        // 连续非hard奖励 
-        let fairBonus = 0
-        for (let opt of this.OptArr.slice(-7)) {
-            if (opt == Operation.FAIR || opt == Operation.EASE) {
-                if (fairBonus == 0) {
-                    fairBonus = 10
-                } else {
-                    fairBonus = fairBonus * 2
-                }
-            } else if (opt == Operation.HARD) {
-                fairBonus = 0
-            }
-        }
-
         // 简单奖励
         let easeBouns = 0
         for (let opt of this.OptArr.slice(-10)) {
-            if (opt == Operation.EASE) {
-                easeBouns += 20
+            if (opt == ReviewEnum.EASY) {
+                easeBouns += 25
             }
         }
-        let ease = DEFAULT_SETTINGS.DefaultEase - hardBonus + fairBonus + easeBouns
+        let ease = DEFAULT_SETTINGS.DefaultEase - hardBonus + easeBouns
+        console.info(`default ease ${DEFAULT_SETTINGS.DefaultEase} hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         ease = Math.max(130, ease)
         return ease
     }
@@ -245,47 +300,52 @@ export class CardSchedule {
     }
 }
 
-// 负责计算复习间隔
-interface scheduler {
-    calculate(opt: Operation): moment.Duration
-}
-
-class schedulerBase {
-    private _schedule: PatternSchedule
-    constructor(schedule: PatternSchedule) {
+abstract class scheduler {
+    private _schedule: scheduleCalc
+    constructor(schedule: scheduleCalc) {
         this._schedule = schedule
     }
-    get schedule(): PatternSchedule {
+    get schedule(): scheduleCalc {
         return this._schedule
     }
+    abstract calculate(): moment.Duration
 }
 
 // 简单难度计算
-class easeSchedule extends schedulerBase implements scheduler {
-    calculate(opt: Operation): moment.Duration {
+class easeSchedule extends scheduler {
+    calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * this.schedule.Ease / 100;
         let addsecond = Number(DEFAULT_SETTINGS.EasyBonus) * 24 * 60 * 60
-        let newdiff = moment.duration(basesecond + addsecond, "seconds")
+        let newdiff = window.moment.duration(basesecond + addsecond, "seconds")
         return newdiff
     }
 }
 
 // 正常难度计算
-class fairSchedule extends schedulerBase implements scheduler {
-    calculate(opt: Operation): Duration {
+class fairSchedule extends scheduler {
+    calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * this.schedule.Ease / 100;
-        let newdiff = moment.duration(basesecond, "seconds")
+        let newdiff = window.moment.duration(basesecond, "seconds")
         return newdiff
     }
 }
 
 // 困难难度计算
-class hardSchedule extends schedulerBase implements scheduler {
-    calculate(opt: Operation): Duration {
+class hardSchedule extends scheduler {
+    calculate(): moment.Duration {
+        let basesecond = this.schedule.Gap.asSeconds() * 100 / this.schedule.Ease;
+        let newdiff = window.moment.duration(basesecond, "seconds")
+        return newdiff
+    }
+}
+
+// 不会难度计算
+class unknowSchedule extends scheduler {
+    calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * 100 / this.schedule.Ease;
         let addsecond = Number(DEFAULT_SETTINGS.HardBonus) * 24 * 60 * 60;
         let diffsecond = basesecond - addsecond
-        let newdiff = moment.duration(diffsecond, "seconds")
+        let newdiff = window.moment.duration(diffsecond, "seconds")
         return newdiff
     }
 }

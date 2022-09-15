@@ -23,7 +23,7 @@ class TagInfo {
 }
 
 class TagsInfo {
-    private Tags: TagInfo[]
+    Tags: TagInfo[]
     constructor(tags: TagInfo[]) {
         this.Tags = tags
     }

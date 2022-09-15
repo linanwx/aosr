@@ -17,9 +17,10 @@ export interface Card {
 	get note(): TFile
 	// 获取卡片ID
 	get ID(): string
+	// 获取卡片原始字符串长度
 	get cardText():string
 	// 获取源码
-	get body(): string
+	get bodyList(): string[]
 	// 获取卡片模式
 	get patterns(): Pattern[]
 	// 获取卡片偏移量
@@ -44,7 +45,7 @@ class updateInfo {
 // 默认卡片的实现
 class defaultCard implements Card {
 	annotationWrapperStr: string = ""
-	body: string = ""
+	bodyList: string[]
 	note: TFile
 	originalID: string = ""
 	patterns: Pattern[];
@@ -53,12 +54,17 @@ class defaultCard implements Card {
 	annotationObj: AnnotationObject
 	updateList: updateInfo[];
 	cardText:string
+	static bodySplitReg = /((?:^(?!\*{3,}$).+$\n?)+)/gm
 	// 1为source 2为注释
 	constructor(cardText:string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
 		this.indexBuff = index
 		this.cardText = cardText || ""
-		this.body = content || ""
+		this.bodyList = []
+		let matchResults = content.matchAll(defaultCard.bodySplitReg)
+		for (let result of matchResults) {
+			this.bodyList.push(result[0])
+		}
 		this.annotationWrapperStr = annotationWrapperStr || ""
 		this.note = note
 		this.originalID = cardID || ""
@@ -83,7 +89,7 @@ class defaultCard implements Card {
 		if (this.originalID?.length > 0) {
 			return this.originalID
 		}
-		return cyrb53(this.body, 5);
+		return cyrb53(this.cardText, 5);
 	}
 	// 更新注释块内容
 	private updateAnnotation(fileText: string): string {
@@ -105,7 +111,7 @@ class defaultCard implements Card {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
 		// 如果原文已被改变，停止写入
-		if (!fileText.contains(this.body)) {
+		if (!fileText.contains(this.cardText)) {
 			console.info("File has been changed, ignore commit.")
 			return
 		}

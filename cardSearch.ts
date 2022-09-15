@@ -27,7 +27,7 @@ export function NewCardSearch(tagName?: string): cardSearcher {
 class defaultCardSearch implements cardSearcher {
 	private tagName = "Q"
 	// 匹配所有 标签 开头行 到该段落的结束为止
-	private defaultRegText = String.raw`(^#tagName\b.*)\n((?:^.+$\n)+)`
+	private defaultRegText = String.raw`(^#tagName\b.*)\n((?:^.+$\n?)+)`
 	private matchReg: RegExp
 	async search(file?: TFile): Promise<SearchResult> {
 		let result = new SearchResult()
@@ -54,20 +54,20 @@ class defaultCardSearch implements cardSearcher {
 	async walkFileCard(note: TFile, callback: (card: Card) => void) {
 		let fileText: string = await app.vault.read(note);
 		// workaround 如果文本最后一张卡片后面没有多余的换行，正则无法匹配
-		fileText += "\n"
+		// fileText += "\n"
 		let results = fileText.matchAll(this.matchReg)
 		for (let result of results) {
 			// 匹配注释段
 			let cardText = result[0]
 			let index = result.index || 0
-			let content = result[2]
 			let tags = TagParser.parse(result[1])
-			let tag = tags.findTag(CardIDTag)
-			let blockID = tag?.Suffix || ""
+			let idTag = tags.findTag(CardIDTag)
+			let blockID = idTag?.Suffix || ""
 			let annotation = ""
 			if (blockID != "") {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID)
 			}
+			let content = result[2]
 			let card: Card = NewCard(cardText, content, annotation, blockID, index, note)
 			callback(card)
 		}
