@@ -1,4 +1,3 @@
-import Button from "@mui/material/Button";
 import { Card } from "card";
 import { CardIDTag } from "cardHead";
 import { cyrb53 } from "hash";
@@ -7,7 +6,7 @@ import { NodeContainer } from "nodeContainer";
 import { PatternParser } from "ParserCollection";
 import { Pattern, PatternProps, prettyText } from "Pattern";
 import React from "react";
-import { Operation, ReviewEnum } from "schedule";
+import { Operation } from "schedule";
 import { TagParser } from "tag";
 
 class clozePattern extends Pattern {

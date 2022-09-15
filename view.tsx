@@ -3,15 +3,14 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
+import { createTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Arrangement } from 'arrangement';
 import { EditorPosition, ItemView, MarkdownView } from 'obsidian';
 import { Pattern } from "Pattern";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 
 
 export const VIEW_TYPE_REVIEW = "review-view"
