@@ -24,7 +24,7 @@ In the card, `::` will split this line. The front part will become question, and
 
 In the card, a line with a `?` will split this card. The front part will become question, and the back part will become answer.
 
-In the card, a cloze with a pair of `==` will split this card. The left part will become question, and cloze part will become answer.
+In the card, a cloze with a pair of `==` will split this card. The remaining part will become question, and cloze part will become answer.
 
 # Example
 
