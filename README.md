@@ -2,6 +2,8 @@
 
 Another obsidian spaced repetition.
 
+It uses flashcards to help remember knowledge.
+
 This plugin is similar to spaced repetition, but with some improvements.
 
 # Demonstration video
