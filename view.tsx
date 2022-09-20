@@ -110,11 +110,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		}
 	}
 	next = async () => {
-		console.log("next 被调用")
 		this.lastPattern = this.state.nowPattern
 		let result = await this.state.patternIter.next()
 		if (result.done) {
-			console.log("结束")
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}

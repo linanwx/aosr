@@ -95,7 +95,6 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 			console.log(GlobalSettings)
 			if (GlobalSettings.WordTTSURL.length > 0) {
 				let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
-				console.log(url)
 				const audio = new Audio(url)
 				audio.play()
 			}
