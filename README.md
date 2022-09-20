@@ -8,7 +8,7 @@ This plugin is similar to spaced repetition, but with some improvements.
 
 
 
-https://user-images.githubusercontent.com/16589958/191189980-2039d43a-1387-488b-818c-8a16d557d0d0.mp4
+https://user-images.githubusercontent.com/16589958/191190152-c4f32945-5fd0-4e49-b968-9478c8cbf516.mp4
 
 
 
