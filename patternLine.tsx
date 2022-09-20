@@ -92,7 +92,6 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		})
 		// 如果是单词 则尝试调用有道发音
 		if (/^\w+$/.test(this.props.front)) {
-			console.log(GlobalSettings)
 			if (GlobalSettings.WordTTSURL.length > 0) {
 				let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
 				const audio = new Audio(url)
