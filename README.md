@@ -6,7 +6,11 @@ This plugin is similar to spaced repetition, but with some improvements.
 
 # Demonstration video
 
-https://user-images.githubusercontent.com/16589958/191187487-87a026ae-a03e-4736-a041-3d9003a3fd22.mov
+
+
+https://user-images.githubusercontent.com/16589958/191189980-2039d43a-1387-488b-818c-8a16d557d0d0.mp4
+
+
 
 # Format
 
