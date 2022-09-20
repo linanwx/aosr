@@ -5,6 +5,7 @@ import { PatternParser } from "ParserCollection";
 import { Pattern, PatternProps, prettyText } from "Pattern";
 import React from "react";
 import { Operation } from "schedule";
+import { GlobalSettings } from "setting";
 import { TagParser } from "tag";
 import { renderMarkdown } from "./markdown";
 import { NodeContainer } from "./nodeContainer";
@@ -89,6 +90,16 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 			markdownDivFront: markdownDivFront,
 			markdownDivBack: markdownDivBack,
 		})
+		// 如果是单词 则尝试调用有道发音
+		if (/^\w+$/.test(this.props.front)) {
+			console.log(GlobalSettings)
+			if (GlobalSettings.WordTTSURL.length > 0) {
+				let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
+				console.log(url)
+				const audio = new Audio(url)
+				audio.play()
+			}
+		}
 	}
 	constructor(props: singleLinePatternComponentProps) {
 		super(props)

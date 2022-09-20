@@ -44,7 +44,7 @@ type DelayButtonState = {
 
 type DelayButtonProps = {
 	initTime: number
-	onClick: () => {}
+	onClick: React.MouseEventHandler<HTMLButtonElement>
 	color: "inherit" | "primary" | "secondary" | "success" | "error" | "info" | "warning" | undefined
 	size: "small" | "medium" | "large" | undefined
 	children?: React.ReactNode;
@@ -60,11 +60,11 @@ class DelayButton extends React.Component<DelayButtonProps, DelayButtonState> {
 			return
 		}
 		this.setState({
-			leftTime: this.state.leftTime - 0.5,
+			leftTime: this.state.leftTime - 0.1,
 		})
 	}
 	componentDidMount(): void {
-		this.timeID = setInterval(this.tick, 500)
+		this.timeID = setInterval(this.tick, 100)
 	}
 	componentWillUnmount(): void {
 		clearInterval(this.timeID)
@@ -81,12 +81,12 @@ class DelayButton extends React.Component<DelayButtonProps, DelayButtonState> {
 			color={this.props.color}
 			size={this.props.size}
 			sx={{
-				":disabled":{
+				":disabled": {
 					color: "rgba(128,128,128,0.5)"
 				}
 			}}
 			loadingIndicator={<CircularProgress size={16} variant="determinate" value={100 - this.state.leftTime / this.props.initTime * 100} />}
-			onClick={() => this.props.onClick()}>{this.props.children}</LoadingButton>
+			onClick={this.props.onClick}>{this.props.children}</LoadingButton>
 	}
 }
 
@@ -181,8 +181,8 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			{
 				!this.state.showAns &&
 				<div>
-					<Button color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</Button>
-					<Button color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</Button>
+					<DelayButton initTime={7} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
+					<DelayButton initTime={3} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
 					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
 				</div>
 			}
@@ -191,20 +191,20 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<div>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={5} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget{this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
 						<div>
-							<DelayButton initTime={10} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard{this.getOptDate(ReviewEnum.HARD)}</DelayButton>
-							<Button color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</Button>
+							<DelayButton initTime={15} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
+							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
 						</div>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
 						<div>
-							<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong{this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
-							<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy{this.getOptDate(ReviewEnum.EASY)}</Button>
+							<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+							<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy {this.getOptDate(ReviewEnum.EASY)}</Button>
 						</div>
 					}
 				</div>
@@ -214,12 +214,12 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<div>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={5} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget</DelayButton>
+						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE && <div>
-							<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard</DelayButton>
-							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair</Button>
+							<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard</DelayButton>
+							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair</DelayButton>
 						</div>
 					}
 					{
@@ -368,30 +368,13 @@ type props = {
 }
 
 function App(props: props) {
-	const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-	console.log("prefersDarkMode", prefersDarkMode)
-	console.log("dark", window.matchMedia('(prefers-color-scheme: dark)'))
-	const theme = React.useMemo(
-		() =>
-			createTheme({
-				palette: {
-					mode: prefersDarkMode ? 'dark' : 'light',
-				},
-			}),
-		[prefersDarkMode],
-	);
-
 	return (
-		// <ThemeProvider theme={theme}>
-		// 	<CssBaseline />
 		<div className="markdown-preview-view markdown-rendered is-readable-line-width allow-fold-headings">
 			<div className="markdown-preview-sizer markdown-preview-section">
 				<ReviewComponent view={props.view} ></ReviewComponent>
 			</div>
 		</div>
-		// </ThemeProvider>
 	);
-
 }
 
 // 卡片复习视图

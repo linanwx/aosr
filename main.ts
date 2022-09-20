@@ -1,12 +1,11 @@
 import { addIcon, Plugin } from 'obsidian';
 import { ClozeParser } from 'patternCloze';
-import { MultiLineParser, SingleLineParser } from 'patternSingleLine';
-import { AOSRSettings, AOSRSettingTab, DEFAULT_SETTINGS } from 'setting';
+import { MultiLineParser, SingleLineParser } from 'patternLine';
+import { AOSRSettingTab, setGlobalSettings, GlobalSettings } from 'setting';
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
 
 export default class AOSRPlugin extends Plugin {
-	settings: AOSRSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -37,14 +36,14 @@ export default class AOSRPlugin extends Plugin {
 	}
 
 	onunload() {
-
+		app.workspace.detachLeavesOfType(VIEW_TYPE_REVIEW)
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		setGlobalSettings(await this.loadData())
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		await this.saveData(GlobalSettings);
 	}
 }

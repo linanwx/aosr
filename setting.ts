@@ -5,12 +5,21 @@ export interface AOSRSettings {
     DefaultEase: number;
     EasyBonus: number;
     HardBonus: number;
+    WordTTSURL: string;
 }
 
-export const DEFAULT_SETTINGS: AOSRSettings = {
+const DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
     EasyBonus: 2,
     HardBonus: 2,
+    WordTTSURL: ""
+}
+
+export let GlobalSettings: AOSRSettings
+
+export function setGlobalSettings(s: AOSRSettings) {
+    let settings = Object.assign({}, DEFAULT_SETTINGS, s);
+    GlobalSettings = settings
 }
 
 export class AOSRSettingTab extends PluginSettingTab {
@@ -25,38 +34,49 @@ export class AOSRSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
         containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
-        
+
         new Setting(containerEl)
-            .setName('初始容易度')
-            .setDesc('复习间隔按照容易度/100翻倍')
+            .setName('Degree of initial ease')
+            .setDesc('The review interval is doubled by ease /100')
             .addText(text => text
                 .setPlaceholder('130-500')
-                .setValue(this.plugin.settings.DefaultEase.toString())
+                .setValue(GlobalSettings.DefaultEase.toString())
                 .onChange(async (value) => {
-                    this.plugin.settings.DefaultEase = Number(value);
+                    GlobalSettings.DefaultEase = Number(value);
                     await this.plugin.saveSettings();
                 }));
 
         new Setting(containerEl)
-            .setName('简单奖励')
-            .setDesc('比正常复习间隔额外增加间隔')
+            .setName('Reward of easy choice')
+            .setDesc('An additional interval is added to the normal review interval')
             .addText(text => text
                 .setPlaceholder('1-10')
-                .setValue(this.plugin.settings.EasyBonus.toString())
+                .setValue(GlobalSettings.EasyBonus.toString())
                 .onChange(async (value) => {
-                    this.plugin.settings.EasyBonus = Number(value);
+                    GlobalSettings.EasyBonus = Number(value);
                     await this.plugin.saveSettings();
                 }));
 
         new Setting(containerEl)
-            .setName('困难惩罚')
-            .setDesc('比正常复习间隔额外增加减少')
+            .setName('Reward of hard choice')
+            .setDesc('An additional interval is reduced to the normal review interval')
             .addText(text => text
                 .setPlaceholder('1-10')
-                .setValue(this.plugin.settings.HardBonus.toString())
+                .setValue(GlobalSettings.HardBonus.toString())
                 .onChange(async (value) => {
-                    this.plugin.settings.HardBonus = Number(value);
+                    GlobalSettings.HardBonus = Number(value);
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName('Word TTS')
+            .setDesc('Input a TTS URL to pronounce the single word in the card. Use %s to represent word.')
+            .addText(text => text
+                .setPlaceholder('http://word.tts/%s')
+                .setValue(GlobalSettings.WordTTSURL)
+                .onChange(async (value) => {
+                    GlobalSettings.WordTTSURL = value
+                    await this.plugin.saveSettings();
+                }))
     }
 }

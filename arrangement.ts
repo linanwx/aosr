@@ -21,6 +21,7 @@ export class Arrangement implements ArrangementBase{
     private newPattern: Pattern[]
     private needReviewPattern: Pattern[]
     private needLearn: Pattern[]
+    private wait:Pattern[]
     private watcher: CardsWatcher
     constructor() {
         this.allPattern = []
@@ -52,6 +53,9 @@ export class Arrangement implements ArrangementBase{
         if (this.needLearn.length > 0 ) {
             retlist.push(new ArrangementItem("learn", this.needLearn.length))
         }
+        if (this.wait.length > 0) {
+            retlist.push(new ArrangementItem("wait", this.wait.length))
+        }
         return retlist
     }
     private sort() {
@@ -59,15 +63,17 @@ export class Arrangement implements ArrangementBase{
         this.newPattern = []
         this.needReviewPattern = []
         this.needLearn = []
+        this.wait = []
         for (let p of this.allPattern) {
-            if (p.schedule.IsNew) {
+            let learnInfo = p.schedule.LearnInfo
+            if (learnInfo.IsNew) {
                 this.newPattern.push(p)
-            }
-            if (p.schedule.NextTime.isBefore(now)) {
+            } else if (p.schedule.NextTime.isBefore(now)) {
                 this.needReviewPattern.push(p)
-            }
-            if (!p.schedule.LearnedOK) {
+            } else if (learnInfo.IsLearn) {
                 this.needLearn.push(p)
+            } else if (learnInfo.IsWait) {
+                this.wait.push(p)
             }
         }
         this.newPattern.sort(()=>{
