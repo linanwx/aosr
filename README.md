@@ -14,9 +14,11 @@ https://user-images.githubusercontent.com/16589958/191190152-c4f32945-5fd0-4e49-
 
 # Format
 
-A CARD is begin with #Q and end with an empty line.
+A CARD is begin with `#Q` and end with an empty line.
 
 In the card, the PATTERN is what your question and answer. A card can have not only one pattern, but more than 1000 patterns.
+
+Using `***` to split the card into sub-cards. This would be helpful if you don't want to write `#Q` and create new card.
 
 # Pattern
 
