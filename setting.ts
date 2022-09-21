@@ -8,7 +8,7 @@ export interface AOSRSettings {
     WordTTSURL: string;
 }
 
-const DEFAULT_SETTINGS: AOSRSettings = {
+const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
     EasyBonus: 2,
     HardBonus: 2,
@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: AOSRSettings = {
 export let GlobalSettings: AOSRSettings
 
 export function setGlobalSettings(s: AOSRSettings) {
-    let settings = Object.assign({}, DEFAULT_SETTINGS, s);
+    let settings = Object.assign({}, AOSR_DEFAULT_SETTINGS, s);
     GlobalSettings = settings
 }
 

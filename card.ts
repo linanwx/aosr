@@ -131,7 +131,6 @@ class defaultCard implements Card {
 		this.updateList = []
 		// 更新注释段内容
 		await app.vault.modify(this.note, fileText)
-		console.log("done write")
 	}
 }
 

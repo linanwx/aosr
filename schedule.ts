@@ -202,7 +202,6 @@ export class defaultSchedule implements PatternSchedule {
     }
     private applyReviewResult(opt: ReviewEnum) {
         let nextTime = this.CalcNextTime(opt)
-        // console.info(`ease ${this.Ease} next ${nextTime.format()} gap ${this.Gap.asDays()} opts ${this.Opts}`);
         this.clearLearn();
         this.NextTime = nextTime
         this.Opts += opt.toString();
@@ -212,20 +211,16 @@ export class defaultSchedule implements PatternSchedule {
         let duration: moment.Duration;
         if (opt == ReviewEnum.EASY) {
             duration = new easeSchedule(this).calculate();
-            console.info(`ease choice Ease`)
         } else if (opt == ReviewEnum.FAIR) {
-            console.info(`ease choice Fair`)
             duration = new fairSchedule(this).calculate();
         } else if (opt == ReviewEnum.HARD) {
-            console.info(`ease choice Hard`)
             duration = new hardSchedule(this).calculate();
         } else if (opt == ReviewEnum.FORGET) {
-            console.info(`ease choice Unknow`)
             duration = new unknowSchedule(this).calculate();
         } else {
             throw new Error("unknow operation");
         }
-        console.info(`gap ${this.Gap.asDays().toFixed(2)} duration ${duration.asDays().toFixed(2)}`)
+        // console.info(`gap ${this.Gap.asDays().toFixed(2)} duration ${duration.asDays().toFixed(2)}`)
         // 在原来规划的下次复习时间上叠加这次复习的结果
         // 通常NextTime为now，如果提早或晚复习，则NextTime可能为过去和将来
         // duration同样可能为正值（表示在规划之后的某天复习）负值（表示这个内容需要将下次规划的时间提早，如果提早到当前时间以前，则需要立即复习）
@@ -254,7 +249,7 @@ export class defaultSchedule implements PatternSchedule {
         return false
     }
     get Ease(): number {
-        console.info(`opts is ${this.OptArr}`)
+        // console.info(`opts is ${this.OptArr}`)
         // 困难扣除
         let hardBonus = 0
         for (let opt of this.OptArr.slice(-10)) {
@@ -274,7 +269,7 @@ export class defaultSchedule implements PatternSchedule {
         }
         let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
         ease = Math.max(130, ease)
-        console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
+        // console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         return ease
     }
 }

@@ -29,6 +29,10 @@ export class ParserCollection implements PatternParser {
 	public registerParser(parser: PatternParser): void {
 		this.parsers.push(parser);
 	}
+
+	public clean() {
+		this.parsers = []
+	}
 }
 // 卡片解析器 将卡片解析成为视图
 // 卡片解析器负责解析卡片

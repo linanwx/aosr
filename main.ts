@@ -37,6 +37,8 @@ export default class AOSRPlugin extends Plugin {
 
 	onunload() {
 		app.workspace.detachLeavesOfType(VIEW_TYPE_REVIEW)
+		const parserCol = ParserCollection.getInstance();
+		parserCol.clean()
 	}
 
 	async loadSettings() {

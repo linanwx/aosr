@@ -16,18 +16,13 @@ class defaultCardsWatcher implements CardsWatcher {
 	async getLiveCard(id: string): Promise<Card | undefined> {
 		let card = this.findCardByID(id)
 		if (!card) {
-			console.log("卡片不存在", id)
-			// console.log(this.cardMapByNote)
 			return
 		}
 		await this.researchFile(card.note)
 		card = this.findCardByID(id)
 		if (!card) {
-			// console.log("卡片被编辑", id)
-			// console.log(this.cardMapByNote)
 			return
 		}
-		// console.log(card)
 		return card
 	}
 	findCardByID(id:string) {

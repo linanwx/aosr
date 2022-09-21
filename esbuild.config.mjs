@@ -38,5 +38,5 @@ esbuild.build({
 	logLevel: "info",
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
-	outfile: '/Users/linan/Library/Mobile Documents/iCloud~md~obsidian/Documents/TOEFL/.obsidian/plugins/aosr/main.js',
+	outfile: './main.js',
 }).catch(() => process.exit(1));

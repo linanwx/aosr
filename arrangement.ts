@@ -95,7 +95,6 @@ export class Arrangement implements ArrangementBase{
     async findLivePattern(p: Pattern): Promise<Pattern | undefined> {
         let liveCard = await this.watcher.getLiveCard(p.card.ID)
         if (!liveCard) {
-            console.info("卡片ID不存在", p.card.ID)
             return
         }
         for (let cardp of liveCard.patterns) {
@@ -103,18 +102,15 @@ export class Arrangement implements ArrangementBase{
                 return cardp
             }
         }
-        console.info("卡片模式不存在", p.TagID)
         return
     }
     async *PatternSequence(name:string) {
-        console.log("进入")
         if (name == "review") {
             for (let p of this.needReviewPattern) {
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
                     yield cardp
                 } else {
-                    console.info("卡片已移除")
                 }
             }
         }
@@ -124,7 +120,6 @@ export class Arrangement implements ArrangementBase{
                 if (cardp) {
                     yield cardp
                 } else {
-                    console.info("卡片已移除")
                 }
             }
         }
@@ -134,11 +129,9 @@ export class Arrangement implements ArrangementBase{
                 if (cardp) {
                     yield cardp
                 } else {
-                    console.info("卡片已移除")
                 }
             }
         }
-        console.log("离开")
         return true
     }
 }
