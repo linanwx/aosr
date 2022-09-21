@@ -52,7 +52,7 @@ It consists of four parts. New, learn, review, and wait.
 
 New means something new and hasn't been reviewed.
 
-Thinking means something needs to review.
+Review means something needs to review.
 
 Learn means something you need to remember right now.
 
