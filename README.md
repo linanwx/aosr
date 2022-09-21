@@ -61,3 +61,13 @@ Wait means something you need to remember after a few seconds, but you can't che
 # Annotation
 
 You will notice that some comments are generated in your document. This is normal. The plug-in needs this data to calculate review time.
+
+# License
+
+- MIT [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+```
+react (MIT)   https://github.com/facebook/react
+yaml (ISC)    https://github.com/eemeli/yaml
+MUI (MIT)     https://github.com/mui/material-ui
+```
