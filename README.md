@@ -4,7 +4,7 @@ Another obsidian spaced repetition.
 
 It uses flashcards to help remember knowledge.
 
-This plugin is similar to spaced repetition, but with some improvements.
+This plugin is similar to spaced repetition, but some changes have been made according to personal habits.
 
 # Demonstration video
 
