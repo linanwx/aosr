@@ -43,3 +43,7 @@ This is an answer.
 #Q
 This is a very ==important== answer.
 ```
+
+# Annotation
+
+You will notice that some comments are generated in your document. This is normal. The plug-in needs this data to calculate review time.
