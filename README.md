@@ -13,19 +13,19 @@ https://user-images.githubusercontent.com/16589958/191190152-c4f32945-5fd0-4e49-
 
 # Format
 
-A CARD is begin with `#Q` and end with an empty line.
+A CARD is begin with `#Q` and ends with an empty line.
 
-In the card, the PATTERN is what your question and answer. A card can have not only one pattern, but more than 1000 patterns.
+In the card, the PATTERN is your question and answer. A card can have not only one pattern but more than 1000 patterns.
 
-Using `***` to split the card into sub-cards. This would be helpful if you don't want to write `#Q` and create new card.
+Using `***` to split the card into sub-cards. This would be helpful if you don't want to write `#Q` and create a new card.
 
 # Pattern
 
-In the card, `::` will split this line. The front part will become question, and back part will become answer.
+In the card, `::` will split this line. The front part will become a question, and the back part will become an answer.
 
-In the card, a line with a `?` will split this card. The front part will become question, and the back part will become answer.
+In the card, a line with a `?` will split this card. The front part will become a question, and the back part will become an answer.
 
-In the card, a cloze with a pair of `==` will split this card. The remaining part will become question, and cloze part will become answer.
+In the card, a cloze with a pair of `==` will split this card. The remaining part will become a question, and the cloze part will become an answer.
 
 # Example
 
@@ -43,6 +43,20 @@ This is an answer.
 #Q
 This is a very ==important== answer.
 ```
+
+# Review
+
+Once you've finished your document, click on the card icon in the sidebar to start reviewing.
+
+It consists of four parts. New, learn, review, and wait.
+
+New means something new and hasn't been reviewed.
+
+Thinking means something needs to review.
+
+Learn means something you need to remember right now.
+
+Wait means something you need to remember after a few seconds, but you can't check it right now. Because you have checked it just now. 
 
 # Annotation
 
