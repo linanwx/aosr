@@ -63,6 +63,8 @@ export interface scheduleArrange {
     apply(opt: Operation): void
     // 获取下次需要复习的时间
     CalcNextTime(opt: ReviewEnum): moment.Moment
+    // 获取学习的进度
+    CalcLearnRate(opt: LearnEnum): number
 }
 
 export interface PatternYaml {
@@ -156,6 +158,10 @@ export class defaultSchedule implements PatternSchedule {
         this.Last = ""
         this.Next = ""
     }
+    CalcLearnRate(opt: LearnEnum): number {
+        let learnCount = this.getLearnResult(opt)
+        return (learnCount + 2) / 4
+    }
     get LearnInfo(): LearnInfo {
         let info = new LearnInfo
         info.IsNew = this.IsNew
@@ -180,24 +186,29 @@ export class defaultSchedule implements PatternSchedule {
         }
         return info
     }
-    private applyLearnResult(opt: LearnEnum) {
-        if (!this.LearnedCount) {
-            this.LearnedCount = 0
+    private getLearnResult(opt: LearnEnum) {
+        let learnCount = 0
+        if (this.LearnedCount) {
+            learnCount = this.LearnedCount
         }
-        this.LearnedCount = Math.max(-2, this.LearnedCount)
         if (opt == LearnEnum.FAIR) {
-            this.LearnedCount++
+            learnCount++
         }
         if (opt == LearnEnum.HARD) {
-            this.LearnedCount--
+            learnCount--
         }
         if (opt == LearnEnum.FORGET) {
-            this.LearnedCount -= 2
+            learnCount -= 2
         }
         if (opt == LearnEnum.EASY) {
-            this.LearnedCount += 2
+            learnCount += 2
         }
-        this.LearnedCount = Math.max(-2, this.LearnedCount)
+        learnCount = Math.max(-2, learnCount)
+        learnCount = Math.min(2, learnCount)
+        return learnCount
+    }
+    private applyLearnResult(opt: LearnEnum) {
+        this.LearnedCount = this.getLearnResult(opt)
         this.LearnedTime = window.moment()
     }
     private applyReviewResult(opt: ReviewEnum) {
@@ -249,7 +260,7 @@ export class defaultSchedule implements PatternSchedule {
         return false
     }
     get Ease(): number {
-        // console.info(`opts is ${this.OptArr}`)
+        console.info(`opts is ${this.OptArr}`)
         // 困难扣除
         let hardBonus = 0
         for (let opt of this.OptArr.slice(-10)) {
@@ -267,9 +278,19 @@ export class defaultSchedule implements PatternSchedule {
                 easeBouns += 25
             }
         }
+        // 太简单
+        let easeCount = 0
+        for (let opt of this.OptArr.slice(-2)) {
+            if (opt == ReviewEnum.EASY) {
+                easeCount++
+            }
+        }
+        if (easeCount >= 2) {
+            easeBouns += 50
+        }
         let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
         ease = Math.max(130, ease)
-        // console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
+        console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         return ease
     }
 }
