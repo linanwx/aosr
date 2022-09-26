@@ -286,7 +286,7 @@ export class defaultSchedule implements PatternSchedule {
             }
         }
         if (easeCount >= 2) {
-            easeBouns += 50
+            easeBouns += 25
         }
         let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
         ease = Math.max(130, ease)
