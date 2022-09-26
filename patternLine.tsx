@@ -91,7 +91,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 			markdownDivBack: markdownDivBack,
 		})
 		// 如果是单词 则尝试调用有道发音
-		if (/^\w+$/.test(this.props.front)) {
+		if (/^[\w-]+$/.test(this.props.front)) {
 			if (GlobalSettings.WordTTSURL.length > 0) {
 				let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
 				const audio = new Audio(url)
