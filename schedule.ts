@@ -260,7 +260,7 @@ export class defaultSchedule implements PatternSchedule {
         return false
     }
     get Ease(): number {
-        console.info(`opts is ${this.OptArr}`)
+        // console.info(`opts is ${this.OptArr}`)
         // 困难扣除
         let hardBonus = 0
         for (let opt of this.OptArr.slice(-10)) {
@@ -290,7 +290,7 @@ export class defaultSchedule implements PatternSchedule {
         }
         let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
         ease = Math.max(130, ease)
-        console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
+        // console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         return ease
     }
 }
