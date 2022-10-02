@@ -3,8 +3,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
-import { createTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { Arrangement } from 'arrangement';
 import { EditorPosition, ItemView, MarkdownView } from 'obsidian';
 import { Pattern } from "Pattern";
@@ -163,6 +161,14 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		let date = this.state.nowPattern?.schedule.CalcNextTime(opt)
 		return date?.fromNow() || ""
 	}
+	getOptRate = (opt: LearnEnum): string => {
+		if (!this.state.nowPattern) {
+			return ""
+		}
+		let rate = this.state.nowPattern.schedule.CalcLearnRate(opt)
+		rate = rate * 100
+		return `${rate.toFixed(0)}%`
+	}
 	markAs = (mark: markEnum) => {
 		this.setState({
 			showAns: true,
@@ -212,18 +218,18 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<div>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget</DelayButton>
+						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE && <div>
-							<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard</DelayButton>
-							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair</DelayButton>
+							<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
+							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
 						</div>
 					}
 					{
 						this.state.mark == markEnum.KNOWN && <div>
-							<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong</DelayButton>
-							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy</Button>
+							<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy {this.getOptRate(LearnEnum.EASY)}</Button>
 						</div>
 					}
 				</div>

@@ -33,7 +33,7 @@ export class AOSRSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
-        containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
+        containerEl.createEl('h2', { text: 'Settings for Aosr.' });
 
         new Setting(containerEl)
             .setName('Degree of initial ease')
