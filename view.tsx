@@ -11,7 +11,7 @@ import { createRoot, Root } from "react-dom/client";
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
 
 
-export const VIEW_TYPE_REVIEW = "review-view"
+export const VIEW_TYPE_REVIEW = "aosr-review-view"
 
 type ReviewingProps = {
 	arrangement: Arrangement
