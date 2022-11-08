@@ -100,7 +100,7 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
 
 export class ClozeParser implements PatternParser {
     Parse(card: Card): Pattern[] {
-        let reg = /==(\w[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
+        let reg = /==(\S[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
         let results: Pattern[] = []
         for (let body of card.bodyList) {
             for (let i = 0; i < 10000; i++) {
