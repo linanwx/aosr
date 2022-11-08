@@ -56,6 +56,7 @@ class LearnInfo {
 }
 
 export interface scheduleArrange {
+    get LastTime(): moment.Moment
     get NextTime(): moment.Moment
     get LearnedTime(): moment.Moment
     get LearnInfo(): LearnInfo
@@ -68,10 +69,15 @@ export interface scheduleArrange {
 }
 
 export interface PatternYaml {
+    // 上次学习时间
     Last: string
+    // 计划下次学习时间
     Next: string
+    // 学习操作记录
     Opts: string
+    // 上次被标记为忘记，最后一次复习的时间
     Learned: string | null
+    // 上次被标记为忘记，之后复习的次数
     LearnedCount: number | null
     // 用于读取存储的schedule yaml格式 需要复制对象
     copy(v: PatternYaml): void

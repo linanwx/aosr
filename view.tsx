@@ -1,6 +1,6 @@
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import { Box, Chip, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
 import { Arrangement } from 'arrangement';
@@ -169,6 +169,13 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		rate = rate * 100
 		return `${rate.toFixed(0)}%`
 	}
+	getLastTime = (): string => {
+		if (this.state.nowPattern?.schedule?.LearnInfo.IsNew) {
+			return ""
+		}
+		let date = this.state.nowPattern?.schedule.LastTime
+		return date?.fromNow() || ""
+	}
 	markAs = (mark: markEnum) => {
 		this.setState({
 			showAns: true,
@@ -176,65 +183,90 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		})
 	}
 	render() {
-		return <div>
-			<div>
+		return <Box>
+			<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 				<Button size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
 				<Button size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
-			</div>
-			<this.PatternComponent></this.PatternComponent>
+				<Stack spacing={2} direction='row'>
+					{
+						this.getLastTime() &&
+						<Chip sx={{
+							color: 'var(--text-normal)',
+						}} label={this.getLastTime()} />
+					}
+					{
+						this.state.nowPattern &&
+						<Chip sx={{
+							color: 'var(--text-normal)',
+						}} label={`ease: ${this.state.nowPattern?.schedule.Ease}`} />
+					}
+				</Stack>
+			</Stack>
+			<Box sx={{ minHeight: 135 }}>
+				<this.PatternComponent></this.PatternComponent>
+			</Box>
 			{
 				!this.state.showAns &&
-				<div>
+				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					<DelayButton initTime={7} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
 					<DelayButton initTime={3} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
 					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
-				</div>
+				</Stack>
 			}
 			{
 				this.state.showAns && this.props.arrangeName != "learn" &&
-				<div>
+				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
 						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
-						<div>
-							<DelayButton initTime={15} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
-							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
-						</div>
+						<DelayButton initTime={15} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
+
+					}
+					{
+						this.state.mark == markEnum.NOTSURE &&
+						<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
-						<div>
-							<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
-							<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy {this.getOptDate(ReviewEnum.EASY)}</Button>
-						</div>
+						<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
-				</div>
+					{
+						this.state.mark == markEnum.KNOWN &&
+						<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy {this.getOptDate(ReviewEnum.EASY)}</Button>
+					}
+				</Stack>
 			}
 			{
 				this.state.showAns && this.props.arrangeName == "learn" &&
-				<div>
+				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
 						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
-						this.state.mark == markEnum.NOTSURE && <div>
-							<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
-							<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
-						</div>
+						this.state.mark == markEnum.NOTSURE &&
+						<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
 					}
 					{
-						this.state.mark == markEnum.KNOWN && <div>
-							<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
-							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy {this.getOptRate(LearnEnum.EASY)}</Button>
-						</div>
+						this.state.mark == markEnum.NOTSURE &&
+						<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
+
 					}
-				</div>
+					{
+						this.state.mark == markEnum.KNOWN &&
+						<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+					}
+					{
+						this.state.mark == markEnum.KNOWN &&
+						<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy {this.getOptRate(LearnEnum.EASY)}</Button>
+
+					}
+				</Stack>
 			}
-		</div>
+		</Box>
 	}
 }
 
@@ -260,28 +292,33 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 		super(props)
 	}
 	render(): React.ReactNode {
-		return <div>
-			{this.props.arrangement.ArrangementList().length != 0 &&
-				<List>
-					{
-						this.props.arrangement.ArrangementList().map((value) => (
-							<ListItem key={value.Name}>
-								<ListItemButton onClick={() => {
-									this.props.setArrangement(value.Name);
-									this.props.goStage(ReviewStage.Reviewing);
-								}}>
-									<ListItemText primary={`${value.Name} : ${value.Count}`} />
-								</ListItemButton>
-							</ListItem>
-						))
-					}
-				</List>
-			}
-			{
-				this.props.arrangement.ArrangementList().length == 0 &&
-				<p>All Done.</p>
-			}
-		</div>
+		return <Box>
+			<Paper sx={{
+				color: 'var(--text-normal)',
+				bgcolor: 'var(--background-primary)',
+			}}>
+				{this.props.arrangement.ArrangementList().length != 0 &&
+					<List>
+						{
+							this.props.arrangement.ArrangementList().map((value) => (
+								<ListItem disablePadding key={value.Name}>
+									<ListItemButton onClick={() => {
+										this.props.setArrangement(value.Name);
+										this.props.goStage(ReviewStage.Reviewing);
+									}}>
+										<ListItemText primary={`${value.Name} : ${value.Count}`} />
+									</ListItemButton>
+								</ListItem>
+							))
+						}
+					</List>
+				}
+				{
+					this.props.arrangement.ArrangementList().length == 0 &&
+					<p>All Done.</p>
+				}
+			</Paper>
+		</Box>
 	}
 }
 
@@ -365,7 +402,6 @@ class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
 	}
 }
 
-// export const ViewContext = React.createContext<ReviewView>(undefined as any);
 
 type props = {
 	view: ItemView
