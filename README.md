@@ -6,9 +6,10 @@ It uses flashcards to help remember knowledge.
 
 This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition), but some changes have been made according to personal habits.
 
-# Demonstration video
+# Demo
 
-https://user-images.githubusercontent.com/16589958/191190152-c4f32945-5fd0-4e49-b968-9478c8cbf516.mp4
+
+![屏幕录制2022-11-08 17 56 11](https://user-images.githubusercontent.com/16589958/200536163-9aa947ff-0898-40ec-ae6a-911fc9107098.gif)
 
 
 # Format
