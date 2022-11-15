@@ -56,11 +56,25 @@ Card2
 
 # Pattern
 
+Pattern is your question and answer.
+
+### :: Pattern
+
 In the card, `::` will split this line. The front part will become a question, and the back part will become an answer.
 
 ```
 word::definition
 ```
+
+Each line will be processed as a separate Pattern.
+
+```
+word::definition
+word::definition
+word::definition
+```
+
+### ? Pattern
 
 In the card, a line with a `?` will split this card. The front part will become a question, and the back part will become an answer.
 
@@ -70,10 +84,18 @@ question
 answer
 ```
 
-In the card, a cloze with a pair of `==` will split this card. The remaining part will become a question, and the cloze part will become an answer. Note that each cloze will be treated as a separate question and answer.
+In the card, a cloze with a pair of `==` will split this card. The remaining part will become a question, and the cloze part will become an answer. Note that each cloze will be treated as a separate Pattern.
+
+### == Pattern
 
 ```
 A ==cloze==.
+```
+
+```
+Fruits include ==watermelons==, ==apples== and ==pears==.
+Note that each cloze will be treated as a separate Pattern. Otherwise, you should write like this.
+Fruits include ==watermelons, apples and pears==.
 ```
 
 # Example
