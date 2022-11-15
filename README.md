@@ -6,17 +6,6 @@ It uses flashcards to help remember knowledge.
 
 This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition), but some changes have been made according to personal habits.
 
-# What's the difference? 
-
-What's the difference with Aosr and obsidian-spaced-repetition?
-
-- The review time is calculated in minutes, not days. This helps to review the time calculation more accurately. And the calculation when reviewing across the zero point of the day will also be more accurate. For example, at 23:59 and 00:01 in the evening, the review time will not be rudely counted as the day before and the day after.
-- The review interface will now open a standard page instead of a pop-up window. Under the standard page, you can do many obsidian activities at the same time, for example, you can review and comment on the document at the same time. In pop-up mode, this mode hinders further operation.
-- The review process has been optimized. Now a learning process has been added to learn the last item that was marked as forgotten.
-- Redesigned the format. The new format contributes to some minor changes. For example, cloze will no longer be disrupted by the addition of a new cloze. In addition, the new review format should also be easier to develop and expand.
-
-However, some core functions, such as viewing review data statistics, are not available yet. I will improve the function according to my free time.
-
 # Demo
 
 
@@ -162,6 +151,16 @@ I know it's not pretty, and it messes up the format of the document. But for me 
 
 The comments will be automatically generated at the end of the document. Its location can also be moved, as long as it is in the same document.
 
+# What's the difference? 
+
+What's the difference with Aosr and obsidian-spaced-repetition?
+
+- The review time is calculated in minutes, not days. This helps to review the time calculation more accurately. And the calculation when reviewing across the zero point of the day will also be more accurate. For example, at 23:59 and 00:01 in the evening, the review time will not be rudely counted as the day before and the day after.
+- The review interface will now open a standard page instead of a pop-up window. Under the standard page, you can do many obsidian activities at the same time, for example, you can review and comment on the document at the same time. In pop-up mode, this mode hinders further operation.
+- The review process has been optimized. Now a learning process has been added to learn the last item that was marked as forgotten.
+- Redesigned the format. The new format contributes to some minor changes. For example, cloze will no longer be disrupted by the addition of a new cloze. In addition, the new review format should also be easier to develop and expand.
+
+However, some core functions, such as viewing review data statistics, are not available yet. I will improve the function according to my free time.
 
 # License
 
