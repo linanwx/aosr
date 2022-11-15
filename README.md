@@ -15,6 +15,8 @@ What's the difference with Aosr and obsidian-spaced-repetition?
 - The review process has been optimized. Now a learning process has been added to learn the last item that was marked as forgotten.
 - Redesigned the format. The new format contributes to some minor changes. For example, cloze will no longer be disrupted by the addition of a new cloze. In addition, the new review format should also be easier to develop and expand.
 
+However, some core functions, such as viewing review data statistics, are not available yet. I will improve the function according to my free time.
+
 # Demo
 
 
