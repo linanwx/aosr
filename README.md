@@ -84,9 +84,9 @@ question
 answer
 ```
 
-In the card, a cloze with a pair of `==` will split this card. The remaining part will become a question, and the cloze part will become an answer. Note that each cloze will be treated as a separate Pattern.
-
 ### == Pattern
+
+In the card, a cloze with a pair of `==` will split this card. The remaining part will become a question, and the cloze part will become an answer. Note that each cloze will be treated as a separate Pattern.
 
 ```
 A ==cloze==.
