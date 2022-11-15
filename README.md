@@ -22,7 +22,7 @@ This is a card.
 <- There should have an empty line if this is not the end of the document.
 ```
 
-In the card, the PATTERN is your question and answer. A card can have not only one pattern but more than 1000 patterns.
+In the card, the PATTERN is your question and answer. A card can have not only one pattern but more than 1000 patterns. See the next section for the specific Pattern format.
 
 Using `***` to split the card into sub-cards. This would be helpful if you don't want to write `#Q` and create a new card.
 
