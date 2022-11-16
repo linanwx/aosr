@@ -68,9 +68,11 @@ word::definition
 In the card, a line with a `?` will split this card. The front part will become a question, and the back part will become an answer.
 
 ```
-question
+Question.
+Maybe there are many lines.
 ?
-answer
+Answer.
+Maybe there are many lines.
 ```
 
 ### == Pattern
