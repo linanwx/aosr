@@ -131,8 +131,20 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		if (!view) {
 			return
 		}
-		let range1 = view.editor.offsetToPos(pattern.card.indexBuff)
-		let range2 = view.editor.offsetToPos(pattern.card.indexBuff + pattern.card.cardText.length)
+		// 优先使用Tag的位置，如果tag不存在，则使用卡片缓存的位置
+		let noteText = await app.vault.read(pattern.card.note)
+		let index = noteText.indexOf(pattern.TagID)
+		let offset = 0
+		let length = 0
+		if (index >= 0) {
+			offset = index
+			length = pattern.TagID.length
+		} else {
+			offset = pattern.card.indexBuff
+			length = pattern.card.cardText.length
+		}
+		let range1 = view.editor.offsetToPos(offset)
+		let range2 = view.editor.offsetToPos(offset + length)
 		let range2next: EditorPosition = {
 			line: range2.line + 1,
 			ch: 0,
@@ -208,7 +220,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			{
 				!this.state.showAns &&
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-					<DelayButton initTime={7} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
+					<DelayButton initTime={8} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
 					<DelayButton initTime={3} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
 					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
 				</Stack>
@@ -218,7 +230,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
@@ -244,7 +256,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={7} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&

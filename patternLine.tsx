@@ -79,6 +79,13 @@ type singleLinePatternComponentState = {
 }
 
 class LinePatternComponent extends React.Component<singleLinePatternComponentProps, singleLinePatternComponentState> {
+	playTTS = async() => {
+		if (GlobalSettings.WordTTSURL.length > 0) {
+			let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
+			const audio = new Audio(url)
+			audio.play()
+		}
+	}
 	async componentDidMount() {
 		let markdownDivFront = this.state.markdownDivFront
 		markdownDivFront.empty()
@@ -92,11 +99,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		})
 		// 如果是单词 则尝试调用有道发音
 		if (/^[\w-]+$/.test(this.props.front)) {
-			if (GlobalSettings.WordTTSURL.length > 0) {
-				let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
-				const audio = new Audio(url)
-				audio.play()
-			}
+			this.playTTS()
 		}
 	}
 	constructor(props: singleLinePatternComponentProps) {

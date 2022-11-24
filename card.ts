@@ -18,13 +18,13 @@ export interface Card {
 	// 获取卡片ID
 	get ID(): string
 	// 获取卡片原始字符串长度
-	get cardText():string
+	get cardText(): string
 	// 获取源码
 	get bodyList(): string[]
 	// 获取卡片模式
 	get patterns(): Pattern[]
 	// 获取卡片偏移量
-	get indexBuff():number
+	get indexBuff(): number
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
 	// 更新文件
@@ -33,7 +33,7 @@ export interface Card {
 	commitFile(): Promise<void>
 }
 
-export function NewCard(cardText:string, content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
+export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
 	return new defaultCard(cardText, content, annotation, cardID, index, note)
 }
 
@@ -53,10 +53,10 @@ class defaultCard implements Card {
 	indexBuff: number
 	annotationObj: AnnotationObject
 	updateList: updateInfo[];
-	cardText:string
+	cardText: string
 	static bodySplitReg = /((?:^(?!\*{3,}$).+$\n?)+)/gm
 	// 1为source 2为注释
-	constructor(cardText:string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
+	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
 		this.indexBuff = index
 		this.cardText = cardText || ""
@@ -110,25 +110,30 @@ class defaultCard implements Card {
 	async commitFile() {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
-		// 如果原文已被改变，停止写入
 		if (!fileText.contains(this.cardText)) {
-			console.info("File has been changed, ignore commit.")
-			return
-		}
-		// 如果不存在复习块ID 则先更新复习块块ID
-		if (this.originalID == "") {
-			let index = fileText.indexOf(this.cardText)
-			if (index >= 0) {
-				fileText = UpdateCardIDTag(this.ID, fileText, index)
+			// 如果原文已被改变，可能是复习打开的过程中，用户更改了原文
+			// 原文如果被更改，则不能再对原文进行更新，并且只有在原来有注释的情况下，更新注释
+			console.info("File has been changed, ignore commit original card.")
+			// 只更新复习进度
+			if (this.annotationWrapperStr?.length > 0) {
+				fileText = this.updateAnnotation(fileText)
 			}
+		} else {
+			// 如果不存在复习块ID 则先更新复习块块ID
+			if (this.originalID == "") {
+				let index = fileText.indexOf(this.cardText)
+				if (index >= 0) {
+					fileText = UpdateCardIDTag(this.ID, fileText, index)
+				}
+			}
+			// 更新复习块注释 包括复习进度
+			fileText = this.updateAnnotation(fileText)
+			// 更新复习块
+			for (let updateInfo of this.updateList) {
+				fileText = updateInfo.updateFunc(fileText)
+			}
+			this.updateList = []
 		}
-		// 更新复习块注释 包括复习进度
-		fileText = this.updateAnnotation(fileText)
-		// 更新复习块
-		for (let updateInfo of this.updateList) {
-			fileText = updateInfo.updateFunc(fileText)
-		}
-		this.updateList = []
 		// 更新注释段内容
 		await app.vault.modify(this.note, fileText)
 	}
