@@ -83,7 +83,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		if (GlobalSettings.WordTTSURL.length > 0) {
 			let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
 			const audio = new Audio(url)
-			audio.play()
+			await audio.play()
 		}
 	}
 	async componentDidMount() {
@@ -99,7 +99,9 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		})
 		// 如果是单词 则尝试调用有道发音
 		if (/^[\w-]+$/.test(this.props.front)) {
-			this.playTTS()
+			setTimeout(() => {
+				this.playTTS()
+			}, 100);
 		}
 	}
 	constructor(props: singleLinePatternComponentProps) {

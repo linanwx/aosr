@@ -10,8 +10,8 @@ export interface AOSRSettings {
 
 const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
-    EasyBonus: 2,
-    HardBonus: 2,
+    EasyBonus: 1,
+    HardBonus: 1,
     WordTTSURL: ""
 }
 
@@ -37,9 +37,9 @@ export class AOSRSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Degree of initial ease')
-            .setDesc('The review interval is doubled by ease /100')
+            .setDesc('The baseline of the reviewing frequency. The review interval is doubled by ease /100. The smaller the number, the higher the frequency. Recommend:250.')
             .addText(text => text
-                .setPlaceholder('130-500')
+                .setPlaceholder('100-500')
                 .setValue(GlobalSettings.DefaultEase.toString())
                 .onChange(async (value) => {
                     GlobalSettings.DefaultEase = Number(value);
@@ -48,9 +48,9 @@ export class AOSRSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Reward of easy choice')
-            .setDesc('An additional interval is added to the normal review interval')
+            .setDesc('Additional interval days are added to the normal review interval when you choose the easy option. The bigger it is, the later the next schedule will be. Recommend:1.')
             .addText(text => text
-                .setPlaceholder('1-10')
+                .setPlaceholder('0-10')
                 .setValue(GlobalSettings.EasyBonus.toString())
                 .onChange(async (value) => {
                     GlobalSettings.EasyBonus = Number(value);
@@ -59,9 +59,9 @@ export class AOSRSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Reward of hard choice')
-            .setDesc('An additional interval is reduced to the normal review interval')
+            .setDesc('Additional interval days are reduced to the normal review interval when you choose a difficult option. The bigger it is, the sooner the next schedule will be. Recommend:1.')
             .addText(text => text
-                .setPlaceholder('1-10')
+                .setPlaceholder('0-10')
                 .setValue(GlobalSettings.HardBonus.toString())
                 .onChange(async (value) => {
                     GlobalSettings.HardBonus = Number(value);

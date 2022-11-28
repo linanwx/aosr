@@ -269,7 +269,7 @@ export class defaultSchedule implements PatternSchedule {
         // console.info(`opts is ${this.OptArr}`)
         // 困难扣除
         let hardBonus = 0
-        for (let opt of this.OptArr.slice(-10)) {
+        for (let opt of this.OptArr.slice(-20)) {
             if (opt == ReviewEnum.FORGET) {
                 hardBonus += 50
             }
@@ -279,7 +279,7 @@ export class defaultSchedule implements PatternSchedule {
         }
         // 简单奖励
         let easeBouns = 0
-        for (let opt of this.OptArr.slice(-10)) {
+        for (let opt of this.OptArr.slice(-20)) {
             if (opt == ReviewEnum.EASY) {
                 easeBouns += 25
             }
@@ -295,7 +295,7 @@ export class defaultSchedule implements PatternSchedule {
             easeBouns += 25
         }
         let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
-        ease = Math.max(130, ease)
+        ease = Math.max(100, ease)
         // console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         return ease
     }
