@@ -181,9 +181,9 @@ export class defaultSchedule implements PatternSchedule {
         } else if (this.Opts.at(-1) == String(ReviewEnum.FAIR)) {
         } else if (this.LearnedCount && this.LearnedCount >= 2) {
         } else {
-            // 短期记忆内的信息不需要学习
-            // 这部分内容会在过了短期记忆从记忆区中清空后重新安排学习
-            let checkPoint = window.moment().add(-60, "seconds")
+            // 中期记忆内的信息不需要学习
+            // 这部分内容会在过了中期记忆从记忆区中清空后重新安排学习
+            let checkPoint = window.moment().add(-3, "hours")
             if (this.LearnedTime.isAfter(checkPoint)) {
                 info.IsWait = true
             } else {
