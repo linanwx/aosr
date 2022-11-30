@@ -20,7 +20,8 @@ A CARD is begin with `#Q` and ends with an empty line.
 #Q 
 This is a card.
 Here, please write your questions and answers in Pattern format. The format of Pattern is described below.
-Only content within the #Q and the empty line will be treated as review content. Pattern formats outside this range will not be processed.
+Only content within the #Q and the empty line will be treated as review content.
+Pattern formats outside this range will not be processed.
 <- There should have an empty line if this is not the end of the document.
 ```
 
