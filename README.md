@@ -128,6 +128,8 @@ This is a question.
 This is an answer.
 ***
 This is a very ==important== answer.
+***
+This is multi-cloze ==question== and ==answer==. #multicloze  !Experimental
 ```
 
 # Review
