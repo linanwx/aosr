@@ -11,8 +11,9 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 ![屏幕录制2022-11-08 17 56 11](https://user-images.githubusercontent.com/16589958/200536163-9aa947ff-0898-40ec-ae6a-911fc9107098.gif)
 
-
 # Format
+
+## Card
 
 A CARD is begin with `#Q` and ends with an empty line.
 
@@ -46,7 +47,7 @@ Card1
 Card2
 ```
 
-# Pattern
+## Pattern
 
 Pattern is your question and answer.
 
