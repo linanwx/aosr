@@ -86,7 +86,16 @@ A ==cloze==.
 ```
 Fruits include ==watermelons==, ==apples== and ==pears==.
 Note that each cloze will be treated as a separate Pattern. Otherwise, you should write like this.
-Fruits include ==watermelons, apples and pears==.
+Fruits include ==watermelons, apples, and pears==.
+Otherwise, you should add a #multicloze tag to the card.
+```
+
+##### Multicloze mode !Experimental
+
+If a `#multicloze` tag has been found in the card, Aosr treats all cloze in the card as a group of cloze.
+
+```
+You should remember ==this== and ==that== at the same time. #multicloze 
 ```
 
 # Example
@@ -131,7 +140,7 @@ It consists of four parts. New, learn, review, and wait.
 
 <img width="266" alt="屏幕快照 2022-11-15 的 12 45 09 下午" src="https://user-images.githubusercontent.com/16589958/201828532-4658642d-8f22-4845-b603-e07da46d3df5.png">
 
-New means something new and hasn't been reviewed.
+New means something new that hasn't been reviewed.
 
 Review means something needs to review.
 
@@ -155,12 +164,12 @@ The comments will be automatically generated at the end of the document. Its loc
 
 # What's the difference? 
 
-What's the difference with Aosr and obsidian-spaced-repetition?
+What's the difference between Aosr and obsidian-spaced-repetition?
 
 - The review time is calculated in minutes, not days. This helps to review the time calculation more accurately. And the calculation when reviewing across the zero point of the day will also be more accurate. For example, at 23:59 and 00:01 in the evening, the review time will not be rudely counted as the day before and the day after.
 - The review interface will now open a standard page instead of a pop-up window. Under the standard page, you can do many obsidian activities at the same time, for example, you can review and comment on the document at the same time. In pop-up mode, this mode hinders further operation.
 - The review process has been optimized. Now a learning process has been added to learn the last item that was marked as forgotten.
-- Redesigned the format. The new format contributes to some minor changes. For example, cloze will no longer be disrupted by the addition of a new cloze. In addition, the new review format should also be easier to develop and expand.
+- Redesigned the format. The new format contributes to some minor changes. For example, the cloze will no longer be disrupted by the addition of a new cloze. In addition, the new review format should also be easier to develop and expand.
 
 However, some core functions, such as viewing review data statistics, are not available yet. I will improve the function according to my free time.
 
@@ -170,6 +179,6 @@ However, some core functions, such as viewing review data statistics, are not av
 
 ```
 react (MIT)   https://github.com/facebook/react
-yaml (ISC)    https://github.com/eemeli/yaml
+YAML (ISC)    https://github.com/eemeli/yaml
 MUI (MIT)     https://github.com/mui/material-ui
 ```
