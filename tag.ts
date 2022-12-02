@@ -1,5 +1,5 @@
 
-class TagInfo {
+export class TagInfo {
     Head: string
     Suffix: string
     Original: string
@@ -22,7 +22,7 @@ class TagInfo {
     }
 }
 
-class TagsInfo {
+export class TagsInfo {
     Tags: TagInfo[]
     constructor(tags: TagInfo[]) {
         this.Tags = tags

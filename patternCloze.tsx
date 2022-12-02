@@ -7,7 +7,7 @@ import { PatternParser } from "ParserCollection";
 import { Pattern, PatternProps, prettyText } from "Pattern";
 import React from "react";
 import { Operation } from "schedule";
-import { TagParser } from "tag";
+import { TagParser, TagsInfo } from "tag";
 
 const hasClozeReg = /==(\S[\s\S]*?)==/m
 const clozeReg = /==(\S[\s\S]*?)==/gm
@@ -140,37 +140,51 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
 
 export class ClozeParser implements PatternParser {
     Parse(card: Card): Pattern[] {
-        let reg = /==(\S[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
         let results: Pattern[] = []
         for (let body of card.bodyList) {
-            let bodytag = TagParser.parse(body)
-            let multicloze = bodytag.findTag("multicloze")
-            if (multicloze) {
-                let has = hasClozeReg.test(body)
-                if (has) {
-                    let newID = `#${CardIDTag}/${card.ID}/mc/${cyrb53(body, 4)}`
-                    let originalID = bodytag.findTag(CardIDTag, card.ID, "mc")?.Original || ""
-                    let result = new multiclozePattern(card, body, originalID, originalID || newID)
-                    results.push(result)
-                } else {
-                    console.log(`missing multicloze tag. ${body} ${bodytag}`)
-                    console.log(bodytag)
-                    
+            let multiclozeMode = false
+            let bodytag = new TagsInfo([])
+            if (body.contains("#multicloze")) {
+                bodytag = TagParser.parse(body)
+                let multicloze = bodytag.findTag("multicloze")
+                if (multicloze) {
+                    multiclozeMode = true
                 }
+            }
+            if (multiclozeMode) {
+                this.ParseMulticloze(body, card, bodytag, results);
             } else {
-                for (let i = 0; i < 10000; i++) {
-                    let regArr = reg.exec(body)
-                    if (regArr == null) {
-                        break
-                    }
-                    let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(regArr[0], 4)}`
-                    let tagInfo = TagParser.parse(regArr[2] || "")
-                    let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || ""
-                    let result = new clozePattern(card, body, regArr[0], regArr[1], originalID, originalID || newID)
-                    results.push(result)
-                }
+                this.ParseCloze(body, card, results);
             }
         }
         return results
+    }
+
+    private ParseMulticloze(body: string, card: Card, bodytag: TagsInfo, results: Pattern[]) {
+        let has = hasClozeReg.test(body);
+        if (has) {
+            let newID = `#${CardIDTag}/${card.ID}/mc/${cyrb53(body, 4)}`;
+            let originalID = bodytag.findTag(CardIDTag, card.ID, "mc")?.Original || "";
+            let result = new multiclozePattern(card, body, originalID, originalID || newID);
+            results.push(result);
+        }
+    }
+
+    private ParseCloze(body: string, card: Card, results: Pattern[]) {
+        let reg = /==(\S[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
+        if (!body.contains("==")) {
+            return
+        }
+        for (let i = 0; i < 10000; i++) {
+            let regArr = reg.exec(body);
+            if (regArr == null) {
+                break;
+            }
+            let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(regArr[0], 4)}`;
+            let tagInfo = TagParser.parse(regArr[2] || "");
+            let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || "";
+            let result = new clozePattern(card, body, regArr[0], regArr[1], originalID, originalID || newID);
+            results.push(result);
+        }
     }
 }
