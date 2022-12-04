@@ -91,7 +91,7 @@ A ==cloze==.
 Fruits include ==watermelons==, ==apples== and ==pears==.
 Note that each cloze will be treated as a separate Pattern. Otherwise, you should write like this.
 Fruits include ==watermelons, apples, and pears==.
-Otherwise, you should add a #multicloze tag to the card.
+In addition, you could add a #multicloze tag to the card to get the same effect.
 ```
 
 ##### Multicloze Pattern !Experimental
