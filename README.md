@@ -94,7 +94,7 @@ Fruits include ==watermelons, apples, and pears==.
 In addition, you could add a #multicloze tag to the card to get the same effect.
 ```
 
-##### Multicloze Pattern !Experimental
+##### Multicloze Pattern
 
 If a `#multicloze` tag has been found in the card, Aosr treats all cloze in the card as a group of cloze.
 
@@ -133,7 +133,7 @@ This is an answer.
 ***
 This is a very ==important== answer.
 ***
-This is multi-cloze ==question== and ==answer==. #multicloze  !Experimental
+This is multi-cloze ==question== and ==answer==. #multicloze
 ```
 
 # Review
