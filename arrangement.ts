@@ -11,8 +11,19 @@ class ArrangementItem {
     }
 }
 
+export class PatternIter {
+    pattern: Pattern
+    index: number
+    total: number
+    constructor(pattern:Pattern,index:number,total:number) {
+        this.pattern = pattern
+        this.index = index
+        this.total = total
+    }
+}
+
 abstract class ArrangementBase {
-    abstract PatternSequence(Name:string):AsyncGenerator<Pattern, boolean, unknown>
+    abstract PatternSequence(Name:string):AsyncGenerator<PatternIter, boolean, unknown>
     abstract ArrangementList():ArrangementItem[]
 }
 
@@ -106,29 +117,29 @@ export class Arrangement implements ArrangementBase{
     }
     async *PatternSequence(name:string) {
         if (name == "review") {
-            for (let p of this.needReviewPattern) {
+            for (let i=0;i<this.needReviewPattern.length;i++) {
+                let p = this.needReviewPattern[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
-                    yield cardp
-                } else {
+                    yield new PatternIter(cardp, i, this.needReviewPattern.length)
                 }
             }
         }
         if (name == "new") {
-            for (let p of this.newPattern) {
+            for (let i=0;i<this.newPattern.length;i++) {
+                let p = this.newPattern[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
-                    yield cardp
-                } else {
+                    yield new PatternIter(cardp, i, this.newPattern.length)
                 }
             }
         }
         if (name == "learn") {
-            for (let p of this.needLearn) {
+            for (let i=0;i<this.needLearn.length;i++) {
+                let p = this.needLearn[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
-                    yield cardp
-                } else {
+                    yield new PatternIter(cardp, i, this.needLearn.length)
                 }
             }
         }
