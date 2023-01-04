@@ -3,13 +3,28 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Chip, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
-import { Arrangement } from 'arrangement';
+import { Arrangement, PatternIter } from 'arrangement';
 import { EditorPosition, ItemView, MarkdownView } from 'obsidian';
 import { Pattern } from "Pattern";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
+import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import Typography from '@mui/material/Typography';
 
+function LinearProgressWithLabel(props: { value1: number, value2: number }) {
+	const value = (props.value1 / props.value2) * 100;
+	return (
+		<Box sx={{ display: 'flex', alignItems: 'center' }}>
+			<Box sx={{ width: '100%', mr: 1 }}>
+				<LinearProgress variant="determinate" value={value} />
+			</Box>
+			<Box sx={{ minWidth: 50 }}>
+				<Typography variant="body2" color="var(--text-normal)">{`${props.value1}/${props.value2}`}</Typography>
+			</Box>
+		</Box>
+	);
+}
 
 export const VIEW_TYPE_REVIEW = "aosr-review-view"
 
@@ -31,7 +46,9 @@ type ReviewingState = {
 	nowPattern: Pattern | undefined
 	showAns: boolean
 	mark: markEnum
-	patternIter: AsyncGenerator<Pattern, boolean, unknown>
+	patternIter: AsyncGenerator<PatternIter, boolean, unknown>
+	index: number
+	total: number
 }
 
 
@@ -98,6 +115,8 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			showAns: false,
 			patternIter: this.props.arrangement.PatternSequence(this.props.arrangeName),
 			mark: markEnum.NOTSURE,
+			index: 0,
+			total: 1,
 		}
 		this.initFlag = false
 	}
@@ -115,7 +134,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			return
 		}
 		this.setState({
-			nowPattern: result.value
+			nowPattern: result.value.pattern,
+			index: result.value.index,
+			total: result.value.total,
 		})
 	}
 	openPatternFile = async (pattern: Pattern | undefined) => {
@@ -196,6 +217,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	}
 	render() {
 		return <Box>
+			<LinearProgressWithLabel value1={this.state.index} value2={this.state.total} />
 			<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 				<Button size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
 				<Button size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
