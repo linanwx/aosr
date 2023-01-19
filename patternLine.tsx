@@ -15,12 +15,14 @@ abstract class linePattern extends Pattern {
 	front: string
 	back: string
 	originalID: string
-	constructor(card: Card, keyText: string, front: string, back: string, originalID: string, tagid: string) {
+	reverse: boolean
+	constructor(card: Card, keyText: string, front: string, back: string, originalID: string, tagid: string, reverse:boolean) {
 		super(card, tagid)
 		this.front = front
 		this.keyText = keyText
 		this.back = back
 		this.originalID = originalID
+		this.reverse = reverse
 	}
 	abstract insertPatternID(): void
 	// 界面按钮点击
@@ -34,7 +36,7 @@ abstract class linePattern extends Pattern {
 	}
 	// 展示组件
 	Component = (props: PatternProps): JSX.Element => {
-		return <LinePatternComponent front={this.front} back={this.back} path={this.card.note.path} patternProps={props}></LinePatternComponent>
+		return <LinePatternComponent reverse={this.reverse} front={this.front} back={this.back} path={this.card.note.path} patternProps={props}></LinePatternComponent>
 	}
 }
 
@@ -45,7 +47,7 @@ class singleLinePattern extends linePattern {
 		}
 		this.card.updateFile({
 			updateFunc: (fileText): string => {
-				let newContent = this.front + "::" + this.back + " " + this.TagID;
+				let newContent = this.keyText + " " + this.TagID;
 				return fileText.replace(this.keyText, newContent);
 			}
 		})
@@ -71,6 +73,7 @@ type singleLinePatternComponentProps = {
 	back: string
 	path: string
 	patternProps: PatternProps
+	reverse: boolean
 }
 
 type singleLinePatternComponentState = {
@@ -79,9 +82,9 @@ type singleLinePatternComponentState = {
 }
 
 class LinePatternComponent extends React.Component<singleLinePatternComponentProps, singleLinePatternComponentState> {
-	playTTS = async() => {
+	playTTS = async(text:string) => {
 		if (GlobalSettings.WordTTSURL.length > 0) {
-			let url = GlobalSettings.WordTTSURL.replace('%s',this.props.front)
+			let url = GlobalSettings.WordTTSURL.replace('%s',text)
 			const audio = new Audio(url)
 			await audio.play()
 		}
@@ -91,16 +94,27 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		markdownDivFront.empty()
 		let markdownDivBack = this.state.markdownDivBack
 		markdownDivBack.empty()
-		await renderMarkdown(this.props.front, markdownDivFront, this.props.path, this.props.patternProps.view)
-		await renderMarkdown(prettyText(this.props.back), markdownDivBack, this.props.path, this.props.patternProps.view)
+		if (this.props.reverse == false) {
+			await renderMarkdown(prettyText(this.props.front), markdownDivFront, this.props.path, this.props.patternProps.view)
+			await renderMarkdown(prettyText(this.props.back), markdownDivBack, this.props.path, this.props.patternProps.view)
+		} else {
+			await renderMarkdown(prettyText(this.props.back), markdownDivFront, this.props.path, this.props.patternProps.view)
+			await renderMarkdown(prettyText(this.props.front), markdownDivBack, this.props.path, this.props.patternProps.view)
+		}
 		this.setState({
 			markdownDivFront: markdownDivFront,
 			markdownDivBack: markdownDivBack,
 		})
 		// 如果是单词 则尝试调用有道发音
-		if (/^[\w-]+$/.test(this.props.front)) {
+		let ttstext = ""
+		if (this.props.reverse==false) {
+			ttstext = this.props.front
+		} else {
+			ttstext = this.props.back
+		}
+		if (/^[a-zA-Z\s-]+$/.test(ttstext)) {
 			setTimeout(() => {
-				this.playTTS()
+				this.playTTS(ttstext)
 			}, 100);
 		}
 	}
@@ -127,7 +141,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 
 export class SingleLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
-		let reg = /^(.+)::(.+?)$/gm
+		let reg = /^(.+?)(::+)(.+?)$/gm
 		let results: Pattern[] = []
 		for (let body of card.bodyList) {
 			for (let i = 0; i < 10000; i++) {
@@ -135,11 +149,23 @@ export class SingleLineParser implements PatternParser {
 				if (regArr == null) {
 					break
 				}
-				let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(regArr[0], 4)}`
-				let tagInfo = TagParser.parse(regArr[0])
-				let originalID = tagInfo.findTag(CardIDTag, card.ID, "s")?.Original || ""
-				let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[2], originalID, originalID || newID)
-				results.push(result)
+				if (regArr[2].length == 2) {
+					let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(regArr[0], 4)}`
+					let tagInfo = TagParser.parse(regArr[0])
+					let originalID = tagInfo.findTag(CardIDTag, card.ID, "s")?.Original || ""
+					let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
+					results.push(result)
+				}
+				if (regArr[2].length == 3) {
+					let newIDForward = `#${CardIDTag}/${card.ID}/sf/${cyrb53(regArr[0], 4)}`
+					let newIDReverse = `#${CardIDTag}/${card.ID}/sr/${cyrb53(regArr[0], 4)}`
+					let tagInfo = TagParser.parse(regArr[0])
+					let originalIDForward = tagInfo.findTag(CardIDTag, card.ID, "sf")?.Original || ""
+					let originalIDReverse = tagInfo.findTag(CardIDTag, card.ID, "sr")?.Original || ""
+					let result1 = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalIDForward, originalIDForward || newIDForward, false)
+					let result2 = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalIDReverse, originalIDReverse || newIDReverse, true)
+					results.push(result1, result2)
+				}
 			}
 		}
 		return results
@@ -160,7 +186,7 @@ export class MultiLineParser implements PatternParser {
 			let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(regArr[0], 4)}`
 			let tagInfo = TagParser.parse(regArr[2] || "")
 			let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
-			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID)
+			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
 			results.push(result)
 		}
 		return results
