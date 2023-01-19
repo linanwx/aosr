@@ -187,6 +187,11 @@ What's the difference between Aosr and obsidian-spaced-repetition?
 
 However, some core functions, such as viewing review data statistics, are not available yet. I will improve the function according to my free time.
 
+# Precautions:
+
+- Please do not create identical content with the same pattern in the same file, as the current implementation relies on unique string matching, and creating duplicate patterns will cause exceptions and prevent review.
+- Currently, development and testing are only carried out with "strict line breaks" mode turned off. It has not been tested with the mode turned on, so it is recommended to turn it off.
+
 # License
 
 - MIT [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
