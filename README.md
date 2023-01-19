@@ -67,6 +67,13 @@ word::definition
 word::definition
 ```
 
+You can use the symbol `:::` to flip cards and complete the reverse memory in addition to the forward memory.
+
+```
+word:::definition
+```
+
+
 ### ? Pattern
 
 In the card, a line with a `?` will split this card. The front part will become a question, and the back part will become an answer.
@@ -111,6 +118,7 @@ Several examples are shown below. Their writing is valid in the document.
 word1::ans1
 word2::ans2
 word3::ans3
+word:::definition
 
 #Q
 This is a question.
