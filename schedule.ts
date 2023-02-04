@@ -300,7 +300,7 @@ export class defaultSchedule implements PatternSchedule {
         }
         let ease = 250 - hardBonus + easeBouns
         ease = sigmod(ease)
-        ease = Math.max(100, ease)
+        ease = Math.max(101, ease)
         return ease
     }
 }
