@@ -232,7 +232,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 						this.state.nowPattern &&
 						<Chip sx={{
 							color: 'var(--text-normal)',
-						}} label={`ease: ${this.state.nowPattern?.schedule.Ease}`} />
+						}} label={`ease: ${this.state.nowPattern?.schedule.Ease.toFixed(0)}`} />
 					}
 				</Stack>
 			</Stack>

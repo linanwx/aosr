@@ -90,6 +90,10 @@ export function NewSchedule(id: string) {
     return new defaultSchedule(id)
 }
 
+function sigmod(x:number):number {
+    return (GlobalSettings.DefaultEase - 100) * 2 / (1 + Math.exp(-0.0125 * (x - 250))) + 100;
+}
+
 // 一个模式的复习信息
 export class defaultSchedule implements PatternSchedule {
     copy(v: PatternYaml) {
@@ -294,9 +298,9 @@ export class defaultSchedule implements PatternSchedule {
         if (easeCount >= 2) {
             easeBouns += 25
         }
-        let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
+        let ease = 250 - hardBonus + easeBouns
+        ease = sigmod(ease)
         ease = Math.max(100, ease)
-        // console.info(`hardbonus ${hardBonus} easeBonus ${easeBouns} result ease ${ease}`)
         return ease
     }
 }
