@@ -19,7 +19,7 @@ function LinearProgressWithLabel(props: { value1: number, value2: number }) {
 			<Box sx={{ width: '100%', mr: 1 }}>
 				<LinearProgress variant="determinate" value={value} />
 			</Box>
-			<Box sx={{ minWidth: 50 }}>
+			<Box sx={{ minWidth: 'min-content' }}>
 				<Typography variant="body2" color="var(--text-normal)">{`${props.value1}/${props.value2}`}</Typography>
 			</Box>
 		</Box>
@@ -442,9 +442,10 @@ type props = {
 }
 
 function App(props: props) {
+	let halfPageHeight = window.innerHeight / 2
 	return (
 		<div className="markdown-preview-view markdown-rendered is-readable-line-width allow-fold-headings">
-			<div className="markdown-preview-sizer markdown-preview-section">
+			<div className="markdown-preview-sizer markdown-preview-section" style={{ paddingBottom: `${halfPageHeight}px` }}>
 				<ReviewComponent view={props.view} ></ReviewComponent>
 			</div>
 		</div>
