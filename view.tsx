@@ -144,7 +144,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			return
 		}
 		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
-		if (!leaf) {
+		if (!leaf || leaf.getViewState()?.pinned == true) {
 			leaf = app.workspace.getLeaf(true)
 		}
 		await leaf.openFile(pattern.card.note)
@@ -265,7 +265,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={30} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={20} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
@@ -291,7 +291,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={30} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={20} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
