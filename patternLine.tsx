@@ -46,9 +46,9 @@ class singleLinePattern extends linePattern {
 			return
 		}
 		this.card.updateFile({
-			updateFunc: (fileText): string => {
+			updateFunc: (content): string => {
 				let newContent = this.keyText + " " + this.TagID;
-				return fileText.replace(this.keyText, newContent);
+				return content.replace(this.keyText, newContent);
 			}
 		})
 	}
@@ -60,9 +60,9 @@ class multiLinePattern extends linePattern {
 			return
 		}
 		this.card.updateFile({
-			updateFunc: (fileText): string => {
+			updateFunc: (content): string => {
 				let newContent = `${this.front}? ${this.TagID}\n${this.back}`
-				return fileText.replace(this.keyText, newContent)
+				return content.replace(this.keyText, newContent)
 			}
 		})
 	}

@@ -18,9 +18,9 @@ class multiclozePattern extends Pattern {
             return
         }
         this.card.updateFile({
-            updateFunc: (filetext): string => {
+            updateFunc: (contentText): string => {
                 let newtext = this.text.replace("#multicloze", `#multicloze ${this.TagID} `)
-                return filetext.replace(this.text, newtext)
+                return contentText.replace(this.text, newtext)
             }
         })
     }
@@ -30,7 +30,7 @@ class multiclozePattern extends Pattern {
         await this.card.commitFile()
     }
     Component = (props: PatternProps): JSX.Element => {
-        return <ClozePatternComponent text={this.text} patternProps={props} clozeOriginal={""} clozeInner={""} path={this.card.note.path} replaceAll={true}></ClozePatternComponent>
+        return <ClozePatternComponent index={0} text={this.text} patternProps={props} clozeOriginal={""} clozeInner={""} path={this.card.note.path} replaceAll={true}></ClozePatternComponent>
     }
     text: string
     originalID: string
@@ -41,11 +41,48 @@ class multiclozePattern extends Pattern {
     }
 }
 
+function replaceClosestSubstring(
+    inputStr: string,
+    targetSubstr: string,
+    replacement: string,
+    referenceIndex: number
+): string {
+    // 找到所有子字符串B的索引位置
+    let indices: number[] = [];
+    let currentIndex = inputStr.indexOf(targetSubstr);
+
+    while (currentIndex !== -1) {
+        indices.push(currentIndex);
+        currentIndex = inputStr.indexOf(targetSubstr, currentIndex + 1);
+    }
+
+    // 如果A中没有子字符串B，直接返回原始字符串A
+    if (indices.length === 0) {
+        return inputStr;
+    }
+
+    // 找到距离给定index最近的子字符串B的索引位置
+    let closestIndex = indices.reduce((prev, curr) => {
+        return Math.abs(curr - referenceIndex) < Math.abs(prev - referenceIndex)
+            ? curr
+            : prev;
+    });
+
+    // 将找到的子字符串B替换为C
+    return (
+        inputStr.substring(0, closestIndex) +
+        replacement +
+        inputStr.substring(closestIndex + targetSubstr.length)
+    );
+}
+
+
 class clozePattern extends Pattern {
     text: string // 整段文本
     clozeOriginal: string // 带==和标签的完形文本
     clozeInner: string // ==内部的文本
     originalID: string
+    index: number // 匹配到的索引位置
     async SubmitOpt(opt: Operation): Promise<void> {
         this.card.getSchedule(this.TagID).apply(opt)
         this.insertPatternID()
@@ -56,21 +93,23 @@ class clozePattern extends Pattern {
             return
         }
         this.card.updateFile({
-            updateFunc: (filetext): string => {
-                let newCloze = `${this.clozeOriginal} ${this.TagID} `
-                return filetext.replace(this.clozeOriginal, newCloze)
+            updateFunc: (content): string => {
+                let addtag = `${this.clozeOriginal} ${this.TagID} `
+                let newtext = replaceClosestSubstring(this.text, this.clozeOriginal, addtag, this.index)
+                return content.replace(this.text, newtext)
             }
         })
     }
     Component = (props: PatternProps): JSX.Element => {
-        return <ClozePatternComponent text={this.text} patternProps={props} clozeOriginal={this.clozeOriginal} clozeInner={this.clozeInner} path={this.card.note.path} replaceAll={false}></ClozePatternComponent>
+        return <ClozePatternComponent index={this.index} text={this.text} patternProps={props} clozeOriginal={this.clozeOriginal} clozeInner={this.clozeInner} path={this.card.note.path} replaceAll={false}></ClozePatternComponent>
     }
-    constructor(card: Card, text: string, clozeOriginal: string, clozeInner: string, originalID: string, tagid: string) {
+    constructor(card: Card, text: string, index: number, clozeOriginal: string, clozeInner: string, originalID: string, tagid: string) {
         super(card, tagid)
         this.text = text
         this.clozeInner = clozeInner
         this.clozeOriginal = clozeOriginal
         this.originalID = originalID
+        this.index = index
     }
 }
 
@@ -81,6 +120,7 @@ type clozePatternComponentProps = {
     replaceAll: boolean
     path: string
     patternProps: PatternProps
+    index: number
 }
 
 type clozePatternComponentState = {
@@ -103,8 +143,8 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
             masktext = this.props.text.replace(clozeReg, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">$1</mark></span>`)
             unmasktext = this.props.text.replace(clozeReg, `<span style="border-bottom: 2px solid #dbdbdb;">$1</span>`)
         } else {
-            masktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.clozeInner}</mark></span>`)
-            unmasktext = this.props.text.replace(this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.clozeInner}</span>`)
+            masktext = replaceClosestSubstring(this.props.text, this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.clozeInner}</mark></span>`, this.props.index)
+            unmasktext = replaceClosestSubstring(this.props.text, this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.clozeInner}</span>`, this.props.index)
         }
         masktext = prettyText(masktext)
         unmasktext = prettyText(unmasktext)
@@ -155,7 +195,7 @@ export class ClozeParser implements PatternParser {
                 } else {
                     console.log(`missing multicloze tag. ${body} ${bodytag}`)
                     console.log(bodytag)
-                    
+
                 }
             } else {
                 for (let i = 0; i < 10000; i++) {
@@ -163,10 +203,10 @@ export class ClozeParser implements PatternParser {
                     if (regArr == null) {
                         break
                     }
-                    let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(regArr[0], 4)}`
+                    let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(i.toString() + regArr[0], 4)}`
                     let tagInfo = TagParser.parse(regArr[2] || "")
                     let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || ""
-                    let result = new clozePattern(card, body, regArr[0], regArr[1], originalID, originalID || newID)
+                    let result = new clozePattern(card, body, regArr.index, regArr[0], regArr[1], originalID, originalID || newID)
                     results.push(result)
                 }
             }

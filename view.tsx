@@ -11,6 +11,7 @@ import { createRoot, Root } from "react-dom/client";
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
+import { GlobalSettings } from 'setting';
 
 function LinearProgressWithLabel(props: { value1: number, value2: number }) {
 	const value = (props.value1 / props.value2) * 100;
@@ -105,6 +106,11 @@ class DelayButton extends React.Component<DelayButtonProps, DelayButtonState> {
 	}
 }
 
+const DURATION_CHECK = 0.3
+const DURATION_FORGET = 1.25
+const DURATION_HARD = 1.5
+const DURATION_WRONG = 1.75
+
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	initFlag: boolean
 	lastPattern: Pattern | undefined
@@ -170,11 +176,18 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			line: range2.line + 1,
 			ch: 0,
 		}
+		let range3: EditorPosition
+		if (index >= 0) {
+			range3 = range2
+		} else {
+			range3 = range2next
+		}
 		view.currentMode.applyScroll(range1.line);
-		view.editor.setSelection(range2next, range1)
+		view.editor.setSelection(range3, range1)
+		await new Promise(resolve => setTimeout(resolve, 100));
 		view.editor.scrollIntoView({
 			from: range1,
-			to: range2next,
+			to: range3,
 		}, true)
 	}
 	PatternComponent = () => {
@@ -242,8 +255,8 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			{
 				!this.state.showAns &&
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-					<DelayButton initTime={8} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
-					<DelayButton initTime={3} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
+					<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
+					<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
 					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
 				</Stack>
 			}
@@ -252,20 +265,20 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={15} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
 
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={20} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
@@ -278,20 +291,20 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 					{
 						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={10} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={15} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={3} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
 
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={20} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
 					}
 					{
 						this.state.mark == markEnum.KNOWN &&

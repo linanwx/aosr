@@ -39,7 +39,7 @@ export function NewCard(cardText: string, content: string, annotation: string, c
 
 // 更新原文
 class updateInfo {
-	updateFunc: (fileText: string) => string
+	updateFunc: (content: string) => string
 }
 
 // 默认卡片的实现
@@ -54,6 +54,7 @@ class defaultCard implements Card {
 	annotationObj: AnnotationObject
 	updateList: updateInfo[];
 	cardText: string
+	content: string
 	static bodySplitReg = /((?:^(?!\*{3,}$).+$\n?)+)/gm
 	// 1为source 2为注释
 	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
@@ -61,6 +62,7 @@ class defaultCard implements Card {
 		this.indexBuff = index
 		this.cardText = cardText || ""
 		this.bodyList = []
+		this.content = content
 		let matchResults = content.matchAll(defaultCard.bodySplitReg)
 		for (let result of matchResults) {
 			this.bodyList.push(result[0])
@@ -126,13 +128,15 @@ class defaultCard implements Card {
 					fileText = UpdateCardIDTag(this.ID, fileText, index)
 				}
 			}
-			// 更新复习块注释 包括复习进度
-			fileText = this.updateAnnotation(fileText)
-			// 更新复习块
+			// 更新复习块 包括插入复习标记标签
+			let newContent = this.content
 			for (let updateInfo of this.updateList) {
-				fileText = updateInfo.updateFunc(fileText)
+				newContent = updateInfo.updateFunc(newContent)
 			}
+			fileText = fileText.replace(this.content, newContent)
 			this.updateList = []
+			// 更新复习块注释 包括生成复习进度和更新复习进度
+			fileText = this.updateAnnotation(fileText)
 		}
 		// 更新注释段内容
 		await app.vault.modify(this.note, fileText)

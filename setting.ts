@@ -6,13 +6,15 @@ export interface AOSRSettings {
     EasyBonus: number;
     HardBonus: number;
     WordTTSURL: string;
+    WaitingTimeoutBase: number;
 }
 
 const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
     EasyBonus: 1,
     HardBonus: 1,
-    WordTTSURL: ""
+    WordTTSURL: "",
+    WaitingTimeoutBase: 7,
 }
 
 export let GlobalSettings: AOSRSettings
@@ -67,6 +69,19 @@ export class AOSRSettingTab extends PluginSettingTab {
                     GlobalSettings.HardBonus = Number(value);
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName('Waiting timeout base')
+            .setDesc('"Waiting timeout" serves two purposes: 1) during waiting, it forces you to spend time reviewing, thinking, and memorizing. 2) More importantly, it can help you distinguish options more accurately. You will find that when you have some ideas about the answer, if you choose the wrong option, your punishment time will become very long. Therefore, you are more likely to choose the appropriate option rather than randomly evaluating the question, because this evaluation is very inaccurate. For example, when you are unsure about an answer, it is best to choose the "Not Sure" option. Otherwise, if you choose the "Known" option but the answer is incorrect, the waiting time will be very long. You can adjust this option to extend or shorten the duration of the "Waiting timeout" according to your situation, or you can turn off the waiting completely.\n"Waiting timeout base" refers to the reference timeout value, which should be the number of seconds you spend memorizing a six-letter word and not forgetting it within three hours.')
+            .addSlider(slider => slider
+                .setDynamicTooltip()
+                .setLimits(0, 15, 0.5)
+                .setValue(GlobalSettings.WaitingTimeoutBase)
+                .onChange(async (value) => {
+                    GlobalSettings.WaitingTimeoutBase = Number(value)
+                    await this.plugin.saveSettings();
+                })
+            )
 
         new Setting(containerEl)
             .setName('Word TTS')
