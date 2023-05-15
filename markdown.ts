@@ -72,7 +72,7 @@ function handleEmbeds(dom: HTMLDivElement, sourcePath: string) {
             return handleVideo(el, target);
         }
 
-        return handleLink(el, target);
+        return handleFile(el, target);
     });
 
     let linkPromises = dom.findAll('.internal-link').map(async (el) => {
@@ -89,7 +89,7 @@ function handleEmbeds(dom: HTMLDivElement, sourcePath: string) {
             return;
         }
 
-        return handleLink(el, target);
+        return handleLink(el, sourcePath, href);
     });
 
     return Promise.all([...embedPromises, ...linkPromises]);
@@ -151,7 +151,7 @@ function handleVideo(el: HTMLElement, file: TFile) {
     el.addClasses(['media-embed', 'is-loaded']);
 }
 
-function handleLink(el: HTMLElement, file: TFile) {
+function handleFile(el: HTMLElement, file: TFile) {
     el.empty();
     let a = el.createEl('a', {
         attr: { 
@@ -167,5 +167,24 @@ function handleLink(el: HTMLElement, file: TFile) {
         event.preventDefault(); // 阻止默认的链接跳转行为
         // 手动调用 Obsidian 的 API 来打开文件
         app.workspace.getLeaf(true).openFile(file);
+    });
+}
+
+function handleLink(el: HTMLElement, sourcePath:string, link: string) {
+    el.empty();
+    let a = el.createEl('a', {
+        attr: { 
+            'data-href': link, 
+            'href': link, 
+            'target': "_blank", 
+            'rel': "noopener"
+        },
+        text: link
+    });
+    // 注册点击事件处理器
+    a.addEventListener('click', (event) => {
+        event.preventDefault(); // 阻止默认的链接跳转行为
+        // 手动调用 Obsidian 的 API 来打开文件
+        app.workspace.openLinkText(link, sourcePath, true)
     });
 }
