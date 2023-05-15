@@ -47,33 +47,52 @@ export function getNormalizedPath(path: string): NormalizedPath {
 }
 
 function handleEmbeds(dom: HTMLDivElement, sourcePath: string) {
-    return Promise.all(
-        dom.findAll('.internal-embed').map(async (el) => {
-            const src = el.getAttribute('src');
-            if (src == null) {
-                return
-            }
-            const normalizedPath = getNormalizedPath(src);
-            const target = app.metadataCache.getFirstLinkpathDest(
-                normalizedPath.root,
-                sourcePath
-            );
-            if (!(target instanceof TFile)) {
-                return;
-            }
-            if (imageExt.contains(target.extension)) {
-                return handleImage(el, target);
-            }
+    let embedPromises = dom.findAll('.internal-embed').map(async (el) => {
+        const src = el.getAttribute('src');
+        if (src == null) {
+            return;
+        }
+        const normalizedPath = getNormalizedPath(src);
+        const target = app.metadataCache.getFirstLinkpathDest(
+            normalizedPath.root,
+            sourcePath
+        );
+        if (!(target instanceof TFile)) {
+            return;
+        }
+        if (imageExt.contains(target.extension)) {
+            return handleImage(el, target);
+        }
 
-            if (audioExt.contains(target.extension)) {
-                return handleAudio(el, target);
-            }
+        if (audioExt.contains(target.extension)) {
+            return handleAudio(el, target);
+        }
 
-            if (videoExt.contains(target.extension)) {
-                return handleVideo(el, target);
-            }
-        })
-    )
+        if (videoExt.contains(target.extension)) {
+            return handleVideo(el, target);
+        }
+
+        return handleLink(el, target);
+    });
+
+    let linkPromises = dom.findAll('.internal-link').map(async (el) => {
+        const href = el.getAttribute('href');
+        if (href == null) {
+            return;
+        }
+        const normalizedPath = getNormalizedPath(href);
+        const target = app.metadataCache.getFirstLinkpathDest(
+            normalizedPath.root,
+            sourcePath
+        );
+        if (!(target instanceof TFile)) {
+            return;
+        }
+
+        return handleLink(el, target);
+    });
+
+    return Promise.all([...embedPromises, ...linkPromises]);
 }
 
 function handleImage(el: HTMLElement, file: TFile) {
@@ -130,4 +149,23 @@ function handleVideo(el: HTMLElement, file: TFile) {
         }
     );
     el.addClasses(['media-embed', 'is-loaded']);
+}
+
+function handleLink(el: HTMLElement, file: TFile) {
+    el.empty();
+    let a = el.createEl('a', {
+        attr: { 
+            'data-href': file.basename, 
+            'href': file.basename, 
+            'target': "_blank", 
+            'rel': "noopener"
+        },
+        text: file.basename
+    });
+    // 注册点击事件处理器
+    a.addEventListener('click', (event) => {
+        event.preventDefault(); // 阻止默认的链接跳转行为
+        // 手动调用 Obsidian 的 API 来打开文件
+        app.workspace.getLeaf(true).openFile(file);
+    });
 }
