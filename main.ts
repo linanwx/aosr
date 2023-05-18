@@ -4,9 +4,10 @@ import { MultiLineParser, SingleLineParser } from 'patternLine';
 import { AOSRSettingTab, setGlobalSettings, GlobalSettings } from 'setting';
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
+import { AosrAPI } from 'api';
 
 export default class AOSRPlugin extends Plugin {
-
+	public api:AosrAPI
 	async onload() {
 		await this.loadSettings();
 		this.registerView(VIEW_TYPE_REVIEW, (leaf) => new ReviewView(leaf));
@@ -37,6 +38,7 @@ export default class AOSRPlugin extends Plugin {
 		});
 		this.addSettingTab(new AOSRSettingTab(this.app, this));
 		this.registerAosrParser()
+		this.api = new AosrAPI
 	}
 
 	registerAosrParser() {
