@@ -240,6 +240,8 @@ dv.table(["TagID", "Ease"], difficultPatterns);
 ```
 `````
 
+> Conflict between the double colon (::) review format and the metadata format of Dataview. It may be necessary to introduce a new format to replace the double colon review format.
+
 # What's the difference? 
 
 What's the difference between Aosr and obsidian-spaced-repetition?
