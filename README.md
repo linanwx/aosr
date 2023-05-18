@@ -194,6 +194,7 @@ You can obtain the complete set of review data by using the code `let patterns =
 
 Please note that you need to enable the corresponding option in Dataview to use `dataviewjs`!
 
+`````
 ```dataviewjs
 let patterns = await app.plugins.plugins.aosr.api.getAllPattern();
 
@@ -237,6 +238,7 @@ dv.header(3, "The most difficult content in terms of review")
 
 dv.table(["TagID", "Ease"], difficultPatterns);
 ```
+`````
 
 # What's the difference? 
 
