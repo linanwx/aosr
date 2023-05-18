@@ -176,6 +176,61 @@ I know it's not pretty, and it messes up the format of the document. But for me 
 
 The comments will be automatically generated at the end of the document. Its location can also be moved, as long as it is in the same document.
 
+# Work with Dataview
+
+By installing the Dataview plugin, you can view information about your review progress.
+
+
+<img width="843" alt="Screenshot 2023-05-18 at 9 37 16 PM" src="https://github.com/linanwx/aosr/assets/16589958/be0bb419-23a0-44a4-b2f1-112e67522a7c">
+
+You can obtain the complete set of review data by using the code `let patterns = await app.plugins.plugins.aosr.api.getAllPattern();`. Then, you can write Dataview code to display the data. Below is an example provided for you to copy and run.
+
+Please note that you need to enable the corresponding option in Dataview to use `dataviewjs`!
+
+```dataviewjs
+let patterns = await app.plugins.plugins.aosr.api.getAllPattern();
+
+let today = new Date();
+today.setHours(0, 0, 0, 0);
+
+let futureLimit = new Date();
+futureLimit.setDate(today.getDate() + 15); // Set the future limit to 15 days from today.
+
+let reviewCountsByDate = {};
+
+patterns.forEach(pattern => {
+    let nextReviewDate = new Date(pattern.schedule.Next);
+
+    if (nextReviewDate >= today && nextReviewDate <= futureLimit) {
+        nextReviewDate.setHours(0, 0, 0, 0);
+        let dateStr = nextReviewDate.toISOString().split('T')[0];
+        if (!reviewCountsByDate[dateStr]) {
+            reviewCountsByDate[dateStr] = 0;
+        }
+        reviewCountsByDate[dateStr]++;
+    }
+});
+
+let tableData = Object.entries(reviewCountsByDate)
+    .map(([date, count]) => [date, count])
+    .sort((a, b) => new Date(a[0]) - new Date(b[0])); // Sort by date
+
+dv.header(3, "Total amount of Review");
+dv.table(["Count"], [[patterns.length]])
+
+dv.header(3, "The amount of daily Review required in the future");
+dv.table(["Date", "Review Count"], tableData);
+
+
+let difficultPatterns = patterns
+    .map(pattern => [pattern.TagID, pattern.schedule.Ease])
+    .sort((a, b) => a[1] - b[1]) // Sort by Ease
+    .slice(0, 10); // Take only the first 10
+dv.header(3, "The most difficult content in terms of review")
+
+dv.table(["TagID", "Ease"], difficultPatterns);
+```
+
 # What's the difference? 
 
 What's the difference between Aosr and obsidian-spaced-repetition?
