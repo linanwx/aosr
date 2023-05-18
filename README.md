@@ -209,7 +209,11 @@ let reviewCountsByDate = {};
 patterns.forEach(pattern => {
     let nextReviewDate = new Date(pattern.schedule.Next);
 
-    if (nextReviewDate >= today && nextReviewDate <= futureLimit) {
+    if (nextReviewDate < today) {
+        nextReviewDate = today;
+    }
+
+    if (nextReviewDate <= futureLimit) {
         nextReviewDate.setHours(0, 0, 0, 0);
         let dateStr = nextReviewDate.toISOString().split('T')[0];
         if (!reviewCountsByDate[dateStr]) {
