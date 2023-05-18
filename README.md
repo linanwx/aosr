@@ -6,6 +6,13 @@ It uses flashcards to help remember knowledge.
 
 This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition), but some changes have been made according to personal habits.
 
+# What's new
+
+By working with Dataview, you can track your review progress. [See detail.](#workwithdataview)
+
+<img width="754" alt="Screenshot 2023-05-18 at 9 41 22 PM" src="https://github.com/linanwx/aosr/assets/16589958/e211304a-5bb8-4683-a86b-9c4fb884027d">
+
+
 # Demo
 
 
@@ -177,7 +184,7 @@ I know it's not pretty, and it messes up the format of the document. But for me 
 The comments will be automatically generated at the end of the document. Its location can also be moved, as long as it is in the same document.
 
 # Work with Dataview
-
+<a id="workwithdataview"></a>
 By installing the Dataview plugin, you can view information about your review progress.
 
 
