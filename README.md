@@ -111,7 +111,7 @@ Note that each cloze will be treated as a separate Pattern. Otherwise, you shoul
 Fruits include ==watermelons, apples, and pears==.
 ```
 
-In addition, you could add a #multicloze tag to the card to get the same effect.
+In addition, you could add a [#multicloze](https://github.com/linanwx/aosr#multicloze-pattern) tag to the card to get the same effect.
 
 ##### Multicloze Pattern
 
