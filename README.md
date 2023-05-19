@@ -183,8 +183,8 @@ I know it's not pretty, and it messes up the format of the document. But for me 
 
 The comments will be automatically generated at the end of the document. Its location can also be moved, as long as it is in the same document.
 
-# Work with Dataview
-<a id="workwithdataview"></a>
+<h1 id="workwithdataview">Work with Dataview</h1>
+
 By installing the Dataview plugin, you can view information about your review progress.
 
 
