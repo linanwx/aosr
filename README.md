@@ -8,7 +8,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's new
 
-By working with Dataview, you can track your review progress. [See detail.]([#workwithdataview](https://github.com/linanwx/aosr#work-with-dataview))
+By working with Dataview, you can track your review progress. [See detail.](https://github.com/linanwx/aosr#work-with-dataview)
 
 <img width="754" alt="Screenshot 2023-05-18 at 9 41 22 PM" src="https://github.com/linanwx/aosr/assets/16589958/e211304a-5bb8-4683-a86b-9c4fb884027d">
 
