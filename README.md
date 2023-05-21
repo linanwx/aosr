@@ -1,11 +1,17 @@
 # Aosr
 
-Another obsidian spaced repetition.
+Aosr is another Obsidian plugin for spaced repetition.
 
 It uses flashcards to help remember knowledge.
 
 This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition), but some changes have been made according to personal habits.
 
+# Features
+
+- **Rich Text Format Support**: The plugin supports rich text formats such as audio. This allows you to create multimedia flashcards for a more immersive learning experience.
+- **Dedicated Review Window**: The plugin features a separate review window, allowing you to review cards while simultaneously making changes to them in the editor. This is perfect for making quick adjustments on the fly.
+- **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
+- **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
 # What's new
 
 By working with Dataview, you can track your review progress. [See details.](https://github.com/linanwx/aosr#work-with-dataview)
@@ -58,11 +64,11 @@ Card2
 
 ## Pattern
 
-Pattern is your question and answer.
+A pattern represents a question and its corresponding answer.
 
 ### :: Pattern
 
-In the card, `::` will split this line. The front part will become a question, and the back part will become an answer.
+In the card, `::` symbol is used to split a line. The front part will become a question, and the back part will become an answer.
 
 ```
 word::definition
@@ -76,7 +82,7 @@ word::definition
 word::definition
 ```
 
-You can use the symbol `:::` to flip cards and complete the reverse memory in addition to the forward memory.
+You can use the symbol `:::` to create cards that can be reviewed in both directions - from question to answer and from answer to question.
 
 ```
 word:::definition
@@ -85,7 +91,7 @@ word:::definition
 
 ### ? Pattern
 
-In the card, a line with a `?` will split this card. The front part will become a question, and the back part will become an answer.
+In the card, a line with a `?` will divide the content into a question and an answer. The front part will become a question, and the back part will become an answer.
 
 ```
 Question.
