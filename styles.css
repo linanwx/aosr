@@ -5,3 +5,12 @@
 .markdown-reading-view a.tag:is([href^="#AOSR/"]) {
     display: none;
 }
+
+[class*="cm-tag-AOSR"].cm-hashtag {
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+
+.cm-active [class*="cm-tag-AOSR"].cm-hashtag, [class*="cm-tag-AOSR"].cm-hashtag:hover {
+    opacity: 1;
+}

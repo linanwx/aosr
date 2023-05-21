@@ -1,13 +1,83 @@
-import { addIcon, Plugin, WorkspaceLeaf } from 'obsidian';
+import { addIcon, MarkdownEditView, MarkdownView, Plugin, WorkspaceLeaf, Notice, Editor , TFile} from 'obsidian';
 import { ClozeParser } from 'patternCloze';
 import { MultiLineParser, SingleLineParser } from 'patternLine';
 import { AOSRSettingTab, setGlobalSettings, GlobalSettings } from 'setting';
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
 import { AosrAPI } from 'api';
+import { NewCardSearch } from 'cardSearch';
+import { debounce } from 'lodash';
+
+
+class AosrWriterHelper {
+	cardCount: number = 0
+	patternCount: number = 0
+	filePath: string = ""
+	checkDebounced = debounce((file:TFile, text:string) => {
+		this.check(file, text);
+	}, 500);
+
+	constructor() {
+		app.workspace.on("active-leaf-change", async (leaf)=>{
+			let view = app.workspace.getActiveViewOfType(MarkdownView)
+			if (!view) {
+				return
+			}
+			this.checkDebounced(view.file, view.editor.getValue())
+		})
+		app.workspace.on("editor-change", async (editor, view) => {
+			this.checkDebounced(view.file, editor.getValue())
+		});
+	}
+
+	private hasTag(file:TFile) {
+		let cache = app.metadataCache.getFileCache(file)
+		if (!cache) {
+			return false
+		}
+		if (cache.tags) {
+			for (let tag of cache.tags) {
+				if (tag.tag === "#Q") {
+					return true;
+				}
+			}
+		}
+		return false
+	}
+
+	private async check(file: TFile, text: string) {
+		console.log("check")
+		if (!this.hasTag(file)) {
+			return
+		}
+		let search = NewCardSearch()
+		let result = await search.search(file, text)
+		let newcardcount = result.AllCard.length
+		let newpatterncount = 0
+		result.AllCard.forEach(element => {
+			newpatterncount += element.patterns.length
+		});
+
+		if (file.path == this.filePath) {
+			if (newcardcount !== this.cardCount) {
+				let change = newcardcount - this.cardCount;
+				let symbol = change > 0 ? "+" : "-";
+				new Notice(`Card ${symbol}${Math.abs(change)}`);
+			}
+			if (newpatterncount !== this.patternCount) {
+				let change = newpatterncount - this.patternCount;
+				let symbol = change > 0 ? "+" : "-";
+				new Notice(`Pattern ${symbol}${Math.abs(change)}`);
+			}
+		}
+		this.cardCount = newcardcount
+		this.patternCount = newpatterncount
+		this.filePath = file.path
+	}
+}
 
 export default class AOSRPlugin extends Plugin {
-	public api:AosrAPI
+	public api: AosrAPI
 	async onload() {
 		await this.loadSettings();
 		this.registerView(VIEW_TYPE_REVIEW, (leaf) => new ReviewView(leaf));
@@ -17,7 +87,7 @@ export default class AOSRPlugin extends Plugin {
 		)
 		this.addRibbonIcon('flashcards', 'Aosr Review', async () => {
 			let find = false
-			this.app.workspace.iterateAllLeaves((leaf)=>{
+			this.app.workspace.iterateAllLeaves((leaf) => {
 				if (leaf.view.getViewType() == VIEW_TYPE_REVIEW) {
 					find = true
 					app.workspace.revealLeaf(leaf)
@@ -39,6 +109,7 @@ export default class AOSRPlugin extends Plugin {
 		this.addSettingTab(new AOSRSettingTab(this.app, this));
 		this.registerAosrParser()
 		this.api = new AosrAPI
+		new AosrWriterHelper()
 	}
 
 	registerAosrParser() {

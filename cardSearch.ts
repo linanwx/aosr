@@ -15,7 +15,7 @@ export class SearchResult {
 
 // 卡片搜寻器负责搜索可能的卡片
 export interface cardSearcher {
-	search(file?: TFile): Promise<SearchResult>
+	search(file?: TFile, text?:string): Promise<SearchResult>
 }
 
 export function NewCardSearch(tagName?: string): cardSearcher {
@@ -29,13 +29,20 @@ class defaultCardSearch implements cardSearcher {
 	// 匹配所有 标签 开头行 到该段落的结束为止
 	private defaultRegText = String.raw`(^#tagName\b.*)\n((?:^.+$\n?)+)`
 	private matchReg: RegExp
-	async search(file?: TFile): Promise<SearchResult> {
+	async search(file?: TFile, text?:string): Promise<SearchResult> {
 		let result = new SearchResult()
 		result.SearchName = "#" + this.tagName
 		if (file) {
-			await this.walkFileCard(file, (card) => {
-				result.AllCard.push(card)
-			})
+			if (!text) {
+				await this.walkFileCard(file, (card) => {
+					result.AllCard.push(card)
+				})
+			} else {
+				this.walkText(text, file, (card) => {
+					result.AllCard.push(card)
+				})
+			}
+
 		} else {
 			await this.walkVaultFile(async (note) => {
 				await this.walkFileCard(note, (card) => {
@@ -55,22 +62,7 @@ class defaultCardSearch implements cardSearcher {
 		let fileText: string = await app.vault.read(note);
 		// workaround 如果文本最后一张卡片后面没有多余的换行，正则无法匹配
 		// fileText += "\n"
-		let results = fileText.matchAll(this.matchReg)
-		for (let result of results) {
-			// 匹配注释段
-			let cardText = result[0]
-			let index = result.index || 0
-			let tags = TagParser.parse(result[1])
-			let idTag = tags.findTag(CardIDTag)
-			let blockID = idTag?.Suffix || ""
-			let annotation = ""
-			if (blockID != "") {
-				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID)
-			}
-			let content = result[2]
-			let card: Card = NewCard(cardText, content, annotation, blockID, index, note)
-			callback(card)
-		}
+		this.walkText(fileText, note, callback);
 	}
 	constructor(tagName?: string) {
 		if (tagName) {
@@ -78,5 +70,24 @@ class defaultCardSearch implements cardSearcher {
 		}
 		this.defaultRegText = this.defaultRegText.replace("tagName", this.tagName)
 		this.matchReg = new RegExp(this.defaultRegText, "gm")
+	}
+
+	private walkText(fileText: string, note: TFile, callback: (card: Card) => void) {
+		let results = fileText.matchAll(this.matchReg);
+		for (let result of results) {
+			// 匹配注释段
+			let cardText = result[0];
+			let index = result.index || 0;
+			let tags = TagParser.parse(result[1]);
+			let idTag = tags.findTag(CardIDTag);
+			let blockID = idTag?.Suffix || "";
+			let annotation = "";
+			if (blockID != "") {
+				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID);
+			}
+			let content = result[2];
+			let card: Card = NewCard(cardText, content, annotation, blockID, index, note);
+			callback(card);
+		}
 	}
 }
