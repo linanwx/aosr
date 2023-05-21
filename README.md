@@ -22,7 +22,7 @@ By working with Dataview, you can track your review progress. [See details.](htt
 
 ## Card
 
-A CARD is begin with `#Q` and ends with an empty line.
+A CARD begins with `#Q` and ends with an empty line.
 
 ```
 #Q 
@@ -33,7 +33,9 @@ Pattern formats outside this range will not be processed.
 <- There should have an empty line if this is not the end of the document.
 ```
 
-In the card, the PATTERN is your question and answer. A card can have not only one pattern but more than 1000 patterns. See the next section for the specific Pattern format.
+In the card, the PATTERN is your question and answer. 
+
+A card can contain multiple patterns. For instance, if you're studying a vocabulary list, your card could include several lines of :: style patterns, each pairing a word with its definition. In essence, you can think of a card as a text block within Obsidian, while a pattern is a question and its corresponding answer. A single text block can contain multiple questions and their respective answers.
 
 Using `***` to split the card into sub-cards. This would be helpful if you don't want to write `#Q` and create a new card.
 
