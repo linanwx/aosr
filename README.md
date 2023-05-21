@@ -1,6 +1,6 @@
 # Aosr
 
-Aosr is another Obsidian plugin for spaced repetition.
+Aosr is **A**nother **O**bsidian plugin for **S**paced **R**epetition.
 
 It uses flashcards to help remember knowledge.
 
