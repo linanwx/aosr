@@ -26,6 +26,9 @@ class AosrWriterHelper {
 			this.checkDebounced(view.file, view.editor.getValue())
 		})
 		app.workspace.on("editor-change", async (editor, view) => {
+			if (!view) {
+				return
+			}
 			this.checkDebounced(view.file, editor.getValue())
 		});
 	}
