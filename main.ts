@@ -49,7 +49,6 @@ class AosrWriterHelper {
 	}
 
 	private async check(file: TFile, text: string) {
-		console.log("check")
 		if (!this.hasTag(file)) {
 			return
 		}

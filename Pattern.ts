@@ -26,6 +26,11 @@ export abstract class Pattern {
 	}
 	abstract SubmitOpt(opt: Operation): Promise<void>;
 	abstract Component(props:PatternProps): JSX.Element;
+	abstract insertPatternID(): void;
+	async InitAosrID() {
+		this.insertPatternID()
+		await this.card.commitFile({ID:true})
+	}
 }
 
 export function prettyText (text:string):string {

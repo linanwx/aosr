@@ -1,16 +1,18 @@
 import SaveIcon from '@mui/icons-material/Save';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Chip, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
-import { Arrangement, PatternIter } from 'arrangement';
-import { EditorPosition, ItemView, MarkdownView } from 'obsidian';
-import { Pattern } from "Pattern";
-import * as React from "react";
-import { createRoot, Root } from "react-dom/client";
-import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
-import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
+import { Pattern } from "Pattern";
+import { Arrangement, PatternIter } from 'arrangement';
+import { MarkdownComponent } from 'markdown';
+import { EditorPosition, ItemView, MarkdownView, TFile } from 'obsidian';
+import * as React from "react";
+import { Root, createRoot } from "react-dom/client";
+import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
 import { GlobalSettings } from 'setting';
 
 function LinearProgressWithLabel(props: { value1: number, value2: number }) {
@@ -50,6 +52,8 @@ type ReviewingState = {
 	patternIter: AsyncGenerator<PatternIter, boolean, unknown>
 	index: number
 	total: number
+	heading: string
+	fileName: string
 }
 
 
@@ -111,6 +115,60 @@ const DURATION_FORGET = 1.25
 const DURATION_HARD = 1.5
 const DURATION_WRONG = 1.75
 
+function removeMdExtension(str: string) {
+	if (str.endsWith('.md')) {
+		return str.slice(0, -3);
+	}
+	return str;
+}
+
+function replaceSlashWithArrow(str: string) {
+	return str.replace(/\//g, ' > ');
+}
+
+function findOutline(file: TFile, offset: number): string {
+	let cache = app.metadataCache.getFileCache(file)
+	if (!cache) {
+		return ""
+	}
+	if (!cache.headings || cache.headings.length == 0) {
+		return ""
+	}
+	// Find the position of the heading in the array.
+	let position = -1
+	for (let i = 0; i < cache.headings.length; i++) {
+		if (cache.headings[i].position.start.offset <= offset) {
+			position = i
+		} else {
+			break
+		}
+	}
+	if (position == -1) {
+		return ""
+	}
+	let currentOutline: string[] = []
+	let currentLevel = cache.headings[position].level
+	// Add the current heading to the outline.
+	currentOutline.push(cache.headings[position].heading)
+	// Iterate backwards through the headings.
+	for (let i = position - 1; i >= 0; i--) {
+		let heading = cache.headings[i]
+
+		// If the level is less than the current level, add it to the outline.
+		if (heading.level < currentLevel) {
+			currentOutline.unshift(heading.heading)
+			currentLevel = heading.level
+		}
+
+		// If we have reached the top level, stop searching.
+		if (currentLevel === 1) {
+			break
+		}
+	}
+
+	return currentOutline.join(" > ")
+}
+
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	initFlag: boolean
 	lastPattern: Pattern | undefined
@@ -123,6 +181,8 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			mark: markEnum.NOTSURE,
 			index: 0,
 			total: 1,
+			heading: "",
+			fileName: "",
 		}
 		this.initFlag = false
 	}
@@ -139,10 +199,14 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}
+		let heading = findOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
+		await result.value.pattern.InitAosrID();
 		this.setState({
 			nowPattern: result.value.pattern,
 			index: result.value.index,
 			total: result.value.total,
+			heading: heading,
+			fileName: replaceSlashWithArrow(removeMdExtension(result.value.pattern.card.note.path)),
 		})
 	}
 	openPatternFile = async (pattern: Pattern | undefined) => {
@@ -231,7 +295,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	render() {
 		return <Box>
 			<LinearProgressWithLabel value1={this.state.index} value2={this.state.total} />
-			<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+			<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ marginTop: 2, marginBottom: 2 }}>
 				<Button size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
 				<Button size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
 				<Stack spacing={2} direction='row'>
@@ -248,71 +312,82 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 						}} label={`ease: ${this.state.nowPattern?.schedule.Ease.toFixed(0)}`} />
 					}
 				</Stack>
+				<Button size="medium" onClick={this.next} startIcon={<SkipNextIcon />}>Skip</Button>
 			</Stack>
-			<Box sx={{ minHeight: 135 }}>
+			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
+				<Typography variant="h3">
+					{this.state.fileName}
+				</Typography>
+			</Box>
+			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
+				<Typography variant="h6"><MarkdownComponent markdown={this.state.heading} sourcePath={''} component={this.props.view} /></Typography>
+			</Box>
+			<Box sx={{ minHeight: 135, marginTop: 2, marginBottom: 2 }}>
 				<this.PatternComponent></this.PatternComponent>
 			</Box>
-			{
-				!this.state.showAns &&
-				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-					<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
-					<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
-					<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
-				</Stack>
-			}
-			{
-				this.state.showAns && this.props.arrangeName != "learn" &&
-				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-					{
-						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
+			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
+				{
+					!this.state.showAns &&
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}>Forget</DelayButton>
+						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}>Not Sure</DelayButton>
+						<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}>Known</Button>
+					</Stack>
+				}
+				{
+					this.state.showAns && this.props.arrangeName != "learn" &&
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+						{
+							this.state.mark == markEnum.FORGET &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}>Forget {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.NOTSURE &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} onClick={() => this.submit(new ReviewOpt(ReviewEnum.HARD))} color="error" size="large">Hard {this.getOptDate(ReviewEnum.HARD)}</DelayButton>
 
-					}
-					{
-						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.KNOWN &&
-						<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy {this.getOptDate(ReviewEnum.EASY)}</Button>
-					}
-				</Stack>
-			}
-			{
-				this.state.showAns && this.props.arrangeName == "learn" &&
-				<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-					{
-						this.state.mark == markEnum.FORGET &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.NOTSURE &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.NOTSURE &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FAIR))}>Fair {this.getOptDate(ReviewEnum.FAIR)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.KNOWN &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))} color="error" size="large">Wrong {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.KNOWN &&
+							<Button color="success" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.EASY))}>Easy {this.getOptDate(ReviewEnum.EASY)}</Button>
+						}
+					</Stack>
+				}
+				{
+					this.state.showAns && this.props.arrangeName == "learn" &&
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+						{
+							this.state.mark == markEnum.FORGET &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Forget {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.NOTSURE &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_HARD} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.HARD))}>Hard {this.getOptRate(LearnEnum.HARD)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.NOTSURE &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FAIR))}>Fair {this.getOptRate(LearnEnum.FAIR)}</DelayButton>
 
-					}
-					{
-						this.state.mark == markEnum.KNOWN &&
-						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
-					}
-					{
-						this.state.mark == markEnum.KNOWN &&
-						<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy {this.getOptRate(LearnEnum.EASY)}</Button>
+						}
+						{
+							this.state.mark == markEnum.KNOWN &&
+							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_WRONG} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}>Wrong {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
+						}
+						{
+							this.state.mark == markEnum.KNOWN &&
+							<Button color="info" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.EASY))}>Easy {this.getOptRate(LearnEnum.EASY)}</Button>
 
-					}
-				</Stack>
-			}
+						}
+					</Stack>
+				}
+			</Box>
 		</Box>
 	}
 }
@@ -472,7 +547,7 @@ export class ReviewView extends ItemView {
 		return VIEW_TYPE_REVIEW
 	}
 	getDisplayText(): string {
-		return "AOSR"
+		return "Aosr"
 	}
 	async onload() {
 		let rootDiv = this.containerEl.children[1].createDiv()

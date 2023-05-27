@@ -27,7 +27,7 @@ class multiclozePattern extends Pattern {
     async SubmitOpt(opt: Operation): Promise<void> {
         this.card.getSchedule(this.TagID).apply(opt)
         this.insertPatternID()
-        await this.card.commitFile()
+        await this.card.commitFile({ ID: true, annotation: true })
     }
     Component = (props: PatternProps): JSX.Element => {
         return <ClozePatternComponent index={0} text={this.text} patternProps={props} clozeOriginal={""} clozeInner={""} path={this.card.note.path} replaceAll={true}></ClozePatternComponent>
@@ -86,7 +86,7 @@ class clozePattern extends Pattern {
     async SubmitOpt(opt: Operation): Promise<void> {
         this.card.getSchedule(this.TagID).apply(opt)
         this.insertPatternID()
-        await this.card.commitFile()
+        await this.card.commitFile({ ID: true, annotation: true })
     }
     insertPatternID() {
         if (this.originalID) {
@@ -125,7 +125,7 @@ type clozePatternComponentProps = {
 
 type clozePatternComponentState = {
     markdownDivMask: HTMLDivElement
-    markdownDivUnmask: HTMLDivElement
+    // markdownDivUnmask: HTMLDivElement
 }
 
 class ClozePatternComponent extends React.Component<clozePatternComponentProps, clozePatternComponentState> {
@@ -136,45 +136,31 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
         }
         this.loadFlag = true
         this.state.markdownDivMask.empty()
-        this.state.markdownDivUnmask.empty()
         let masktext: string
-        let unmasktext: string
         if (this.props.replaceAll) {
-            masktext = this.props.text.replace(clozeReg, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">$1</mark></span>`)
-            unmasktext = this.props.text.replace(clozeReg, `<span style="border-bottom: 2px solid #dbdbdb;">$1</span>`)
+            masktext = this.props.text.replace(clozeReg, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="aosr-fuzzy-el">$1</mark></span>`)
         } else {
-            masktext = replaceClosestSubstring(this.props.text, this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="fuzzy">${this.props.clozeInner}</mark></span>`, this.props.index)
-            unmasktext = replaceClosestSubstring(this.props.text, this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;">${this.props.clozeInner}</span>`, this.props.index)
+            masktext = replaceClosestSubstring(this.props.text, this.props.clozeOriginal, `<span style="border-bottom: 2px solid #dbdbdb;"><mark class="aosr-fuzzy-el">${this.props.clozeInner}</mark></span>`, this.props.index)
         }
         masktext = prettyText(masktext)
-        unmasktext = prettyText(unmasktext)
         await renderMarkdown(masktext, this.state.markdownDivMask, this.props.path, this.props.patternProps.view)
-        await renderMarkdown(unmasktext, this.state.markdownDivUnmask, this.props.path, this.props.patternProps.view)
         this.setState({
             markdownDivMask: this.state.markdownDivMask,
-            markdownDivUnmask: this.state.markdownDivUnmask,
         })
+        console.log("run componentDidMount")
     }
     constructor(props: clozePatternComponentProps) {
         super(props)
         this.state = {
             markdownDivMask: createDiv(),
-            markdownDivUnmask: createDiv(),
         }
         this.loadFlag = false
     }
     render() {
-        return <div>
-            {
-                !this.props.patternProps.showAns &&
-                <div>
-                    <NodeContainer node={this.state.markdownDivMask}></NodeContainer>
-                </div>
-            }
-            {this.props.patternProps.showAns &&
-                <NodeContainer node={this.state.markdownDivUnmask}></NodeContainer>
-            }
+        return <div className={this.props.patternProps.showAns ? 'aosr-unblur-ctrl' : 'aosr-fuzzy-ctrl'} >
+            <NodeContainer node={this.state.markdownDivMask}></NodeContainer>
         </div>
+
     }
 }
 

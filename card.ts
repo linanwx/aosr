@@ -2,9 +2,9 @@ import { AnnotationObject, AnnotationWrapper } from 'annotationParse';
 import { UpdateCardIDTag } from 'cardHead';
 import { TFile } from 'obsidian';
 import { CardSchedule, PatternSchedule } from 'schedule';
-import { cyrb53 } from './hash';
 import { ParserCollection } from './ParserCollection';
 import { Pattern } from './Pattern';
+import { cyrb53 } from './hash';
 
 // 卡片
 // 卡片由源码和注释两部分组成，
@@ -30,7 +30,12 @@ export interface Card {
 	// 更新文件
 	updateFile(info: updateInfo): void
 	// 提交文件变更
-	commitFile(): Promise<void>
+	commitFile(commitType: commitType): Promise<void>
+}
+
+interface commitType {
+	annotation?: boolean
+	ID?: boolean
 }
 
 export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
@@ -109,36 +114,33 @@ class defaultCard implements Card {
 		}
 		return fileText
 	}
-	async commitFile() {
+	async commitFile(committype: commitType) {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
-		if (!fileText.contains(this.cardText)) {
-			// 如果原文已被改变，可能是复习打开的过程中，用户更改了原文
-			// 原文如果被更改，则不能再对原文进行更新，并且只有在原来有注释的情况下，更新注释
-			console.info("File has been changed, ignore commit original card.")
-			// 只更新复习进度
-			if (this.annotationWrapperStr?.length > 0) {
-				fileText = this.updateAnnotation(fileText)
-			}
-		} else {
-			// 如果不存在复习块ID 则先更新复习块块ID
-			if (this.originalID == "") {
-				let index = fileText.indexOf(this.cardText)
-				if (index >= 0) {
-					fileText = UpdateCardIDTag(this.ID, fileText, index)
+		if (committype.ID == true) {
+			// 如果卡片内容被更改, 则添加ID无效
+			if (fileText.contains(this.cardText)) {
+				// 如果不存在复习块ID 则先更新复习块块ID
+				if (this.originalID == "") {
+					let index = fileText.indexOf(this.cardText)
+					if (index >= 0) {
+						fileText = UpdateCardIDTag(this.ID, fileText, index)
+					}
 				}
+				// 更新复习块 包括插入复习标记标签
+				let newContent = this.content
+				for (let updateInfo of this.updateList) {
+					newContent = updateInfo.updateFunc(newContent)
+				}
+				fileText = fileText.replace(this.content, newContent)
+				this.updateList = []
 			}
-			// 更新复习块 包括插入复习标记标签
-			let newContent = this.content
-			for (let updateInfo of this.updateList) {
-				newContent = updateInfo.updateFunc(newContent)
-			}
-			fileText = fileText.replace(this.content, newContent)
-			this.updateList = []
-			// 更新复习块注释 包括生成复习进度和更新复习进度
-			fileText = this.updateAnnotation(fileText)
 		}
 		// 更新注释段内容
+		if (committype.annotation == true) {
+			fileText = this.updateAnnotation(fileText)
+		}
+		// 提交变更
 		await app.vault.modify(this.note, fileText)
 	}
 }

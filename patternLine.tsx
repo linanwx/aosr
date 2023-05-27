@@ -9,6 +9,10 @@ import { GlobalSettings } from "setting";
 import { TagParser } from "tag";
 import { renderMarkdown } from "./markdown";
 import { NodeContainer } from "./nodeContainer";
+import MUICard from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import { Box } from '@mui/system';
+
 
 abstract class linePattern extends Pattern {
 	keyText: string
@@ -32,7 +36,7 @@ abstract class linePattern extends Pattern {
 		// 原文中不一定包含pattern的ID 可能需要更新
 		this.insertPatternID()
 		// 通知卡片一切就绪 准备更新原文
-		await this.card.commitFile()
+		await this.card.commitFile({ID:true, annotation:true})
 	}
 	// 展示组件
 	Component = (props: PatternProps): JSX.Element => {
@@ -126,13 +130,14 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		}
 	}
 	render() {
+		const showAnswerClass = this.props.patternProps.showAns ? 'aosr-show' : '';
+	
 		return <div>
 			<NodeContainer node={this.state.markdownDivFront}></NodeContainer>
 			<br></br>
-			{
-				this.props.patternProps.showAns &&
+			<div className={`aosr-answer ${showAnswerClass}`}>
 				<NodeContainer node={this.state.markdownDivBack}></NodeContainer>
-			}
+			</div>
 			<br></br>
 		</div>
 	}

@@ -1,5 +1,13 @@
-.markdown-rendered mark.fuzzy {
-    filter: blur(5px);
+.aosr-fuzzy-ctrl .aosr-fuzzy-el {
+    filter: blur(10px);
+}
+
+.aosr-unblur-ctrl .aosr-fuzzy-el {
+    filter: blur(0);
+}
+
+.aosr-fuzzy-el {
+    transition: filter 0.2s ease-in-out;
 }
 
 .markdown-reading-view a.tag:is([href^="#AOSR/"]) {
@@ -11,6 +19,16 @@
     transition: opacity 0.3s ease;
 }
 
-.cm-active [class*="cm-tag-AOSR"].cm-hashtag, [class*="cm-tag-AOSR"].cm-hashtag:hover {
+.cm-active [class*="cm-tag-AOSR"].cm-hashtag,
+[class*="cm-tag-AOSR"].cm-hashtag:hover {
     opacity: 1;
+}
+
+.aosr-answer {
+    filter: blur(10px);
+    transition: filter 0.2s ease-in-out;
+}
+
+.aosr-answer.aosr-show {
+    filter: blur(0);
 }

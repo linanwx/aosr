@@ -14,7 +14,7 @@ export async function renderMarkdown(markdown: string, el: HTMLDivElement, sourc
     try {
         await MarkdownRenderer.renderMarkdown(markdown, el, sourcePath, component);
         await handleEmbeds(el, sourcePath);
-    } catch(e) {
+    } catch (e) {
         console.error(e)
     }
 }
@@ -154,10 +154,10 @@ function handleVideo(el: HTMLElement, file: TFile) {
 function handleFile(el: HTMLElement, file: TFile) {
     el.empty();
     let a = el.createEl('a', {
-        attr: { 
-            'data-href': file.basename, 
-            'href': file.basename, 
-            'target': "_blank", 
+        attr: {
+            'data-href': file.basename,
+            'href': file.basename,
+            'target': "_blank",
             'rel': "noopener"
         },
         text: file.basename
@@ -170,13 +170,13 @@ function handleFile(el: HTMLElement, file: TFile) {
     });
 }
 
-function handleLink(el: HTMLElement, sourcePath:string, link: string) {
+function handleLink(el: HTMLElement, sourcePath: string, link: string) {
     el.empty();
     let a = el.createEl('a', {
-        attr: { 
-            'data-href': link, 
-            'href': link, 
-            'target': "_blank", 
+        attr: {
+            'data-href': link,
+            'href': link,
+            'target': "_blank",
             'rel': "noopener"
         },
         text: link
@@ -188,3 +188,38 @@ function handleLink(el: HTMLElement, sourcePath:string, link: string) {
         app.workspace.openLinkText(link, sourcePath, true)
     });
 }
+
+import React, { useEffect, useRef } from 'react';
+
+interface MarkdownComponentProps {
+    markdown: string;
+    sourcePath: string;
+    component: Component;
+}
+
+export const MarkdownComponent: React.FC<MarkdownComponentProps> = ({ markdown, sourcePath, component }) => {
+    const ref = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (ref.current) {
+            // Define an async function inside the effect
+            const renderMarkdownAsync = async () => {
+                if (ref.current) {
+                    // Clear the element's content before rendering new markdown
+                    ref.current.innerHTML = '';
+                    await MarkdownRenderer.renderMarkdown(
+                        markdown,
+                        ref.current,
+                        sourcePath,
+                        component
+                    );
+                }
+
+            };
+
+            // Call the async function
+            renderMarkdownAsync();
+        }
+    }, [markdown, sourcePath, component]);
+
+    return <div ref={ref} />;
+};
