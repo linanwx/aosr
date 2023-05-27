@@ -12,11 +12,14 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Dedicated Review Window**: The plugin features a separate review window, allowing you to review cards while simultaneously making changes to them in the editor. This is perfect for making quick adjustments on the fly.
 - **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
 - **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
-# What's new
 
-By working with Dataview, you can track your review progress. [See details.](https://github.com/linanwx/aosr#work-with-dataview)
+# What's New
 
-<img width="754" alt="Screenshot 2023-05-18 at 9 41 22 PM" src="https://github.com/linanwx/aosr/assets/16589958/e211304a-5bb8-4683-a86b-9c4fb884027d">
+- **Review Progress Tracking with Dataview:** You can now track your review progress by utilizing Dataview. [See details](https://github.com/linanwx/aosr#work-with-dataview).
+- **Skip Button in Review:** A skip button has been added to the review process, allowing you to skip certain cards. 
+- **Real-time Card and Pattern Count Suggestions in Edit Mode:** When in edit mode, you will now receive real-time suggestions for cards and pattern counts as you make changes.
+- **Blurred Answer Display in Single and Multiple Line Review Modes:** Answers in the review interface for single and multiple line modes will now be displayed with a blur effect to provide a more challenging review experience.
+- **Pre-generated Tags for New Cards in Review:** Tags for new cards will now be generated in advance during the review process. This ensures that even if you edit the card later, the review options will still be recorded accurately.
 
 
 # Demo
