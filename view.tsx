@@ -8,7 +8,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
 import { Arrangement, PatternIter } from 'arrangement';
-import { MarkdownComponent } from 'markdown';
+import { MarkdownRenderComponent } from 'markdown';
 import { EditorPosition, ItemView, MarkdownView, TFile } from 'obsidian';
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
@@ -320,7 +320,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				</Typography>
 			</Box>
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
-				<Typography variant="h6"><MarkdownComponent markdown={this.state.heading} sourcePath={''} component={this.props.view} /></Typography>
+				<Typography variant="h6"><MarkdownRenderComponent markdown={this.state.heading} sourcePath={''} component={this.props.view} /></Typography>
 			</Box>
 			<Box sx={{ minHeight: 135, marginTop: 2, marginBottom: 2 }}>
 				<this.PatternComponent></this.PatternComponent>

@@ -189,37 +189,43 @@ function handleLink(el: HTMLElement, sourcePath: string, link: string) {
     });
 }
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
-interface MarkdownComponentProps {
+interface MarkdownRenderProps {
     markdown: string;
     sourcePath: string;
     component: Component;
 }
 
-export const MarkdownComponent: React.FC<MarkdownComponentProps> = ({ markdown, sourcePath, component }) => {
-    const ref = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (ref.current) {
-            // Define an async function inside the effect
-            const renderMarkdownAsync = async () => {
-                if (ref.current) {
-                    // Clear the element's content before rendering new markdown
-                    ref.current.innerHTML = '';
-                    await MarkdownRenderer.renderMarkdown(
-                        markdown,
-                        ref.current,
-                        sourcePath,
-                        component
-                    );
-                }
+export class MarkdownRenderComponent extends React.Component<MarkdownRenderProps> {
+    ref = React.createRef<HTMLDivElement>();
 
-            };
-
-            // Call the async function
-            renderMarkdownAsync();
+    componentDidUpdate(prevProps: MarkdownRenderProps) {
+        if (this.props.markdown !== prevProps.markdown ||
+            this.props.sourcePath !== prevProps.sourcePath ||
+            this.props.component !== prevProps.component) {
+            this.renderMarkdown();
         }
-    }, [markdown, sourcePath, component]);
+    }
 
-    return <div ref={ref} />;
-};
+    componentDidMount() {
+        this.renderMarkdown();
+    }
+
+    renderMarkdown = () => {
+        if (this.ref.current) {
+            this.ref.current.innerHTML = '';
+
+            MarkdownRenderer.renderMarkdown(
+                this.props.markdown,
+                this.ref.current,
+                this.props.sourcePath,
+                this.props.component
+            ).catch(error => console.error("Failed to render markdown:", error));
+        }
+    }
+
+    render() {
+        return <div ref={this.ref} />;
+    }
+}
