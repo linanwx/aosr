@@ -172,6 +172,7 @@ function findOutline(file: TFile, offset: number): string {
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	initFlag: boolean
 	lastPattern: Pattern | undefined
+	timer: NodeJS.Timeout | null = null;
 	constructor(props: ReviewingProps) {
 		super(props)
 		this.state = {
@@ -192,6 +193,20 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			await this.next()
 		}
 	}
+	checkHeading = () => {
+		if (!this.state.nowPattern) {
+			return
+		}
+		let heading = findOutline(this.state.nowPattern.card.note, this.state.nowPattern.card.indexBuff)
+		this.setState({
+			heading: heading,
+		})
+	}
+	componentWillUnmount() {
+		if (this.timer) {
+			clearTimeout(this.timer); // 清理定时器
+		}
+	}
 	next = async () => {
 		this.lastPattern = this.state.nowPattern
 		let result = await this.state.patternIter.next()
@@ -200,6 +215,10 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			return
 		}
 		let heading = findOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
+		if (heading == "") {
+			// 通过cache可能查不到缓存, 等一会再查
+			this.timer = setTimeout(this.checkHeading, 500);
+		}
 		await result.value.pattern.InitAosrID();
 		this.setState({
 			nowPattern: result.value.pattern,

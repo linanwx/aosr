@@ -1,4 +1,4 @@
-import { addIcon, MarkdownEditView, MarkdownView, Plugin, WorkspaceLeaf, Notice, Editor , TFile} from 'obsidian';
+import { addIcon, MarkdownEditView, MarkdownView, Plugin, WorkspaceLeaf, Notice, Editor, TFile, EventRef } from 'obsidian';
 import { ClozeParser } from 'patternCloze';
 import { MultiLineParser, SingleLineParser } from 'patternLine';
 import { AOSRSettingTab, setGlobalSettings, GlobalSettings } from 'setting';
@@ -13,19 +13,26 @@ class AosrWriterHelper {
 	cardCount: number = 0
 	patternCount: number = 0
 	filePath: string = ""
-	checkDebounced = debounce((file:TFile, text:string) => {
+	event1: EventRef
+	event2: EventRef
+	checkDebounced = debounce((file: TFile, text: string) => {
 		this.check(file, text);
 	}, 500);
 
+	unregister() {
+		app.workspace.offref(this.event1)
+		app.workspace.offref(this.event2)
+	}
+
 	constructor() {
-		app.workspace.on("active-leaf-change", async (leaf)=>{
+		this.event1 = app.workspace.on("active-leaf-change", async (leaf) => {
 			let view = app.workspace.getActiveViewOfType(MarkdownView)
 			if (!view) {
 				return
 			}
 			this.checkDebounced(view.file, view.editor.getValue())
 		})
-		app.workspace.on("editor-change", async (editor, view) => {
+		this.event2 = app.workspace.on("editor-change", async (editor, view) => {
 			if (!view || !view.file) {
 				return;
 			}
@@ -33,7 +40,7 @@ class AosrWriterHelper {
 		});
 	}
 
-	private hasTag(file:TFile) {
+	private hasTag(file: TFile) {
 		let cache = app.metadataCache.getFileCache(file)
 		if (!cache) {
 			return false
@@ -80,6 +87,7 @@ class AosrWriterHelper {
 
 export default class AOSRPlugin extends Plugin {
 	public api: AosrAPI
+	writerHelper: AosrWriterHelper
 	async onload() {
 		await this.loadSettings();
 		this.registerView(VIEW_TYPE_REVIEW, (leaf) => new ReviewView(leaf));
@@ -111,7 +119,7 @@ export default class AOSRPlugin extends Plugin {
 		this.addSettingTab(new AOSRSettingTab(this.app, this));
 		this.registerAosrParser()
 		this.api = new AosrAPI
-		new AosrWriterHelper()
+		this.writerHelper = new AosrWriterHelper()
 	}
 
 	registerAosrParser() {
@@ -125,6 +133,7 @@ export default class AOSRPlugin extends Plugin {
 		app.workspace.detachLeavesOfType(VIEW_TYPE_REVIEW)
 		const parserCol = ParserCollection.getInstance();
 		parserCol.clean()
+		this.writerHelper.unregister()
 	}
 
 	async loadSettings() {

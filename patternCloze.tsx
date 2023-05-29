@@ -147,7 +147,6 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
         this.setState({
             markdownDivMask: this.state.markdownDivMask,
         })
-        console.log("run componentDidMount")
     }
     constructor(props: clozePatternComponentProps) {
         super(props)
