@@ -15,21 +15,70 @@ export class SearchResult {
 
 // 卡片搜寻器负责搜索可能的卡片
 export interface cardSearcher {
-	search(file?: TFile, text?:string): Promise<SearchResult>
+	search(file?: TFile, text?: string): Promise<SearchResult>
 }
 
 export function NewCardSearch(tagName?: string): cardSearcher {
 	return new defaultCardSearch(tagName)
 }
 
+interface elem {
+	all: string
+	start: number
+	end: number
+	content: string
+	heading: string
+}
+
 // 默认的卡片搜索
 // 搜索标签开头的一行，到该段落结束位置，该区域的内容被视为卡片Card的内容
 class defaultCardSearch implements cardSearcher {
 	private tagName = "Q"
-	// 匹配所有 标签 开头行 到该段落的结束为止
-	private defaultRegText = String.raw`(^#tagName\b.*)\n((?:^.+$\n?)+)`
 	private matchReg: RegExp
-	async search(file?: TFile, text?:string): Promise<SearchResult> {
+	private qReg = /(^#Q\b.*|^#\/Q\b.*)/gm;
+	constructor(tagName?: string) {
+	}
+	findAllQ(text: string) {
+		let match;
+		const matches = [];
+		while ((match = this.qReg.exec(text)) !== null) {
+			matches.push({
+				text: match[0],
+				start: match.index,
+				end: match.index + match[0].length
+			});
+		}
+		return matches;
+	}
+	matchText(text: string) {
+		const qTags = this.findAllQ(text);
+		const matches: elem[] = [];
+		for (let i = 0; i < qTags.length; i++) {
+			if (qTags[i].text.startsWith('#Q')) {
+				if (matches.length > 0) {
+					if (matches[matches.length - 1].end > qTags[i].start) {
+						continue
+					}
+				}
+				let end;
+				if (i + 1 < qTags.length && qTags[i + 1].text.startsWith('#/Q')) {
+					end = qTags[i + 1].start - 1;
+				} else {
+					const nextBlankLine = text.indexOf('\n\n', qTags[i].end);
+					end = nextBlankLine !== -1 ? nextBlankLine : text.length;
+				}
+				const all = text.slice(qTags[i].start, end)
+				const content = text.slice(qTags[i].end + 1, end)
+				if (all.length == 0 || content.length == 0) {
+					continue
+				}
+				matches.push({ all: all, start: qTags[i].start, end: end, content: content, heading: qTags[i].text });
+			}
+		}
+		return matches;
+	}
+
+	async search(file?: TFile, text?: string): Promise<SearchResult> {
 		let result = new SearchResult()
 		result.SearchName = "#" + this.tagName
 		if (file) {
@@ -64,28 +113,21 @@ class defaultCardSearch implements cardSearcher {
 		// fileText += "\n"
 		this.walkText(fileText, note, callback);
 	}
-	constructor(tagName?: string) {
-		if (tagName) {
-			this.tagName = tagName
-		}
-		this.defaultRegText = this.defaultRegText.replace("tagName", this.tagName)
-		this.matchReg = new RegExp(this.defaultRegText, "gm")
-	}
-
 	private walkText(fileText: string, note: TFile, callback: (card: Card) => void) {
-		let results = fileText.matchAll(this.matchReg);
+		// let results = fileText.matchAll(this.matchReg);
+		let results = this.matchText(fileText)
 		for (let result of results) {
 			// 匹配注释段
-			let cardText = result[0];
-			let index = result.index || 0;
-			let tags = TagParser.parse(result[1]);
+			let cardText = result.all;
+			let index = result.start || 0;
+			let tags = TagParser.parse(result.heading);
 			let idTag = tags.findTag(CardIDTag);
 			let blockID = idTag?.Suffix || "";
 			let annotation = "";
 			if (blockID != "") {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID);
 			}
-			let content = result[2];
+			let content = result.content;
 			let card: Card = NewCard(cardText, content, annotation, blockID, index, note);
 			callback(card);
 		}

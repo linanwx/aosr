@@ -40,25 +40,7 @@ class AosrWriterHelper {
 		});
 	}
 
-	private hasTag(file: TFile) {
-		let cache = app.metadataCache.getFileCache(file)
-		if (!cache) {
-			return false
-		}
-		if (cache.tags) {
-			for (let tag of cache.tags) {
-				if (tag.tag === "#Q") {
-					return true;
-				}
-			}
-		}
-		return false
-	}
-
 	private async check(file: TFile, text: string) {
-		if (!this.hasTag(file)) {
-			return
-		}
 		let search = NewCardSearch()
 		let result = await search.search(file, text)
 		let newcardcount = result.AllCard.length

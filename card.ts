@@ -60,7 +60,7 @@ class defaultCard implements Card {
 	updateList: updateInfo[];
 	cardText: string
 	content: string
-	static bodySplitReg = /((?:^(?!\*{3,}$).+$\n?)+)/gm
+	static bodySplitReg = /\n\*{3,}\n/
 	// 1为source 2为注释
 	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
@@ -68,10 +68,7 @@ class defaultCard implements Card {
 		this.cardText = cardText || ""
 		this.bodyList = []
 		this.content = content
-		let matchResults = content.matchAll(defaultCard.bodySplitReg)
-		for (let result of matchResults) {
-			this.bodyList.push(result[0])
-		}
+		this.bodyList = content.split(defaultCard.bodySplitReg)
 		this.annotationWrapperStr = annotationWrapperStr || ""
 		this.note = note
 		this.originalID = cardID || ""
