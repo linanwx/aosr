@@ -160,11 +160,11 @@ word3::ans3
 word:::definition
 
 #Q
-This is a question.
+This is a question1.
 ?
 This is an answer.
 ***
-This is a question.
+This is a question2.
 ?
 This is an answer.
 
@@ -181,6 +181,21 @@ This is an answer.
 This is a very ==important== answer.
 ***
 This is multi-cloze ==question== and ==answer==. #multicloze
+
+#Q
+
+Information
+
+Complex card information
+
+Complex card information
+
+Complex card information
+
+Answer:
+==The answer.==
+
+#/Q
 ```
 
 # Review
