@@ -13,6 +13,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
 - **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
+- **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
 
 # What's New
 
