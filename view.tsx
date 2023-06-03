@@ -1,7 +1,7 @@
 import SaveIcon from '@mui/icons-material/Save';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Chip, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
+import { Box, ButtonGroup, Chip, Grid, Hidden, IconButton, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -14,6 +14,8 @@ import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
 import { GlobalSettings } from 'setting';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function LinearProgressWithLabel(props: { value1: number, value2: number }) {
 	const value = (props.value1 / props.value2) * 100;
@@ -314,24 +316,28 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	render() {
 		return <Box>
 			<LinearProgressWithLabel value1={this.state.index} value2={this.state.total} />
-			<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ marginTop: 2, marginBottom: 2 }}>
-				<Button size="large" onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
-				<Button size="large" onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
-				<Stack spacing={2} direction='row'>
+			<Stack flexWrap="wrap" useFlexGap direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ marginTop: 2, marginBottom: 2 }}>
+				<Stack direction={'row'} spacing={2} >
+					<Button onClick={() => { this.props.goStage(ReviewStage.Loading) }}> <ArrowBackIcon /> </Button>
+					<Hidden smUp>
+						<Button onClick={this.next} startIcon={<SkipNextIcon />}>Skip</Button>
+					</Hidden>
+				</Stack>
+				<Stack direction={'row'} spacing={2} >
+					<Button onClick={() => this.openPatternFile(this.state.nowPattern)}>Open File</Button>
+					<Button onClick={() => this.openPatternFile(this.lastPattern)}>Open Last</Button>
+				</Stack>
+				<Stack direction={'row'} spacing={2} >
 					{
 						this.getLastTime() &&
-						<Chip sx={{
-							color: 'var(--text-normal)',
-						}} label={this.getLastTime()} />
+						<Chip sx={{ color: 'var(--text-normal)', }} label={this.getLastTime()} />
 					}
 					{
 						this.state.nowPattern &&
-						<Chip sx={{
-							color: 'var(--text-normal)',
-						}} label={`ease: ${this.state.nowPattern?.schedule.Ease.toFixed(0)}`} />
+						<Chip sx={{ color: 'var(--text-normal)', }} label={`ease: ${this.state.nowPattern?.schedule.Ease.toFixed(0)}`} />
 					}
 				</Stack>
-				<Button size="medium" onClick={this.next} startIcon={<SkipNextIcon />}>Skip</Button>
+				<Hidden smDown><Button onClick={this.next} startIcon={<SkipNextIcon />}>Skip</Button></Hidden>
 			</Stack>
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				<Typography variant="h3">
@@ -434,31 +440,36 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 	}
 	render(): React.ReactNode {
 		return <Box>
-			<Paper sx={{
-				color: 'var(--text-normal)',
-				bgcolor: 'var(--background-primary)',
-			}}>
-				{this.props.arrangement.ArrangementList().length != 0 &&
-					<List>
-						{
-							this.props.arrangement.ArrangementList().map((value) => (
-								<ListItem disablePadding key={value.Name}>
-									<ListItemButton onClick={() => {
-										this.props.setArrangement(value.Name);
-										this.props.goStage(ReviewStage.Reviewing);
-									}}>
-										<ListItemText primary={`${value.Name} : ${value.Count}`} />
-									</ListItemButton>
-								</ListItem>
-							))
-						}
-					</List>
-				}
-				{
-					this.props.arrangement.ArrangementList().length == 0 &&
-					<p>All Done.</p>
-				}
-			</Paper>
+			<Stack spacing={2}>
+				<Button onClick={() => {
+					this.props.goStage(ReviewStage.Loading)
+				}} startIcon={<RefreshIcon />}>Refresh</Button>
+				<Paper sx={{
+					color: 'var(--text-normal)',
+					bgcolor: 'var(--background-primary)',
+				}}>
+					{this.props.arrangement.ArrangementList().length != 0 &&
+						<List>
+							{
+								this.props.arrangement.ArrangementList().map((value) => (
+									<ListItem disablePadding key={value.Name}>
+										<ListItemButton onClick={() => {
+											this.props.setArrangement(value.Name);
+											this.props.goStage(ReviewStage.Reviewing);
+										}}>
+											<ListItemText primary={`${value.Name} : ${value.Count}`} />
+										</ListItemButton>
+									</ListItem>
+								))
+							}
+						</List>
+					}
+					{
+						this.props.arrangement.ArrangementList().length == 0 &&
+						<p>Great job, you've completed all your reviews! Now, it's time to let this knowledge sink in. Your next review cycle will be available soon. Until then, feel free to add more cards to keep your learning going.</p>
+					}
+				</Paper>
+			</Stack>
 		</Box>
 	}
 }
