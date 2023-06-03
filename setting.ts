@@ -1,5 +1,6 @@
 import AOSRPlugin from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
+import i18n from 'i18next';
 
 export interface AOSRSettings {
     DefaultEase: number;
@@ -16,6 +17,8 @@ const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     WordTTSURL: "",
     WaitingTimeoutBase: 7,
 }
+
+// i18n.t('someKey');
 
 export let GlobalSettings: AOSRSettings
 
@@ -35,11 +38,11 @@ export class AOSRSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
-        containerEl.createEl('h2', { text: 'Settings for Aosr.' });
+        containerEl.createEl('h2', { text: i18n.t('SettingTextAosrSettings') || "" });
 
         new Setting(containerEl)
-            .setName('Degree of initial ease')
-            .setDesc('The baseline of the reviewing frequency. The review interval is doubled by ease /100. The smaller the number, the higher the frequency. Recommend:250.')
+            .setName(i18n.t('SettingTextInitEase') || "")
+            .setDesc(i18n.t('SettingTextInitEaseDesc') || "")
             .addText(text => text
                 .setPlaceholder('100-500')
                 .setValue(GlobalSettings.DefaultEase.toString())
@@ -49,8 +52,8 @@ export class AOSRSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Reward of easy choice')
-            .setDesc('Additional interval days are added to the normal review interval when you choose the easy option. The bigger it is, the later the next schedule will be. Recommend:1.')
+            .setName(i18n.t('SettingTextEasyChoice') || "")
+            .setDesc(i18n.t('SettingTextEaseChoiceDesc') || "")
             .addText(text => text
                 .setPlaceholder('0-10')
                 .setValue(GlobalSettings.EasyBonus.toString())
@@ -60,8 +63,8 @@ export class AOSRSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Reward of hard choice')
-            .setDesc('Additional interval days are reduced to the normal review interval when you choose a difficult option. The bigger it is, the sooner the next schedule will be. Recommend:1.')
+            .setName(i18n.t('SettingTextHardChoice') || "")
+            .setDesc(i18n.t('SettingTextHardChoiceDesc') || "")
             .addText(text => text
                 .setPlaceholder('0-10')
                 .setValue(GlobalSettings.HardBonus.toString())
@@ -71,8 +74,8 @@ export class AOSRSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Waiting timeout base')
-            .setDesc('"Waiting timeout" serves two purposes: 1) during waiting, it forces you to spend time reviewing, thinking, and memorizing. 2) More importantly, it can help you distinguish options more accurately. You will find that when you have some ideas about the answer, if you choose the wrong option, your punishment time will become very long. Therefore, you are more likely to choose the appropriate option rather than randomly evaluating the question, because this evaluation is very inaccurate. For example, when you are unsure about an answer, it is best to choose the "Not Sure" option. Otherwise, if you choose the "Known" option but the answer is incorrect, the waiting time will be very long. You can adjust this option to extend or shorten the duration of the "Waiting timeout" according to your situation, or you can turn off the waiting completely.\n"Waiting timeout base" refers to the reference timeout value, which should be the number of seconds you spend memorizing a six-letter word and not forgetting it within three hours.')
+            .setName(i18n.t('SettingTextWaitting') || "")
+            .setDesc(i18n.t('SettingTextWaittingDesc') || "")
             .addSlider(slider => slider
                 .setDynamicTooltip()
                 .setLimits(0, 15, 0.5)
@@ -84,7 +87,7 @@ export class AOSRSettingTab extends PluginSettingTab {
             )
 
         new Setting(containerEl)
-            .setName('Word TTS')
+            .setName('Word TTS [experiment]')
             .setDesc('Input a TTS URL to pronounce the single word in the card. Use %s to represent word.')
             .addText(text => text
                 .setPlaceholder('http://word.tts/%s')

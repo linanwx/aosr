@@ -1,13 +1,16 @@
 import { NewCardSearch } from "cardSearch"
 import { CardsWatcher, NewCardsWatch } from "cardWatcher"
+import i18next from "i18next"
 import { Pattern } from "Pattern"
 
 class ArrangementItem {
     Name:string
     Count: number
-    constructor(name:string, count:number) {
+    Display: string
+    constructor(name:string, count:number, display:string) {
         this.Name = name
         this.Count = count
+        this.Display = display
     }
 }
 
@@ -32,7 +35,7 @@ export class Arrangement implements ArrangementBase{
     private newPattern: Pattern[]
     private needReviewPattern: Pattern[]
     private needLearn: Pattern[]
-    private wait:Pattern[]
+    // private wait:Pattern[]
     private watcher: CardsWatcher
     constructor() {
         this.allPattern = []
@@ -56,16 +59,13 @@ export class Arrangement implements ArrangementBase{
     ArrangementList(): ArrangementItem[] {
         let retlist:ArrangementItem[] = []
         if (this.newPattern.length > 0) {
-            retlist.push(new ArrangementItem("new", this.newPattern.length)) 
+            retlist.push(new ArrangementItem("new", this.newPattern.length, i18next.t('StartTextNew'))) 
         }
         if (this.needReviewPattern.length > 0 ) {
-            retlist.push(new ArrangementItem("review", this.needReviewPattern.length))
+            retlist.push(new ArrangementItem("review", this.needReviewPattern.length, i18next.t('StartTextReview')))
         }
         if (this.needLearn.length > 0 ) {
-            retlist.push(new ArrangementItem("learn", this.needLearn.length))
-        }
-        if (this.wait.length > 0) {
-            retlist.push(new ArrangementItem("wait", this.wait.length))
+            retlist.push(new ArrangementItem("learn", this.needLearn.length, i18next.t('StartTextLearn')))
         }
         return retlist
     }
@@ -74,7 +74,7 @@ export class Arrangement implements ArrangementBase{
         this.newPattern = []
         this.needReviewPattern = []
         this.needLearn = []
-        this.wait = []
+        // this.wait = []
         for (let p of this.allPattern) {
             let learnInfo = p.schedule.LearnInfo
             if (learnInfo.IsNew) {
@@ -83,8 +83,6 @@ export class Arrangement implements ArrangementBase{
                 this.needReviewPattern.push(p)
             } else if (learnInfo.IsLearn) {
                 this.needLearn.push(p)
-            } else if (learnInfo.IsWait) {
-                this.wait.push(p)
             }
         }
         this.newPattern.sort(()=>{
