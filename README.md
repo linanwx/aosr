@@ -62,6 +62,25 @@ Card1
 Card2
 ```
 
+### Range Cards (Scope Cards)
+
+Range Cards, also known as Scope Cards, are a special type of card in the Markdown format. They were introduced as a new feature to enhance the flexibility of creating flashcards.
+
+A Range Card begins with `#Q` and ends with an empty line. The Range Card's unique feature is that it supports formats that include empty lines, making it versatile for various content types. Here is an example:
+
+```markdown
+#Q
+...
+(blank line)
+...
+(blank line)
+...
+#/Q
+```
+
+Apart from this, Range Cards behave similarly to Block Cards in all other respects.
+
+
 ## Pattern
 
 A pattern represents a question and its corresponding answer.
