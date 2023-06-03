@@ -20,7 +20,7 @@ abstract class linePattern extends Pattern {
 	back: string
 	originalID: string
 	reverse: boolean
-	constructor(card: Card, keyText: string, front: string, back: string, originalID: string, tagid: string, reverse:boolean) {
+	constructor(card: Card, keyText: string, front: string, back: string, originalID: string, tagid: string, reverse: boolean) {
 		super(card, tagid)
 		this.front = front
 		this.keyText = keyText
@@ -36,7 +36,7 @@ abstract class linePattern extends Pattern {
 		// 原文中不一定包含pattern的ID 可能需要更新
 		this.insertPatternID()
 		// 通知卡片一切就绪 准备更新原文
-		await this.card.commitFile({ID:true, annotation:true})
+		await this.card.commitFile({ ID: true, annotation: true })
 	}
 	// 展示组件
 	Component = (props: PatternProps): JSX.Element => {
@@ -86,9 +86,9 @@ type singleLinePatternComponentState = {
 }
 
 class LinePatternComponent extends React.Component<singleLinePatternComponentProps, singleLinePatternComponentState> {
-	playTTS = async(text:string) => {
+	playTTS = async (text: string) => {
 		if (GlobalSettings.WordTTSURL.length > 0) {
-			let url = GlobalSettings.WordTTSURL.replace('%s',text)
+			let url = GlobalSettings.WordTTSURL.replace('%s', text)
 			const audio = new Audio(url)
 			await audio.play()
 		}
@@ -111,7 +111,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 		})
 		// 如果是单词 则尝试调用有道发音
 		let ttstext = ""
-		if (this.props.reverse==false) {
+		if (this.props.reverse == false) {
 			ttstext = this.props.front
 		} else {
 			ttstext = this.props.back
@@ -131,7 +131,7 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 	}
 	render() {
 		const showAnswerClass = this.props.patternProps.showAns ? 'aosr-show' : '';
-	
+
 		return <div>
 			<NodeContainer node={this.state.markdownDivFront}></NodeContainer>
 			<br></br>
@@ -184,14 +184,14 @@ export class MultiLineParser implements PatternParser {
 		let results: Pattern[] = []
 		for (let body of card.bodyList) {
 			let regArr = reg.exec(body)
-			if (regArr == null) {
-				continue
+			while (regArr !== null) {
+				let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(regArr[0], 4)}`
+				let tagInfo = TagParser.parse(regArr[2] || "")
+				let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
+				let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
+				results.push(result)
+				regArr = reg.exec(body)
 			}
-			let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(regArr[0], 4)}`
-			let tagInfo = TagParser.parse(regArr[2] || "")
-			let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
-			let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
-			results.push(result)
 		}
 		return results
 	}
