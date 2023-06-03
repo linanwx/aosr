@@ -13,15 +13,12 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
 - **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
+- **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
 
 # What's New
 
-- **Review Progress Tracking with Dataview:** You can now track your review progress by utilizing Dataview. [See details](https://github.com/linanwx/aosr#work-with-dataview).
-- **Skip Button in Review:** A skip button has been added to the review process, allowing you to skip certain cards. 
-- **Real-time Card and Pattern Count Suggestions in Edit Mode:** When in edit mode, you will now receive real-time suggestions for cards and pattern counts as you make changes.
-- **Blurred Answer Display in Single and Multiple Line Review Modes:** Answers in the review interface for single and multiple line modes will now be displayed with a blur effect to provide a more challenging review experience.
-- **Pre-generated Tags for New Cards in Review:** Tags for new cards will now be generated in advance during the review process. This ensures that even if you edit the card later, the review options will still be recorded accurately.
-- **Display of Card Location and File Name:** Card content will now include the title outline and file name of the corresponding card position.
+- **Multi-language Support:** Added support for multiple languages.
+- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr/blob/master/README.md#range-cards-scope-cards) as a new feature. 
 
 # Demo
 
@@ -65,6 +62,25 @@ Card1
 #Q
 Card2
 ```
+
+### Range Cards (Scope Cards)
+
+Range Cards, also known as Scope Cards, are a special type of card in the Markdown format. They were introduced as a new feature to enhance the flexibility of creating flashcards.
+
+A Range Card begins with `#Q` and ends with an empty line. The Range Card's unique feature is that it supports formats that include empty lines, making it versatile for various content types. Here is an example:
+
+```markdown
+#Q
+...
+(blank line)
+...
+(blank line)
+...
+#/Q
+```
+
+Apart from this, Range Cards behave similarly to Block Cards in all other respects.
+
 
 ## Pattern
 
@@ -145,11 +161,11 @@ word3::ans3
 word:::definition
 
 #Q
-This is a question.
+This is a question1.
 ?
 This is an answer.
 ***
-This is a question.
+This is a question2.
 ?
 This is an answer.
 
@@ -166,6 +182,21 @@ This is an answer.
 This is a very ==important== answer.
 ***
 This is multi-cloze ==question== and ==answer==. #multicloze
+
+#Q
+
+Information
+
+Complex card information
+
+Complex card information
+
+Complex card information
+
+Answer:
+==The answer.==
+
+#/Q
 ```
 
 # Review
