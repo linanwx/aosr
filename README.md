@@ -18,7 +18,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 # What's New
 
 - **Multi-language Support:** Added support for multiple languages.
-- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr/blob/master/README.md#range-cards-scope-cards) as a new feature. 
+- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr#range-cards-scope-cards) as a new feature. 
 
 # Demo
 
