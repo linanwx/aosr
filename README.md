@@ -209,13 +209,11 @@ It consists of four parts. New, learn, review, and wait.
 
 <img width="266" alt="屏幕快照 2022-11-15 的 12 45 09 下午" src="https://user-images.githubusercontent.com/16589958/201828532-4658642d-8f22-4845-b603-e07da46d3df5.png">
 
-New means something new that hasn't been reviewed.
+New content means something new that hasn't been reviewed.
 
 Review means something needs to review.
 
-Learn means something you need to remember right now.
-
-Wait means something you need to remember after a few seconds, but you can't check it right now. Because you have checked it just now. 
+Reinforcement learning means you need to consolidate some concepts.
 
 Once you click one of the buttons, the review begins. Please follow the buttons and instructions on the screen to review.
 
