@@ -61,6 +61,7 @@ class defaultCard implements Card {
 	cardText: string
 	content: string
 	static bodySplitReg = /\n\*{3,}\n/
+	idGenFlag: boolean = false
 	// 1为source 2为注释
 	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
 		this.updateList = []
@@ -114,8 +115,8 @@ class defaultCard implements Card {
 	async commitFile(committype: commitType) {
 		// 首先读取原文
 		let fileText = await app.vault.read(this.note)
-		if (committype.ID == true) {
-			// 如果卡片内容被更改, 则添加ID无效
+		if (committype.ID == true && this.idGenFlag == false) {
+			// 如果卡片内容被更改, 则阻止添加ID, 因为这会破坏卡片格式
 			if (fileText.contains(this.cardText)) {
 				// 如果不存在复习块ID 则先更新复习块块ID
 				if (this.originalID == "") {
@@ -131,6 +132,7 @@ class defaultCard implements Card {
 				}
 				fileText = fileText.replace(this.content, newContent)
 				this.updateList = []
+				this.idGenFlag = true // 确保只添加一次
 			}
 		}
 		// 更新注释段内容

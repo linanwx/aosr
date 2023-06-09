@@ -145,6 +145,12 @@ export function initLanguage() {
                 },
                 'pt-BR': {
                     translation: ptBRTranslation
+                },
+                am:{
+                    translation: amTranslation
+                },
+                da:{
+                    translation: daTranslation
                 }
             },
             lng: 'en',

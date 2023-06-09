@@ -102,7 +102,7 @@ export class Arrangement implements ArrangementBase{
         })
     }
     async findLivePattern(p: Pattern): Promise<Pattern | undefined> {
-        let liveCard = await this.watcher.getLiveCard(p.card.ID)
+        let liveCard = await this.watcher.getLiveCard(p.card)
         if (!liveCard) {
             return
         }

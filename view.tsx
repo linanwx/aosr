@@ -231,6 +231,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			total: result.value.total,
 			heading: heading,
 			fileName: replaceSlashWithArrow(removeMdExtension(result.value.pattern.card.note.path)),
+			showAns: false,
 		})
 	}
 	openPatternFile = async (pattern: Pattern | undefined) => {
@@ -287,9 +288,6 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	async submit(opt: Operation) {
 		await this.state.nowPattern?.SubmitOpt(opt)
 		await this.next()
-		this.setState({
-			showAns: false
-		})
 	}
 	getOptDate = (opt: ReviewEnum): string => {
 		let date = this.state.nowPattern?.schedule.CalcNextTime(opt)
