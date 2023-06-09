@@ -11,7 +11,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Rich Text Format Support**: The plugin supports rich text formats such as audio. This allows you to create multimedia flashcards for a more immersive learning experience.
 - **Dedicated Review Window**: The plugin features a separate review window, allowing you to review cards while simultaneously making changes to them in the editor. This is perfect for making quick adjustments on the fly.
 - **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
-- **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
+- **Three Basic Learning Types**: The plugin supports three basic learning types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
 - **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
 
