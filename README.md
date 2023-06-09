@@ -11,14 +11,14 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Rich Text Format Support**: The plugin supports rich text formats such as audio. This allows you to create multimedia flashcards for a more immersive learning experience.
 - **Dedicated Review Window**: The plugin features a separate review window, allowing you to review cards while simultaneously making changes to them in the editor. This is perfect for making quick adjustments on the fly.
 - **Minute-Level Review Intervals**: The plugin allows you to set review intervals down to the minute. This offers a high level of precision in scheduling your reviews.
-- **Three Basic Card Types**: The plugin supports three basic card types - single line, multi-line, and cloze deletion.
+- **Three Basic Learning Types**: The plugin supports three basic learning types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
 - **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
 
 # What's New
 
 - **Multi-language Support:** Added support for multiple languages.
-- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr/blob/master/README.md#range-cards-scope-cards) as a new feature. 
+- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr#range-cards-scope-cards) as a new feature. 
 
 # Demo
 
@@ -209,13 +209,11 @@ It consists of four parts. New, learn, review, and wait.
 
 <img width="266" alt="屏幕快照 2022-11-15 的 12 45 09 下午" src="https://user-images.githubusercontent.com/16589958/201828532-4658642d-8f22-4845-b603-e07da46d3df5.png">
 
-New means something new that hasn't been reviewed.
+New content means something new that hasn't been reviewed.
 
 Review means something needs to review.
 
-Learn means something you need to remember right now.
-
-Wait means something you need to remember after a few seconds, but you can't check it right now. Because you have checked it just now. 
+Reinforcement learning means you need to consolidate some concepts.
 
 Once you click one of the buttons, the review begins. Please follow the buttons and instructions on the screen to review.
 
