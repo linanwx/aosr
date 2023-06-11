@@ -1,6 +1,6 @@
 import { AnnotationWrapper } from 'annotationParse';
 import { CardIDTag } from 'cardHead';
-import { TFile } from 'obsidian';
+import { Notice, TFile } from 'obsidian';
 import { TagParser } from 'tag';
 import { Card, NewCard } from "./card";
 
@@ -83,38 +83,38 @@ class defaultCardSearch implements cardSearcher {
 		result.SearchName = "#" + this.tagName
 		if (file) {
 			if (!text) {
-				await this.walkFileCard(file, (card) => {
-					result.AllCard.push(card)
-				})
+				result.AllCard = await this.getCardFromFile(file)
 			} else {
-				this.walkText(text, file, (card) => {
-					result.AllCard.push(card)
-				})
+				result.AllCard = this.getCardFromText(text, file)
 			}
-
 		} else {
-			await this.walkVaultFile(async (note) => {
-				await this.walkFileCard(note, (card) => {
-					result.AllCard.push(card)
-				})
-			})
+			result.AllCard = await this.getCardFromVaultFile()
 		}
 		return result
 	}
-	async walkVaultFile(callback: (note: TFile) => Promise<void>) {
+
+	async getCardFromVaultFile(): Promise<Card[]> {
+		let cards: Card[] = []
 		const notes: TFile[] = app.vault.getMarkdownFiles();
 		for (const note of notes) {
-			await callback(note)
+			cards.push(...await this.getCardFromFile(note))
 		}
+		return cards
 	}
-	async walkFileCard(note: TFile, callback: (card: Card) => void) {
-		let fileText: string = await app.vault.read(note);
-		// workaround 如果文本最后一张卡片后面没有多余的换行，正则无法匹配
-		// fileText += "\n"
-		this.walkText(fileText, note, callback);
+	async getCardFromFile(note: TFile): Promise<Card[]> {
+		let cards: Card[] = []
+		try {
+			let fileText = await app.vault.read(note)
+			if (fileText) {
+				cards = this.getCardFromText(fileText, note);
+			}
+		} catch (error) {
+			new Notice(`Failed to read file: ${note}, error: ${error}`);
+		}
+		return cards;
 	}
-	private walkText(fileText: string, note: TFile, callback: (card: Card) => void) {
-		// let results = fileText.matchAll(this.matchReg);
+	private getCardFromText(fileText: string, note: TFile): Card[] {
+		let cards: Card[] = []
 		let results = this.matchText(fileText)
 		for (let result of results) {
 			// 匹配注释段
@@ -129,7 +129,8 @@ class defaultCardSearch implements cardSearcher {
 			}
 			let content = result.content;
 			let card: Card = NewCard(cardText, content, annotation, blockID, index, note);
-			callback(card);
+			cards.push(card)
 		}
+		return cards
 	}
 }
