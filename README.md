@@ -217,7 +217,8 @@ Reinforcement learning means you need to consolidate some concepts.
 
 Once you click one of the buttons, the review begins. Please follow the buttons and instructions on the screen to review.
 
-<img width="657" alt="屏幕快照 2022-11-15 的 12 57 01 下午" src="https://user-images.githubusercontent.com/16589958/201830101-0acaef28-d7ba-488e-9bf4-2c7aeb3e560f.png">
+<img width="824" alt="Screenshot 2023-06-12 at 11 55 14 AM" src="https://github.com/linanwx/aosr/assets/16589958/28752334-a718-4199-8cbd-602982a235aa">
+
 
 # Annotation
 
