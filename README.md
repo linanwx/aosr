@@ -205,10 +205,9 @@ Once you've finished your document, click on the card icon in the sidebar to sta
 
 <img width="174" alt="屏幕快照 2022-11-15 的 12 59 37 下午" src="https://user-images.githubusercontent.com/16589958/201830351-1f2959d7-3610-4fc1-b0e5-1f031de25ee4.png">
 
-It consists of four parts. New, learn, review, and wait.
+It consists of three parts. New, Review and Learning.
 
 <img width="660" alt="Screenshot 2023-06-13 at 11 52 37 AM" src="https://github.com/linanwx/aosr/assets/16589958/572181c7-70e6-4f0a-9db0-2b0c31dd5819">
-
 
 New content means something new that hasn't been reviewed.
 
