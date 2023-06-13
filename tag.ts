@@ -9,10 +9,7 @@ import {
     ViewUpdate,
 } from "@codemirror/view";
 import {
-    Extension,
     RangeSetBuilder,
-    StateField,
-    Transaction,
     EditorSelection,
 } from "@codemirror/state";
 import { syntaxTree } from "@codemirror/language";
