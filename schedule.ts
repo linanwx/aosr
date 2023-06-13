@@ -116,7 +116,7 @@ export class defaultSchedule implements PatternSchedule {
         return window.moment(this.Learned, "YYYY-MM-DD HH:mm:ss")
     }
     set LearnedTime(t: moment.Moment) {
-        this.Learned = t.format("YYYY-MM-DD HH:mm:ss")
+        this.Learned = t.locale('en').format("YYYY-MM-DD HH:mm:ss")
     }
     get LastTime(): moment.Moment {
         if (!this.Last) {
@@ -125,7 +125,7 @@ export class defaultSchedule implements PatternSchedule {
         return window.moment(this.Last, "YYYY-MM-DD HH:mm")
     }
     set LastTime(t: moment.Moment) {
-        this.Last = t.format("YYYY-MM-DD HH:mm")
+        this.Last = t.locale('en').format("YYYY-MM-DD HH:mm")
     }
     get NextTime(): moment.Moment {
         if (!this.Next) {
@@ -134,7 +134,7 @@ export class defaultSchedule implements PatternSchedule {
         return window.moment(this.Next, "YYYY-MM-DD HH:mm")
     }
     set NextTime(t: moment.Moment) {
-        this.Next = t.format("YYYY-MM-DD HH:mm")
+        this.Next = t.locale('en').format("YYYY-MM-DD HH:mm")
     }
     get OptArr(): ReviewEnum[] {
         let ret: ReviewEnum[] = []
