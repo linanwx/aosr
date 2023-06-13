@@ -207,7 +207,8 @@ Once you've finished your document, click on the card icon in the sidebar to sta
 
 It consists of four parts. New, learn, review, and wait.
 
-<img width="266" alt="屏幕快照 2022-11-15 的 12 45 09 下午" src="https://user-images.githubusercontent.com/16589958/201828532-4658642d-8f22-4845-b603-e07da46d3df5.png">
+<img width="660" alt="Screenshot 2023-06-13 at 11 52 37 AM" src="https://github.com/linanwx/aosr/assets/16589958/572181c7-70e6-4f0a-9db0-2b0c31dd5819">
+
 
 New content means something new that hasn't been reviewed.
 
@@ -217,18 +218,19 @@ Reinforcement learning means you need to consolidate some concepts.
 
 Once you click one of the buttons, the review begins. Please follow the buttons and instructions on the screen to review.
 
-<img width="824" alt="Screenshot 2023-06-12 at 11 55 14 AM" src="https://github.com/linanwx/aosr/assets/16589958/28752334-a718-4199-8cbd-602982a235aa">
+<img width="914" alt="Screenshot 2023-06-13 at 12 09 46 PM" src="https://github.com/linanwx/aosr/assets/16589958/4ce6a725-51c4-46bc-8f13-cd3e7bc216ee">
+
 
 
 # Annotation
 
-You will notice that some comments are generated in your document. This is normal. The plug-in needs this data to calculate review time.
+Please take note of the presence of generated comments within your document. This is a normal occurrence and is essential for the functioning of the plug-in, as it requires this data for the purpose of calculating review time.
 
-<img width="732" alt="屏幕快照 2022-11-15 的 13 02 04 下午" src="https://user-images.githubusercontent.com/16589958/201830638-2605556e-9312-4e39-898b-979ca06954eb.png">
+<img width="713" alt="Screenshot 2023-06-13 at 12 11 48 PM" src="https://github.com/linanwx/aosr/assets/16589958/624e627e-fa10-4234-8446-fc139b51d355">
 
-I know it's not pretty, and it messes up the format of the document. But for me now, this is enough for my daily use. Maybe I'll find a way to solve this in the future.
+I acknowledge that the appearance of these comments may not be visually pleasing and may disrupt the document's formatting. However, at present, this arrangement suffices for my daily usage. It is possible that I may discover a solution to this matter in the future.
 
-The comments will be automatically generated at the end of the document. Its location can also be moved, as long as it is in the same document.
+The comments will be automatically appended to the end of the document. Furthermore, their placement can be adjusted within the same document if necessary.
 
 # Work with Dataview
 
