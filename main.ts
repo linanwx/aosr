@@ -9,6 +9,9 @@ import { AOSRSettingTab, GlobalSettings, setGlobalSettings } from 'setting';
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
 import yaml from "yaml"
+import { EditorView, WidgetType, DecorationSet, ViewPlugin, ViewUpdate } from "@codemirror/view";
+import { emojiTagPlugin } from 'tag';
+
 
 
 class AosrWriterHelper {
@@ -84,6 +87,7 @@ export default class AOSRPlugin extends Plugin {
 	public api: AosrAPI
 	writerHelper: AosrWriterHelper
 	async onload() {
+		this.registerEditorExtension(emojiTagPlugin)
 		await this.loadSettings();
 		initLanguage()
 		this.registerView(VIEW_TYPE_REVIEW, (leaf) => new ReviewView(leaf));
@@ -121,7 +125,7 @@ export default class AOSRPlugin extends Plugin {
 			try {
 				const parsedData = yaml.parse(source);
 				const scheduleKeys = Object.keys(parsedData.cardSchedule.schedules);
-	
+
 				if (scheduleKeys.length > 0) {
 					cardID = extractPrefix(scheduleKeys[0]);
 				}

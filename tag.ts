@@ -1,3 +1,92 @@
+import {
+    Decoration,
+    EditorView,
+    WidgetType,
+    DecorationSet,
+    PluginValue,
+    PluginSpec,
+    ViewPlugin,
+    ViewUpdate,
+} from "@codemirror/view";
+import {
+    Extension,
+    RangeSetBuilder,
+    StateField,
+    Transaction,
+    EditorSelection,
+} from "@codemirror/state";
+import { syntaxTree } from "@codemirror/language";
+
+
+// Define the widget that will be used to replace the matched text
+export class EmojiWidget extends WidgetType {
+    toDOM(view: EditorView): HTMLElement {
+        const span = document.createElement("span");
+        span.innerText = "🏷";
+        return span;
+    }
+}
+
+export class emojiplugin implements PluginValue {
+    decorations: DecorationSet;
+    constructor(view: EditorView) {
+        this.decorations = this.buildDecorations(view);
+    }
+    update(update: ViewUpdate) {
+        if (update.docChanged || update.viewportChanged || update.selectionSet) {
+            this.decorations = this.buildDecorations(update.view);
+        }
+    }
+    destroy() { }
+
+    buildDecorations(view: EditorView): DecorationSet {
+        const builder = new RangeSetBuilder<Decoration>();
+        const docText = view.state.doc.toString();
+
+        for (let { from, to } of view.visibleRanges) {
+            syntaxTree(view.state).iterate({
+                from,
+                to,
+                enter(node) {
+                    view.visibleRanges
+                    let text = docText.substring(node.from, node.to)
+                    // console.log(`name: ${node.name}, text: ${text}`)
+                    if (node.name.startsWith("hashtag")) {
+                        if (text.startsWith("AOSR/")) {
+                            if (!inSelection(view.state.selection, node.from, node.to)) {
+                                builder.add(
+                                    node.from - 1,
+                                    node.to,
+                                    Decoration.replace({
+                                        widget: new EmojiWidget()
+                                    })
+                                )
+                            }
+                        }
+                    }
+                },
+            });
+        }
+        return builder.finish();
+    }
+
+}
+
+const pluginSpec: PluginSpec<emojiplugin> = {
+    decorations: (value: emojiplugin) => value.decorations,
+};
+
+export const emojiTagPlugin = ViewPlugin.fromClass(
+    emojiplugin,
+    pluginSpec
+);
+
+
+function inSelection(selection: EditorSelection, from: number, to: number) {
+    return selection.ranges.some(range => {
+        return !(to < range.from || from > range.to)
+    })
+}
 
 class TagInfo {
     Head: string
