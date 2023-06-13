@@ -99,7 +99,7 @@ class defaultCard implements Card {
 	// 更新注释块内容
 	private updateAnnotation(fileText: string): string {
 		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
-		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation)
+		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation, "AOSRDATA")
 		if (this.annotationWrapperStr?.length > 0) {
 			fileText = fileText.replace(this.annotationWrapperStr, newAnnotation)
 		} else {

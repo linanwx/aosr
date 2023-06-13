@@ -1,13 +1,14 @@
-import { addIcon, MarkdownEditView, MarkdownView, Plugin, WorkspaceLeaf, Notice, Editor, TFile, EventRef } from 'obsidian';
-import { ClozeParser } from 'patternCloze';
-import { MultiLineParser, SingleLineParser } from 'patternLine';
-import { AOSRSettingTab, setGlobalSettings, GlobalSettings } from 'setting';
-import { ParserCollection } from "./ParserCollection";
-import { ReviewView, VIEW_TYPE_REVIEW } from './view';
 import { AosrAPI } from 'api';
 import { NewCardSearch } from 'cardSearch';
-import { debounce } from 'lodash';
 import { initLanguage } from 'language';
+import { debounce } from 'lodash';
+import { EventRef, MarkdownView, Notice, Plugin, TFile, addIcon } from 'obsidian';
+import { ClozeParser } from 'patternCloze';
+import { MultiLineParser, SingleLineParser } from 'patternLine';
+import { AOSRSettingTab, GlobalSettings, setGlobalSettings } from 'setting';
+import { ParserCollection } from "./ParserCollection";
+import { ReviewView, VIEW_TYPE_REVIEW } from './view';
+import yaml from "yaml"
 
 
 class AosrWriterHelper {
@@ -68,6 +69,17 @@ class AosrWriterHelper {
 	}
 }
 
+function extractPrefix(str: string): string {
+	const regex = /(#\w+\/\w+)/;
+	const match = str.match(regex);
+
+	if (match && match.length > 0) {
+		return match[0];
+	}
+
+	return '';
+}
+
 export default class AOSRPlugin extends Plugin {
 	public api: AosrAPI
 	writerHelper: AosrWriterHelper
@@ -104,6 +116,21 @@ export default class AOSRPlugin extends Plugin {
 		this.registerAosrParser()
 		this.api = new AosrAPI
 		this.writerHelper = new AosrWriterHelper()
+		this.registerMarkdownCodeBlockProcessor("AOSRDATA", (source, el, ctx) => {
+			let cardID = ""
+			try {
+				const parsedData = yaml.parse(source);
+				const scheduleKeys = Object.keys(parsedData.cardSchedule.schedules);
+	
+				if (scheduleKeys.length > 0) {
+					cardID = extractPrefix(scheduleKeys[0]);
+				}
+			} catch (error) {
+				console.log(error)
+			}
+
+			el.createSpan({ "text": `Aosr data for card ${cardID}. Please do not edit.`, "cls": "cm-comment" })
+		});
 	}
 
 	registerAosrParser() {
