@@ -19,8 +19,8 @@ class multiclozePattern extends Pattern {
         }
         this.card.updateFile({
             updateFunc: (contentText): string => {
-                let newtext = this.text.replace("#multicloze", `#multicloze ${this.TagID} `)
-                return contentText.replace(this.text, newtext)
+                let newtext = this.text.replace("#multicloze", ()=>{return `#multicloze ${this.TagID} `})
+                return contentText.replace(this.text, ()=>{return newtext})
             }
         })
     }
@@ -96,7 +96,7 @@ class clozePattern extends Pattern {
             updateFunc: (content): string => {
                 let addtag = `${this.clozeOriginal} ${this.TagID} `
                 let newtext = replaceClosestSubstring(this.text, this.clozeOriginal, addtag, this.index)
-                return content.replace(this.text, newtext)
+                return content.replace(this.text, ()=>{return newtext})
             }
         })
     }

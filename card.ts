@@ -101,7 +101,7 @@ class defaultCard implements Card {
 		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
 		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation, "AOSRDATA")
 		if (this.annotationWrapperStr?.length > 0) {
-			fileText = fileText.replace(this.annotationWrapperStr, newAnnotation)
+			fileText = fileText.replace(this.annotationWrapperStr, ()=>{return newAnnotation})
 		} else {
 			if (fileText.at(-1) != "\n") {
 				fileText += "\n" + "\n"
@@ -130,7 +130,7 @@ class defaultCard implements Card {
 				for (let updateInfo of this.updateList) {
 					newContent = updateInfo.updateFunc(newContent)
 				}
-				fileText = fileText.replace(this.content, newContent)
+				fileText = fileText.replace(this.content, ()=>{return newContent})
 				this.updateList = []
 				this.idGenFlag = true // 确保只添加一次
 			}
