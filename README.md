@@ -283,7 +283,7 @@ dv.table(["Date", "Review Count"], tableData);
 
 
 let difficultPatterns = patterns
-    .map(pattern => [pattern.TagID, pattern.schedule.Ease])
+    .map(pattern => [pattern.TagID.substring(1), pattern.schedule.Ease])
     .sort((a, b) => a[1] - b[1]) // Sort by Ease
     .slice(0, 10); // Take only the first 10
 dv.header(3, "The most difficult content in terms of review")
