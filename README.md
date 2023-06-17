@@ -81,6 +81,16 @@ A Range Card begins with `#Q` and ends with `#/Q`. The Range Card's unique featu
 
 Apart from this, Range Cards behave similarly to Block Cards in all other respects.
 
+In the context of Range Cards, patterns still follow their usual rules. Notably, the multi-line pattern does not include complete blank lines. However, within Range Cards, you can create multiple multi-line patterns, each separated by blank lines. In the cloze deletion format, the question - that is, the remaining text - extends across the entire card.
+
+This introduces some best practices for using Range Cards. 
+
+1. **Creating Multiple Multi-line Question Groups**: You can leverage the format of Range Cards to create multiple multi-line patterns. These patterns can be individually grouped and separated by blank lines, providing you with a flexible way of organizing complex information. 
+
+2. **Creating a Complex Question with a Cloze Deletion Answer**: If you're dealing with intricate topics, you can create a comprehensive question, and then use the cloze deletion format (`==`) to encapsulate the answer. If your answer spans multiple lines or you need to consider different sections as a whole answer, you may need to use the `#multicloze` tag to bundle multiple answers together.
+
+Please be aware that if your answer is excessively complicated, involving many blank lines, you may need to reconsider your question structuring. Extremely complex answers may not be suitable for flashcard-based review.
+
 
 ## Pattern
 
