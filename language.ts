@@ -67,6 +67,17 @@ const zhTranslation = {
     SettingTextWaittingDesc: "等待超时有两个目的：1)在等待期间，它迫使你花时间复习、思考和记忆。2)更重要的是，它可以帮助您更准确地区分选项。你会发现，当你对答案有了一些想法时，如果你选择了错误的选项，你的惩罚时间会变得很长。因此，你更有可能选择合适的选项，而不是随机评估问题，因为这种评估非常不准确。例如，当您对答案不确定时，最好选择“不确定”选项。否则，如果你选择了“已知”选项，但答案是错误的，等待时间将会很长。您可以根据自己的情况调整此选项以延长或缩短等待超时的持续时间，也可以完全关闭等待。\n等待超时的推荐设置值，应该是您在三个小时内记住一个六个字母的单词并不忘记它的秒数。"
 }
 
+export function addTranslation(key: string, translations: any) {
+    const languages = ['en', 'zh', 'ja', 'zh-TW', 'ko', 'ar', 'pt', 'de', 'ru', 'fr', 'es', 'it', 'id', 'ro', 'cs', 'no', 'pl', 'uk', 'sq', 'th', 'fa', 'tr', 'nl', 'ms', 'pt-BR', 'am', 'da'];
+    languages.forEach(lang => {
+        if (translations[lang]) {
+            i18n.addResourceBundle(lang, 'translation', {
+                [key]: translations[lang],
+            }, true, true);
+        }
+    });
+}
+
 export function initLanguage() {
     i18n.use(initReactI18next).init(
         {
@@ -146,10 +157,10 @@ export function initLanguage() {
                 'pt-BR': {
                     translation: ptBRTranslation
                 },
-                am:{
+                am: {
                     translation: amTranslation
                 },
-                da:{
+                da: {
                     translation: daTranslation
                 }
             },
@@ -160,6 +171,8 @@ export function initLanguage() {
             },
         }
     )
+    addTranslation("TodayStats", todayStatic)
+    addTranslation("StartReview", StartReview)
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
         console.error('Failed to change language:', err);
@@ -993,4 +1006,64 @@ const ptBRTranslation = {
     SettingTextHardChoiceDesc: "Quando você escolhe uma opção difícil, antecipa o próximo tempo de revisão. Um valor maior resulta em uma revisão anterior. Recomendado: 1.",
     SettingTextWaitting: "Tempo Limite de Espera",
     SettingTextWaittingDesc: "O tempo limite de espera tem dois propósitos: 1) Durante o período de espera, ele te obriga a dedicar tempo à revisão, contemplação e memorização. 2) Mais importante, ele ajuda você a distinguir opções com mais precisão. Você vai perceber que quando tiver alguma ideia sobre a resposta, se escolher a opção errada, seu tempo de penalidade se torna mais longo. Portanto, você tem mais probabilidade de escolher a opção apropriada em vez de adivinhar aleatoriamente a questão, já que essa adivinhação é altamente imprecisa. Por exemplo, quando você não tem certeza sobre a resposta, é melhor escolher a opção 'Não Tenho Certeza'. Caso contrário, se escolher a opção 'Eu Sei', mas a resposta estiver errada, o tempo de espera será longo. Você pode ajustar essa opção com base na sua própria situação para estender ou encurtar a duração do tempo limite de espera, ou pode desabilitá-lo completamente. Os valores recomendados para o tempo limite de espera devem ser o número de segundos necessários para você lembrar uma palavra de seis letras dentro de três horas sem esquecê-la."
+}
+
+const todayStatic = {
+    "en": "Today's Learning Progress Statistics",
+    "zh": "今日学习进度统计",
+    "ja": "今日の学習進度統計",
+    "zh-TW": "今日學習進度統計",
+    "ko": "오늘의 학습 진행 상황 통계",
+    "ar": "إحصائيات تقدم التعلم اليوم",
+    "pt": "Estatísticas de Progresso de Aprendizado de Hoje",
+    "de": "Statistiken zum Lernfortschritt von heute",
+    "ru": "Статистика учебного прогресса на сегодня",
+    "fr": "Statistiques d'avancement des apprentissages du jour",
+    "es": "Estadísticas del Progreso de Aprendizaje de Hoy",
+    "it": "Statistiche del progresso di apprendimento di oggi",
+    "id": "Statistik Kemajuan Belajar Hari Ini",
+    "ro": "Statisticile de progres al învățării de astăzi",
+    "cs": "Dnešní statistiky učebního pokroku",
+    "no": "Dagens statistikk for læringsfremgang",
+    "pl": "Dzisiejsze statystyki postępów w nauce",
+    "uk": "Статистика навчального прогресу на сьогодні",
+    "sq": "Statistikat e Progresit të Mësimit të Sotëm",
+    "th": "สถิติความคืบหน้าในการเรียนรู้วันนี้",
+    "fa": "آمار پیشرفت آموزش امروز",
+    "tr": "Bugünkü Öğrenme İlerleme İstatistikleri",
+    "nl": "Statistieken van de leerprogressie van vandaag",
+    "ms": "Statistik Kemajuan Pembelajaran Hari Ini",
+    "pt-BR": "Estatísticas de Progresso de Aprendizado de Hoje",
+    "am": "የዛሬ የትምህርት እርስዎ ግብር ሪፖርት",
+    "da": "Dagens statistik for læringens fremgang"
+}
+
+const StartReview = {
+    "en": "Start Reviewing",
+    "zh": "开始复习",
+    "ja": "復習を始める",
+    "zh-TW": "開始複習",
+    "ko": "복습 시작하기",
+    "ar": "ابدأ المراجعة",
+    "pt": "Iniciar Revisão",
+    "de": "Mit dem Review beginnen",
+    "ru": "Начать повторение",
+    "fr": "Commencer la révision",
+    "es": "Comenzar a revisar",
+    "it": "Inizia la revisione",
+    "id": "Mulai Meninjau",
+    "ro": "Începeți revizuirea",
+    "cs": "Začít opakování",
+    "no": "Start gjennomgangen",
+    "pl": "Rozpocznij powtórkę",
+    "uk": "Почати повторення",
+    "sq": "Fillo rishikimin",
+    "th": "เริ่มการทบทวน",
+    "fa": "شروع مرور",
+    "tr": "İncelemeye Başla",
+    "nl": "Begin met herziening",
+    "ms": "Mula Menyemak Semula",
+    "pt-BR": "Iniciar Revisão",
+    "am": "መሰረታውን ጀምር",
+    "da": "Start med at gennemgå"
 }

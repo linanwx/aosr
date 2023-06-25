@@ -4,21 +4,31 @@ import i18next from "i18next"
 import { Pattern } from "Pattern"
 
 class ArrangementItem {
-    Name:string
+    Name: string
     Count: number
     Display: string
-    constructor(name:string, count:number, display:string) {
+    constructor(name: string, count: number, display: string) {
         this.Name = name
         this.Count = count
         this.Display = display
     }
 }
 
+const NEWTAG = "new"
+const REVIEWTAG = "review"
+const LEARNTAG = "learn"
+
+export class Stats {
+    NewCount: number
+    ReviewCount: number
+    LearnCount: number
+}
+
 export class PatternIter {
     pattern: Pattern
     index: number
     total: number
-    constructor(pattern:Pattern,index:number,total:number) {
+    constructor(pattern: Pattern, index: number, total: number) {
         this.pattern = pattern
         this.index = index
         this.total = total
@@ -26,11 +36,18 @@ export class PatternIter {
 }
 
 abstract class ArrangementBase {
-    abstract PatternSequence(Name:string):AsyncGenerator<PatternIter, boolean, unknown>
-    abstract ArrangementList():ArrangementItem[]
+    abstract PatternSequence(Name: string): AsyncGenerator<PatternIter, boolean, unknown>
+    abstract ArrangementList(): ArrangementItem[]
+    abstract stats(): Stats
 }
 
-export class Arrangement implements ArrangementBase{
+function isToday(date: moment.Moment): boolean {
+    const todayStart = window.moment().startOf('day')
+    const todayEnd = window.moment().endOf('day')
+    return date.isBetween(todayStart, todayEnd, null, '[]');
+}
+
+export class Arrangement implements ArrangementBase {
     private allPattern: Pattern[]
     private newPattern: Pattern[]
     private needReviewPattern: Pattern[]
@@ -44,7 +61,7 @@ export class Arrangement implements ArrangementBase{
     }
     async init() {
         let search = NewCardSearch()
-		let allcards = await search.search()
+        let allcards = await search.search()
         this.allPattern = []
         this.newPattern = []
         this.needReviewPattern = []
@@ -56,16 +73,42 @@ export class Arrangement implements ArrangementBase{
         }
         this.sort()
     }
+    stats(): Stats {
+        let newCount = 0
+        let reviewCount = 0
+        let learnCount = 0
+        for (let p of this.allPattern) {
+            if (p.schedule.Last && p.schedule.Last != "") {
+                if (isToday(p.schedule.LastTime)) {
+                    if (p.schedule.Opts.length == 1) {
+                        newCount++
+                    } else {
+                        reviewCount++
+                    }
+                }
+            }
+            if (p.schedule.Learned && p.schedule.Learned != "") {
+                if (isToday(p.schedule.LearnedTime)) {
+                    learnCount++
+                }
+            }
+        }
+        let stats = new Stats
+        stats.LearnCount = learnCount
+        stats.NewCount = newCount
+        stats.ReviewCount = reviewCount
+        return stats
+    }
     ArrangementList(): ArrangementItem[] {
-        let retlist:ArrangementItem[] = []
+        let retlist: ArrangementItem[] = []
         if (this.newPattern.length > 0) {
-            retlist.push(new ArrangementItem("new", this.newPattern.length, i18next.t('StartTextNew'))) 
+            retlist.push(new ArrangementItem(NEWTAG, this.newPattern.length, i18next.t('StartTextNew')))
         }
-        if (this.needReviewPattern.length > 0 ) {
-            retlist.push(new ArrangementItem("review", this.needReviewPattern.length, i18next.t('StartTextReview')))
+        if (this.needReviewPattern.length > 0) {
+            retlist.push(new ArrangementItem(REVIEWTAG, this.needReviewPattern.length, i18next.t('StartTextReview')))
         }
-        if (this.needLearn.length > 0 ) {
-            retlist.push(new ArrangementItem("learn", this.needLearn.length, i18next.t('StartTextLearn')))
+        if (this.needLearn.length > 0) {
+            retlist.push(new ArrangementItem(LEARNTAG, this.needLearn.length, i18next.t('StartTextLearn')))
         }
         return retlist
     }
@@ -85,13 +128,13 @@ export class Arrangement implements ArrangementBase{
                 this.needLearn.push(p)
             }
         }
-        this.newPattern.sort(()=>{
+        this.newPattern.sort(() => {
             return .5 - Math.random()
         })
-        this.needReviewPattern.sort(()=>{
+        this.needReviewPattern.sort(() => {
             return .5 - Math.random()
         })
-        this.needLearn.sort((a,b)=>{
+        this.needLearn.sort((a, b) => {
             if (a.schedule.LearnedTime.isAfter(b.schedule.LearnedTime)) {
                 return 1
             }
@@ -113,9 +156,9 @@ export class Arrangement implements ArrangementBase{
         }
         return
     }
-    async *PatternSequence(name:string) {
-        if (name == "review") {
-            for (let i=0;i<this.needReviewPattern.length;i++) {
+    async *PatternSequence(name: string) {
+        if (name == REVIEWTAG) {
+            for (let i = 0; i < this.needReviewPattern.length; i++) {
                 let p = this.needReviewPattern[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
@@ -123,8 +166,8 @@ export class Arrangement implements ArrangementBase{
                 }
             }
         }
-        if (name == "new") {
-            for (let i=0;i<this.newPattern.length;i++) {
+        if (name == NEWTAG) {
+            for (let i = 0; i < this.newPattern.length; i++) {
                 let p = this.newPattern[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
@@ -132,8 +175,8 @@ export class Arrangement implements ArrangementBase{
                 }
             }
         }
-        if (name == "learn") {
-            for (let i=0;i<this.needLearn.length;i++) {
+        if (name == LEARNTAG) {
+            for (let i = 0; i < this.needLearn.length; i++) {
                 let p = this.needLearn[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {

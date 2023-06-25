@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
-import { Arrangement, PatternIter } from 'arrangement';
+import { Arrangement, PatternIter, Stats } from 'arrangement';
 import { MarkdownRenderComponent } from 'markdown';
 import { EditorPosition, ItemView, MarkdownView, TFile } from 'obsidian';
 import * as React from "react";
@@ -174,6 +174,55 @@ function findOutline(file: TFile, offset: number): string {
 	return currentOutline.join(" > ")
 }
 
+async function openUnpinnedFile(note: TFile) {
+	let leaf = app.workspace.getLeavesOfType("markdown").at(0)
+	if (!leaf || leaf.getViewState()?.pinned == true) {
+		leaf = app.workspace.getLeaf(true)
+	}
+	await leaf.openFile(note)
+	return leaf
+}
+
+
+async function openPatternFile(pattern: Pattern) {
+	// 打开文件
+	let leaf = await openUnpinnedFile(pattern.card.note)
+	if (!(leaf.view instanceof MarkdownView)) {
+		return
+	}
+	let view = leaf.view
+	// 读取文件找到tag
+	let noteText = view.data
+	let index = noteText.indexOf(pattern.TagID)
+	let length = pattern.TagID.length
+	// 处理Tag不存在的情况
+	if (index < 0) {
+		index = pattern.card.indexBuff
+		length = 0
+	}
+	// 换算位置
+	let tagpos = view.editor.offsetToPos(index)
+	let tagposEnd : EditorPosition = {
+		line: tagpos.line,
+		ch: tagpos.ch + length
+	}
+	// 滚动
+	if (view.getMode() == "preview") {
+		view.currentMode.applyScroll(tagpos.line)
+	} else {
+		view.editor.setSelection(tagpos, tagposEnd)
+		view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+		view.editor.setSelection(tagpos, tagposEnd)
+		view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+
+		// 避免某些情况仍然没有正确定位
+		setTimeout(function() {
+			view.editor.setSelection(tagpos, tagposEnd)
+			view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+		}, 800)
+	}
+}
+
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	initFlag: boolean
 	lastPattern: Pattern | undefined
@@ -238,46 +287,47 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		if (!pattern) {
 			return
 		}
-		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
-		if (!leaf || leaf.getViewState()?.pinned == true) {
-			leaf = app.workspace.getLeaf(true)
-		}
-		await leaf.openFile(pattern.card.note)
-		let view = app.workspace.getActiveViewOfType(MarkdownView)
-		if (!view) {
-			return
-		}
-		// 优先使用Tag的位置，如果tag不存在，则使用卡片缓存的位置
-		let noteText = await app.vault.read(pattern.card.note)
-		let index = noteText.indexOf(pattern.TagID)
-		let offset = 0
-		let length = 0
-		if (index >= 0) {
-			offset = index
-			length = pattern.TagID.length
-		} else {
-			offset = pattern.card.indexBuff
-			length = pattern.card.cardText.length
-		}
-		let range1 = view.editor.offsetToPos(offset)
-		let range2 = view.editor.offsetToPos(offset + length)
-		let range2next: EditorPosition = {
-			line: range2.line + 1,
-			ch: 0,
-		}
-		let range3: EditorPosition
-		if (index >= 0) {
-			range3 = range2
-		} else {
-			range3 = range2next
-		}
-		view.currentMode.applyScroll(range1.line);
-		view.editor.setSelection(range3, range1)
-		await new Promise(resolve => setTimeout(resolve, 100));
-		view.editor.scrollIntoView({
-			from: range1,
-			to: range3,
-		}, true)
+		await openPatternFile(pattern)
+		// let leaf = app.workspace.getLeavesOfType("markdown").at(0)
+		// if (!leaf || leaf.getViewState()?.pinned == true) {
+		// 	leaf = app.workspace.getLeaf(true)
+		// }
+		// await leaf.openFile(pattern.card.note)
+		// let view = app.workspace.getActiveViewOfType(MarkdownView)
+		// if (!view) {
+		// 	return
+		// }
+		// // 优先使用Tag的位置，如果tag不存在，则使用卡片缓存的位置
+		// let noteText = await app.vault.read(pattern.card.note)
+		// let index = noteText.indexOf(pattern.TagID)
+		// let offset = 0
+		// let length = 0
+		// if (index >= 0) {
+		// 	offset = index
+		// 	length = pattern.TagID.length
+		// } else {
+		// 	offset = pattern.card.indexBuff
+		// 	length = pattern.card.cardText.length
+		// }
+		// let range1 = view.editor.offsetToPos(offset)
+		// let range2 = view.editor.offsetToPos(offset + length)
+		// let range2next: EditorPosition = {
+		// 	line: range2.line + 1,
+		// 	ch: 0,
+		// }
+		// let range3: EditorPosition
+		// if (index >= 0) {
+		// 	range3 = range2
+		// } else {
+		// 	range3 = range2next
+		// }
+		// view.currentMode.applyScroll(range1.line);
+		// view.editor.setSelection(range3, range1)
+		// await new Promise(resolve => setTimeout(resolve, 100));
+		// view.editor.scrollIntoView({
+		// 	from: range1,
+		// 	to: range3,
+		// }, true)
 	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
@@ -443,6 +493,11 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 		super(props)
 	}
 	render(): React.ReactNode {
+		let showStats: boolean = false
+		let stats = this.props.arrangement.stats()
+		if (stats.NewCount > 0 || stats.LearnCount > 0 || stats.ReviewCount > 0) {
+			showStats = true
+		}
 		return <Box>
 			<Stack spacing={2}>
 				<Button onClick={() => {
@@ -453,7 +508,10 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 					bgcolor: 'var(--background-primary)',
 					margin: 2,
 				}}>
-					{this.props.arrangement.ArrangementList().length != 0 &&
+					{this.props.arrangement.ArrangementList().length != 0 && <>
+						<Typography variant="h6" sx={{ padding: 2 }}>
+							<Trans i18nKey="StartReview" />
+						</Typography>
 						<List>
 							{
 								this.props.arrangement.ArrangementList().map((value) => (
@@ -468,6 +526,7 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 								))
 							}
 						</List>
+					</>
 					}
 					{
 						this.props.arrangement.ArrangementList().length == 0 &&
@@ -477,6 +536,30 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 
 					}
 				</Paper>
+				{
+					showStats &&
+					<Paper sx={{
+						color: 'var(--text-normal)',
+						bgcolor: 'var(--background-primary)',
+						margin: 2,
+					}}>
+						<Typography variant="h6" sx={{ padding: 2 }}>
+							<Trans i18nKey="TodayStats" />
+						</Typography>
+						<List>
+							<ListItem>
+								<ListItemText primary={<><Trans i18nKey="StartTextNew" /> : {stats.NewCount}</>}></ListItemText>
+							</ListItem>
+							<ListItem>
+								<ListItemText primary={<><Trans i18nKey="StartTextReview" /> : {stats.ReviewCount}</>}> </ListItemText>
+							</ListItem>
+							<ListItem>
+								<ListItemText primary={<><Trans i18nKey="StartTextLearn" /> : {stats.LearnCount}</>}> </ListItemText>
+							</ListItem>
+						</List>
+					</Paper>
+				}
+
 			</Stack>
 		</Box>
 	}

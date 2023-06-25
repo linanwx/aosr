@@ -30,7 +30,7 @@ export class emojiplugin implements PluginValue {
         this.decorations = this.buildDecorations(view);
     }
     update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged || update.selectionSet) {
+        if (update.docChanged || update.viewportChanged || update.selectionSet || update.heightChanged) {
             this.decorations = this.buildDecorations(update.view);
         }
     }
@@ -39,16 +39,17 @@ export class emojiplugin implements PluginValue {
     buildDecorations(view: EditorView): DecorationSet {
         const builder = new RangeSetBuilder<Decoration>();
         const docText = view.state.doc.toString();
-
         for (let { from, to } of view.visibleRanges) {
-            syntaxTree(view.state).iterate({
+            let tree = syntaxTree(view.state)
+            if (tree === null) {
+                continue
+            }
+            tree.iterate({
                 from,
                 to,
                 enter(node) {
-                    view.visibleRanges
-                    let text = docText.substring(node.from, node.to)
-                    // console.log(`name: ${node.name}, text: ${text}`)
-                    if (node.name.startsWith("hashtag")) {
+                    if (node.name.startsWith("hashtag") && node.name.contains("AOSR")) {
+                        let text = docText.substring(node.from, node.to)
                         if (text.startsWith("AOSR/")) {
                             if (!inSelection(view.state.selection, node.from, node.to)) {
                                 builder.add(

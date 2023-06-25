@@ -77,7 +77,7 @@ export interface PatternYaml {
     Opts: string
     // 上次被标记为忘记，最后一次复习的时间
     Learned: string | null
-    // 上次被标记为忘记，之后复习的次数
+    // 上次被标记为忘记，之后复习的进度 默认为0 范围从-2到+2
     LearnedCount: number | null
     // 用于读取存储的schedule yaml格式 需要复制对象
     copy(v: PatternYaml): void
@@ -185,33 +185,48 @@ export class defaultSchedule implements PatternSchedule {
         } else if (this.Opts.at(-1) == String(ReviewEnum.FAIR)) {
         } else if (this.LearnedCount && this.LearnedCount >= 2) {
         } else {
-            // 中期记忆内的信息不需要学习
-            // 这部分内容会在过了中期记忆从记忆区中清空后重新安排学习
-            let checkPoint = window.moment().add(-3, "hours")
-            if (this.LearnedTime.isAfter(checkPoint)) {
-                info.IsWait = true
-            } else {
+            if (this.LearnedCount == null) {
+                // 标记为HARD和FORGET后
+                // 没有学习记录立即复习一次
                 info.IsLearn = true
+            } else {
+                let checkPoint: moment.Moment
+                if (this.LearnedCount <= -2) {
+                    checkPoint = window.moment().add(-10, "minutes")
+                } else if (this.LearnedCount <= -1) {
+                    checkPoint = window.moment().add(-1, "hours")
+                } else if (this.LearnedCount <= 0) {
+                    checkPoint = window.moment().add(-3, "hours")
+                } else if (this.LearnedCount <= 1) {
+                    checkPoint = window.moment().add(-12, "hours")
+                } else {
+                    checkPoint = window.moment().add(-36, "hours")
+                }
+                if (this.LearnedTime.isAfter(checkPoint)) {
+                    info.IsWait = true
+                } else {
+                    info.IsLearn = true
+                }
             }
         }
         return info
     }
     private getLearnResult(opt: LearnEnum) {
-        let learnCount = 0
+        let learnCount = -2
         if (this.LearnedCount) {
             learnCount = this.LearnedCount
         }
         if (opt == LearnEnum.FAIR) {
-            learnCount++
+            learnCount += 1
         }
         if (opt == LearnEnum.HARD) {
-            learnCount--
+            learnCount -= 1
         }
         if (opt == LearnEnum.FORGET) {
             learnCount -= 2
         }
         if (opt == LearnEnum.EASY) {
-            learnCount += 2
+            learnCount += 1.5
         }
         learnCount = Math.max(-2, learnCount)
         learnCount = Math.min(2, learnCount)
