@@ -24,6 +24,7 @@ export abstract class Pattern {
 		this.pcard = card
 		this.TagID = id
 	}
+	Pronounce() {}
 	abstract SubmitOpt(opt: Operation): Promise<void>;
 	abstract Component(props:PatternProps): JSX.Element;
 	abstract insertPatternID(): void;

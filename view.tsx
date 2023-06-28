@@ -282,6 +282,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			fileName: replaceSlashWithArrow(removeMdExtension(result.value.pattern.card.note.path)),
 			showAns: false,
 		})
+		result.value.pattern.Pronounce()
 	}
 	openPatternFile = async (pattern: Pattern | undefined) => {
 		if (!pattern) {

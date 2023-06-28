@@ -42,6 +42,27 @@ abstract class linePattern extends Pattern {
 	Component = (props: PatternProps): JSX.Element => {
 		return <LinePatternComponent reverse={this.reverse} front={this.front} back={this.back} path={this.card.note.path} patternProps={props}></LinePatternComponent>
 	}
+	Pronounce(): void {
+		// 如果是单词 则尝试调用有道发音
+		let ttstext = ""
+		if (this.reverse == false) {
+			ttstext = this.front
+		} else {
+			ttstext = this.back
+		}
+		if (/^[a-zA-Z\s-]+$/.test(ttstext)) {
+			setTimeout(() => {
+				this.playTTS(ttstext)
+			}, 100);
+		}
+	}
+	playTTS = async (text: string) => {
+		if (GlobalSettings.WordTTSURL.length > 0) {
+			let url = GlobalSettings.WordTTSURL.replace('%s', text)
+			const audio = new Audio(url)
+			await audio.play()
+		}
+	}
 }
 
 class singleLinePattern extends linePattern {
@@ -52,7 +73,7 @@ class singleLinePattern extends linePattern {
 		this.card.updateFile({
 			updateFunc: (content): string => {
 				let newContent = this.keyText + " " + this.TagID;
-				return content.replace(this.keyText, ()=>{return newContent});
+				return content.replace(this.keyText, () => { return newContent });
 			}
 		})
 	}
@@ -66,7 +87,7 @@ class multiLinePattern extends linePattern {
 		this.card.updateFile({
 			updateFunc: (content): string => {
 				let newContent = `${this.front}? ${this.TagID}\n${this.back}`
-				return content.replace(this.keyText, ()=>{return newContent})
+				return content.replace(this.keyText, () => { return newContent })
 			}
 		})
 	}
@@ -86,13 +107,6 @@ type singleLinePatternComponentState = {
 }
 
 class LinePatternComponent extends React.Component<singleLinePatternComponentProps, singleLinePatternComponentState> {
-	playTTS = async (text: string) => {
-		if (GlobalSettings.WordTTSURL.length > 0) {
-			let url = GlobalSettings.WordTTSURL.replace('%s', text)
-			const audio = new Audio(url)
-			await audio.play()
-		}
-	}
 	async componentDidMount() {
 		let markdownDivFront = this.state.markdownDivFront
 		markdownDivFront.empty()
@@ -109,18 +123,6 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 			markdownDivFront: markdownDivFront,
 			markdownDivBack: markdownDivBack,
 		})
-		// 如果是单词 则尝试调用有道发音
-		let ttstext = ""
-		if (this.props.reverse == false) {
-			ttstext = this.props.front
-		} else {
-			ttstext = this.props.back
-		}
-		if (/^[a-zA-Z\s-]+$/.test(ttstext)) {
-			setTimeout(() => {
-				this.playTTS(ttstext)
-			}, 100);
-		}
 	}
 	constructor(props: singleLinePatternComponentProps) {
 		super(props)

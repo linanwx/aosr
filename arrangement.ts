@@ -157,33 +157,26 @@ export class Arrangement implements ArrangementBase {
         return
     }
     async *PatternSequence(name: string) {
+        let patterns = null;
+        
         if (name == REVIEWTAG) {
-            for (let i = 0; i < this.needReviewPattern.length; i++) {
-                let p = this.needReviewPattern[i]
+            patterns = this.needReviewPattern;
+        } else if (name == NEWTAG) {
+            patterns = this.newPattern;
+        } else if (name == LEARNTAG) {
+            patterns = this.needLearn;
+        }
+    
+        if (patterns) {
+            for (let i = 0; i < patterns.length; i++) {
+                let p = patterns[i]
                 let cardp = await this.findLivePattern(p)
                 if (cardp) {
-                    yield new PatternIter(cardp, i, this.needReviewPattern.length)
+                    yield new PatternIter(cardp, i, patterns.length)
                 }
             }
         }
-        if (name == NEWTAG) {
-            for (let i = 0; i < this.newPattern.length; i++) {
-                let p = this.newPattern[i]
-                let cardp = await this.findLivePattern(p)
-                if (cardp) {
-                    yield new PatternIter(cardp, i, this.newPattern.length)
-                }
-            }
-        }
-        if (name == LEARNTAG) {
-            for (let i = 0; i < this.needLearn.length; i++) {
-                let p = this.needLearn[i]
-                let cardp = await this.findLivePattern(p)
-                if (cardp) {
-                    yield new PatternIter(cardp, i, this.needLearn.length)
-                }
-            }
-        }
-        return true
+    
+        return true;
     }
 }

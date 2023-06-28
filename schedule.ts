@@ -90,7 +90,7 @@ export function NewSchedule(id: string) {
     return new defaultSchedule(id)
 }
 
-function sigmod(x:number):number {
+function sigmod(x: number): number {
     return (GlobalSettings.DefaultEase - 100) * 2 / (1 + Math.exp(-0.0125 * (x - 250))) + 100;
 }
 
@@ -355,12 +355,24 @@ abstract class scheduler {
     abstract calculate(): moment.Duration
 }
 
+function randomIncrease(value: number) {
+    // 生成一个0.95到1.05之间的随机数
+    var randomFactor = Math.random() * 0.1 + 0.95;
+
+    // 计算增加后的值
+    var increasedValue = value * randomFactor;
+
+    // 返回增加后的值，保留整数
+    return parseFloat(increasedValue.toFixed(0));
+}
+
 // 简单难度计算
 class easeSchedule extends scheduler {
     calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * this.schedule.Ease / 100;
         let addsecond = Number(GlobalSettings.EasyBonus) * 24 * 60 * 60
-        let newdiff = window.moment.duration(basesecond + addsecond, "seconds")
+        let newrand = randomIncrease(basesecond + addsecond)
+        let newdiff = window.moment.duration(newrand, "seconds")
         return newdiff
     }
 }
@@ -369,7 +381,8 @@ class easeSchedule extends scheduler {
 class fairSchedule extends scheduler {
     calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * this.schedule.Ease / 100;
-        let newdiff = window.moment.duration(basesecond, "seconds")
+        let newrand = randomIncrease(basesecond)
+        let newdiff = window.moment.duration(newrand, "seconds")
         return newdiff
     }
 }
@@ -378,7 +391,8 @@ class fairSchedule extends scheduler {
 class hardSchedule extends scheduler {
     calculate(): moment.Duration {
         let basesecond = this.schedule.Gap.asSeconds() * 100 / this.schedule.Ease;
-        let newdiff = window.moment.duration(basesecond, "seconds")
+        let newrand = randomIncrease(basesecond)
+        let newdiff = window.moment.duration(newrand, "seconds")
         return newdiff
     }
 }
@@ -389,7 +403,8 @@ class unknowSchedule extends scheduler {
         let basesecond = this.schedule.Gap.asSeconds() * 100 / this.schedule.Ease;
         let addsecond = Number(GlobalSettings.HardBonus) * 24 * 60 * 60;
         let diffsecond = basesecond - addsecond
-        let newdiff = window.moment.duration(diffsecond, "seconds")
+        let newrand = randomIncrease(diffsecond)
+        let newdiff = window.moment.duration(newrand, "seconds")
         return newdiff
     }
 }
