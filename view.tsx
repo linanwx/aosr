@@ -14,7 +14,7 @@ import { Arrangement, PatternIter } from 'arrangement';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
 import { MarkdownRenderComponent } from 'markdown';
-import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile } from 'obsidian';
+import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
 import { I18nextProvider, Trans } from 'react-i18next';
@@ -180,14 +180,14 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	lastPattern: Pattern | undefined
 	timer: NodeJS.Timeout | null = null;
 	openUnpinnedFile = async (note: TFile) => {
+		let leaf: WorkspaceLeaf | undefined
 		if (this.props.view instanceof MarkdownRenderChild) {
-			let leaf = app.workspace.getLeaf(true)
-			leaf.openFile(note)
-			return leaf
-		}
-		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
-		if (!leaf || leaf.getViewState()?.pinned == true) {
 			leaf = app.workspace.getLeaf(true)
+		} else {
+			leaf = app.workspace.getLeavesOfType("markdown").at(0)
+			if (!leaf || leaf.getViewState()?.pinned == true) {
+				leaf = app.workspace.getLeaf(true)
+			}
 		}
 		await leaf.openFile(note)
 		return leaf
