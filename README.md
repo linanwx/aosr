@@ -9,6 +9,10 @@ It uses flashcards to help remember knowledge.
 
 This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition), but some changes have been made according to personal habits.
 
+# What's New
+
+- **New Deck Feature:** We've introduced a new Deck feature in Aosr. This feature allows you to define the contents of your decks based on custom rules. Simply copy and paste the provided code into your Obsidian notes, and the Aosr plugin will automatically transform it into a deck for review.
+
 # Features
 
 - **Rich Text Format Support**: The plugin supports rich text formats such as audio. This allows you to create multimedia flashcards for a more immersive learning experience.
@@ -17,11 +21,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 - **Three Basic Learning Types**: The plugin supports three basic learning types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
 - **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
-
-# What's New
-
-- **Multi-language Support:** Added support for multiple languages.
-- **Scope Cards:** Introduced [scope cards](https://github.com/linanwx/aosr#range-cards-scope-cards) as a new feature. 
+- **Deck Functionality**: Aosr now includes a powerful Deck feature that allows you to manage your flashcards in a highly customizable manner. You can define your own rules to manage your decks, providing a tailored review experience.
 
 # Demo
 
@@ -233,6 +233,111 @@ Once you click one of the buttons, the review begins. Please follow the buttons 
 <img width="914" alt="Screenshot 2023-06-13 at 12 09 46 PM" src="https://github.com/linanwx/aosr/assets/16589958/4ce6a725-51c4-46bc-8f13-cd3e7bc216ee">
 
 
+# Deck Functionality in Aosr
+
+Aosr offers a unique feature known as "Deck" that allows users to manage their flashcards in a highly customizable manner. This feature is designed to cater to the diverse needs of users, providing flexibility in how flashcards are organized and reviewed.
+
+### Background
+
+Users have different preferences when it comes to managing their flashcards. Some may prefer organizing their cards by directories, while others might find it more convenient to manage them by tags. Recognizing this, Aosr does not impose a preset deck system. Instead, it empowers users to define their own rules to manage their decks.
+
+### How Deck Works
+
+The Deck feature in Aosr leverages a rule-based system powered by "json-rules-engine". This allows users to define the contents of their decks based on custom rules. These rules can be freely defined to customize the inclusion of flashcards in a deck.
+
+### Rule Examples
+
+Here are some examples of how you can define rules for your decks:
+
+1. **Including Cards from a Specific Path:** Replace the keyword in the following code with your desired keyword. The deck will then include cards from the specified path.
+
+`````
+```aosr-deck-config
+{
+	"rule": {
+		"conditions": {
+			"all": [{
+				"fact": "card",
+				"operator": "regexMatch",
+				"value": "KEYWORD",    <--  Replace with your own note path keyword
+				"path": "$.path"
+			}]
+		},
+		"event": {
+			"type": "match"
+		}
+	}
+}
+```
+`````
+
+2. **Excluding Cards with a Specific Keyword in Their Path:** You can create a deck that excludes cards with a specific keyword in their path.
+
+`````
+```aosr-deck-config
+{
+	"rule":{
+		"conditions":{
+			"not":
+				{
+					"fact":"card",
+					"operator":"regexMatch",           
+					"value":"KEYWORD",    <-- Replace with the keyword you want to filter out
+					"path":"$.path"
+				}
+		},
+		"event":{
+			"type":"match"
+		}
+	}
+}
+```
+`````
+
+3. **Filtering Cards with a Specific Tag:** You can create a deck that includes all cards with a specific tag.
+
+`````
+```aosr-deck-config
+{
+	"rule": {
+		"conditions": {
+			"all": [{
+				"fact": "card",
+				"operator": "contains",
+				"value": "#KEYWORD",    <-- Replace with the tag you want to filter
+				"path": "$.tags"
+			}]
+		},
+		"event": {
+			"type": "match"
+		}
+	}
+}
+```
+`````
+
+These examples should suffice for most use cases. However, if you need more complex rules, such as including cards from a specific path that contain certain tags but not others, you may need to write more complex rules. For more information on writing rules, refer to the [json-rules-engine documentation](https://github.com/CacheControl/json-rules-engine). Also, you may need to refer to the fact of the pattern, which is defined as follows:
+
+```
+interface FactPattern {
+	card: {
+	path: string
+	tags: string[]
+	text: string
+	}
+}
+```
+
+### Using Deck in Your Notes
+
+With Aosr's Deck functionality, you can write your own Deck rules directly in your notes. This allows you to review only the selected cards in your notes, providing a tailored review experience.
+
+To use these examples, simply copy and paste the code into your Obsidian notes. If you have the Aosr plugin installed, it will automatically recognize the `aosr-deck-config` code block and transform it into a deck for review.
+
+If the code block does not automatically transform into a review card, please ensure that your cursor is not within the code block. Additionally, if any errors are prompted, check that the rule is in the correct JSON format. Any formatting errors will prevent the transformation into the correct review interface. Once correctly transformed, you should see an interface similar to the one generated when clicking the button in the sidebar. This interface will also contain the review content you need.
+
+<img width="898" alt="截屏2023-07-23 15 02 45" src="https://github.com/linanwx/aosr/assets/16589958/b05aecc8-51f6-40d0-98bc-f07a7ada6221">
+
 
 # Annotation
 
@@ -248,8 +353,8 @@ The comments will be automatically appended to the end of the document. Furtherm
 
 By installing the Dataview plugin, you can view information about your review progress.
 
+<img width="839" alt="截屏2023-07-23 14 17 48" src="https://github.com/linanwx/aosr/assets/16589958/fbc09bf0-aa37-43ed-a5e4-174d1920d6b2">
 
-<img width="843" alt="Screenshot 2023-05-18 at 9 37 16 PM" src="https://github.com/linanwx/aosr/assets/16589958/be0bb419-23a0-44a4-b2f1-112e67522a7c">
 
 You can obtain the complete set of review data by using the code `let patterns = await app.plugins.plugins.aosr.api.getAllPattern();`. Then, you can write Dataview code to display the data. Below is an example provided for you to copy and run.
 
