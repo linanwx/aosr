@@ -173,6 +173,8 @@ export function initLanguage() {
     )
     addTranslation("TodayStats", todayStatic)
     addTranslation("StartReview", StartReview)
+    addTranslation("StartTextALL", AllContents)
+    addTranslation("SettingHideContext", HideContext)
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
         console.error('Failed to change language:', err);
@@ -1066,4 +1068,64 @@ const StartReview = {
     "pt-BR": "Iniciar Revisão",
     "am": "መሰረታውን ጀምር",
     "da": "Start med at gennemgå"
+}
+
+const AllContents = {
+    "en": "All Contents",
+    "zh": "所有内容",
+    "ja": "すべてのコンテンツ",
+    "zh-TW": "所有內容",
+    "ko": "모든 내용",
+    "ar": "كل المحتويات",
+    "pt": "Todos os Conteúdos",
+    "de": "Alle Inhalte",
+    "ru": "Весь контент",
+    "fr": "Tous les contenus",
+    "es": "Todo el contenido",
+    "it": "Tutti i Contenuti",
+    "id": "Semua Konten",
+    "ro": "Toate Conținuturile",
+    "cs": "Všechny obsahy",
+    "no": "Alle innhold",
+    "pl": "Wszystkie zawartości",
+    "uk": "Весь вміст",
+    "sq": "Të gjitha Përmbajtjet",
+    "th": "เนื้อหาทั้งหมด",
+    "fa": "تمام محتواها",
+    "tr": "Tüm İçerikler",
+    "nl": "Alle Inhoud",
+    "ms": "Semua Kandungan",
+    "pt-BR": "Todo o Conteúdo",
+    "am": "ሁሉም ይዘት",
+    "da": "Alle Indhold"
+}
+
+const HideContext = {
+    "en": "Hide Context",
+    "zh": "隐藏上下文",
+    "ja": "コンテキストを非表示",
+    "zh-TW": "隱藏上下文",
+    "ko": "컨텍스트 숨기기",
+    "ar": "إخفاء السياق",
+    "pt": "Ocultar Contexto",
+    "de": "Kontext ausblenden",
+    "ru": "Скрыть контекст",
+    "fr": "Masquer le contexte",
+    "es": "Ocultar contexto",
+    "it": "Nascondi contesto",
+    "id": "Sembunyikan Konteks",
+    "ro": "Ascunde Contextul",
+    "cs": "Skrýt kontext",
+    "no": "Skjul Kontekst",
+    "pl": "Ukryj kontekst",
+    "uk": "Приховати контекст",
+    "sq": "Fshih Kontekstin",
+    "th": "ซ่อนเนื้อหา",
+    "fa": "مخفی کردن متن",
+    "tr": "Bağlamı Gizle",
+    "nl": "Verberg Context",
+    "ms": "Sorokkan Konteks",
+    "pt-BR": "Ocultar Contexto",
+    "am": "ሁሉም ማሳየት",
+    "da": "Skjul Kontekst"
 }

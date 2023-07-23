@@ -87,9 +87,9 @@ function inSelection(selection: EditorSelection, from: number, to: number) {
 }
 
 class TagInfo {
+    Original: string
     Head: string
     Suffix: string
-    Original: string
     SubTag: TagInfo
     constructor(original: string, tagstr: string) {
         this.Original = original
@@ -130,6 +130,11 @@ class TagsInfo {
                 return tag
             }
         }
+    }
+    getStringArray() {
+        return this.Tags.map((taginfo) => {
+            return taginfo.Original
+        })
     }
 }
 

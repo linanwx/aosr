@@ -1,12 +1,12 @@
 import { CardIDTag } from 'cardHead';
-import { ItemView } from 'obsidian';
+import { Component } from 'obsidian';
 import { Operation, PatternSchedule } from 'schedule';
 import { TagParser } from 'tag';
 import { Card } from './card';
 
 
 export type PatternProps ={
-	view:ItemView
+	view:Component
 	showAns:boolean
 }
 

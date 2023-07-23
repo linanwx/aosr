@@ -17,7 +17,7 @@ export interface Card {
 	get note(): TFile
 	// 获取卡片ID
 	get ID(): string
-	// 获取卡片原始字符串长度
+	// 获取卡片原始字符串
 	get cardText(): string
 	// 获取源码
 	get bodyList(): string[]
@@ -25,6 +25,7 @@ export interface Card {
 	get patterns(): Pattern[]
 	// 获取卡片偏移量
 	get indexBuff(): number
+	get tags(): string[]
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
 	// 更新文件
@@ -38,8 +39,8 @@ interface commitType {
 	ID?: boolean
 }
 
-export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile): Card {
-	return new defaultCard(cardText, content, annotation, cardID, index, note)
+export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile, tags:string[]): Card {
+	return new defaultCard(cardText, content, annotation, cardID, index, note, tags)
 }
 
 // 更新原文
@@ -60,10 +61,12 @@ class defaultCard implements Card {
 	updateList: updateInfo[];
 	cardText: string
 	content: string
+	tags: string[];
 	static bodySplitReg = /\n\*{3,}\n/
 	idGenFlag: boolean = false
 	// 1为source 2为注释
-	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile) {
+	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile, tags: string[]) {
+		this.tags = tags
 		this.updateList = []
 		this.indexBuff = index
 		this.cardText = cardText || ""

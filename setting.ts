@@ -8,6 +8,7 @@ export interface AOSRSettings {
     HardBonus: number;
     WordTTSURL: string;
     WaitingTimeoutBase: number;
+    HideContext: boolean;
 }
 
 const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
@@ -16,6 +17,7 @@ const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     HardBonus: 1,
     WordTTSURL: "",
     WaitingTimeoutBase: 7,
+    HideContext: false,
 }
 
 // i18n.t('someKey');
@@ -82,6 +84,16 @@ export class AOSRSettingTab extends PluginSettingTab {
                 .setValue(GlobalSettings.WaitingTimeoutBase)
                 .onChange(async (value) => {
                     GlobalSettings.WaitingTimeoutBase = Number(value)
+                    await this.plugin.saveSettings();
+                })
+            )
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingHideContext') || '')
+            .addToggle(toggle => toggle
+                .setValue(GlobalSettings.HideContext)
+                .onChange(async (value) => {
+                    GlobalSettings.HideContext = value
                     await this.plugin.saveSettings();
                 })
             )

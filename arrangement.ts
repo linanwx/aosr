@@ -1,22 +1,27 @@
 import { NewCardSearch } from "cardSearch"
 import { CardsWatcher, NewCardsWatch } from "cardWatcher"
+import { ParseRule } from "deck"
 import i18next from "i18next"
+import { RuleProperties } from "json-rules-engine"
 import { Pattern } from "Pattern"
 
 class ArrangementItem {
-    Name: string
+    Name: TAGNAME
     Count: number
     Display: string
-    constructor(name: string, count: number, display: string) {
+    constructor(name: TAGNAME, count: number, display: string) {
         this.Name = name
         this.Count = count
         this.Display = display
     }
 }
 
-const NEWTAG = "new"
-const REVIEWTAG = "review"
-const LEARNTAG = "learn"
+enum TAGNAME {
+    NEWTAG = "new",
+    REVIEWTAG = "review",
+    LEARNTAG = "learn",
+    ALLTAG = "all",
+}
 
 export class Stats {
     NewCount: number
@@ -39,6 +44,14 @@ abstract class ArrangementBase {
     abstract PatternSequence(Name: string): AsyncGenerator<PatternIter, boolean, unknown>
     abstract ArrangementList(): ArrangementItem[]
     abstract stats(): Stats
+    isOnlyAllTag(): boolean {
+        for (const item of this.ArrangementList()) {
+            if (item.Name !== TAGNAME.ALLTAG) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 function isToday(date: moment.Moment): boolean {
@@ -47,7 +60,7 @@ function isToday(date: moment.Moment): boolean {
     return date.isBetween(todayStart, todayEnd, null, '[]');
 }
 
-export class Arrangement implements ArrangementBase {
+export class Arrangement extends ArrangementBase {
     private allPattern: Pattern[]
     private newPattern: Pattern[]
     private needReviewPattern: Pattern[]
@@ -55,11 +68,12 @@ export class Arrangement implements ArrangementBase {
     // private wait:Pattern[]
     private watcher: CardsWatcher
     constructor() {
+        super()
         this.allPattern = []
         this.newPattern = []
         this.needReviewPattern = []
     }
-    async init() {
+    async init(rule:RuleProperties|null) {
         let search = NewCardSearch()
         let allcards = await search.search()
         this.allPattern = []
@@ -70,6 +84,9 @@ export class Arrangement implements ArrangementBase {
             for (let p of card.patterns) {
                 this.allPattern.push(p)
             }
+        }
+        if (rule != null) {
+            this.allPattern = await ParseRule(rule, this.allPattern)
         }
         this.sort()
     }
@@ -102,13 +119,16 @@ export class Arrangement implements ArrangementBase {
     ArrangementList(): ArrangementItem[] {
         let retlist: ArrangementItem[] = []
         if (this.newPattern.length > 0) {
-            retlist.push(new ArrangementItem(NEWTAG, this.newPattern.length, i18next.t('StartTextNew')))
+            retlist.push(new ArrangementItem(TAGNAME.NEWTAG, this.newPattern.length, i18next.t('StartTextNew')))
         }
         if (this.needReviewPattern.length > 0) {
-            retlist.push(new ArrangementItem(REVIEWTAG, this.needReviewPattern.length, i18next.t('StartTextReview')))
+            retlist.push(new ArrangementItem(TAGNAME.REVIEWTAG, this.needReviewPattern.length, i18next.t('StartTextReview')))
         }
         if (this.needLearn.length > 0) {
-            retlist.push(new ArrangementItem(LEARNTAG, this.needLearn.length, i18next.t('StartTextLearn')))
+            retlist.push(new ArrangementItem(TAGNAME.LEARNTAG, this.needLearn.length, i18next.t('StartTextLearn')))
+        }
+        if (this.allPattern.length > 0) {
+            retlist.push(new ArrangementItem(TAGNAME.ALLTAG, this.allPattern.length, i18next.t('StartTextALL')))
         }
         return retlist
     }
@@ -159,12 +179,14 @@ export class Arrangement implements ArrangementBase {
     async *PatternSequence(name: string) {
         let patterns = null;
         
-        if (name == REVIEWTAG) {
+        if (name == TAGNAME.REVIEWTAG) {
             patterns = this.needReviewPattern;
-        } else if (name == NEWTAG) {
+        } else if (name == TAGNAME.NEWTAG) {
             patterns = this.newPattern;
-        } else if (name == LEARNTAG) {
+        } else if (name == TAGNAME.LEARNTAG) {
             patterns = this.needLearn;
+        } else if (name == TAGNAME.ALLTAG) {
+            patterns = this.allPattern;
         }
     
         if (patterns) {

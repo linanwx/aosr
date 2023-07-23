@@ -128,7 +128,7 @@ class defaultCardSearch implements cardSearcher {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID);
 			}
 			let content = result.content;
-			let card: Card = NewCard(cardText, content, annotation, blockID, index, note);
+			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, tags.getStringArray());
 			cards.push(card)
 		}
 		return cards

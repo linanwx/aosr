@@ -1,16 +1,16 @@
 import { AosrAPI } from 'api';
 import { NewCardSearch } from 'cardSearch';
+import { handlerDeckCode } from 'deck';
 import { initLanguage } from 'language';
 import { debounce } from 'lodash';
 import { EventRef, MarkdownView, Notice, Plugin, TFile, addIcon } from 'obsidian';
 import { ClozeParser } from 'patternCloze';
 import { MultiLineParser, SingleLineParser } from 'patternLine';
 import { AOSRSettingTab, GlobalSettings, setGlobalSettings } from 'setting';
+import { emojiTagPlugin } from 'tag';
+import yaml from "yaml";
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
-import yaml from "yaml"
-import { EditorView, WidgetType, DecorationSet, ViewPlugin, ViewUpdate } from "@codemirror/view";
-import { emojiTagPlugin } from 'tag';
 
 
 
@@ -135,6 +135,7 @@ export default class AOSRPlugin extends Plugin {
 
 			el.createSpan({ "text": `Aosr data for card ${cardID}. Please do not edit.`, "cls": "cm-comment" })
 		});
+		this.registerMarkdownCodeBlockProcessor("aosr-deck-config", handlerDeckCode)
 	}
 
 	registerAosrParser() {

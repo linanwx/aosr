@@ -1,24 +1,25 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveIcon from '@mui/icons-material/Save';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, ButtonGroup, Chip, Grid, Hidden, IconButton, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
+import { Box, Chip, Hidden, List, ListItem, ListItemButton, ListItemText, Paper, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
-import { Arrangement, PatternIter, Stats } from 'arrangement';
+import { Arrangement, PatternIter } from 'arrangement';
+import i18n from 'i18next';
+import { RuleProperties } from 'json-rules-engine';
 import { MarkdownRenderComponent } from 'markdown';
-import { EditorPosition, ItemView, MarkdownView, TFile } from 'obsidian';
+import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile } from 'obsidian';
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
+import { I18nextProvider, Trans } from 'react-i18next';
 import { LearnEnum, LearnOpt, Operation, ReviewEnum, ReviewOpt } from "schedule";
 import { GlobalSettings } from 'setting';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { I18nextProvider, Trans } from 'react-i18next';
-import i18n from 'i18next';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 function LinearProgressWithLabel(props: { value1: number, value2: number }) {
 	const value = (props.value1 / props.value2) * 100;
@@ -39,7 +40,7 @@ export const VIEW_TYPE_REVIEW = "aosr-review-view"
 type ReviewingProps = {
 	arrangement: Arrangement
 	goStage: (stage: ReviewStage) => void
-	view: ItemView
+	view: Component
 	arrangeName: string
 }
 
@@ -174,59 +175,64 @@ function findOutline(file: TFile, offset: number): string {
 	return currentOutline.join(" > ")
 }
 
-async function openUnpinnedFile(note: TFile) {
-	let leaf = app.workspace.getLeavesOfType("markdown").at(0)
-	if (!leaf || leaf.getViewState()?.pinned == true) {
-		leaf = app.workspace.getLeaf(true)
-	}
-	await leaf.openFile(note)
-	return leaf
-}
-
-
-async function openPatternFile(pattern: Pattern) {
-	// 打开文件
-	let leaf = await openUnpinnedFile(pattern.card.note)
-	if (!(leaf.view instanceof MarkdownView)) {
-		return
-	}
-	let view = leaf.view
-	// 读取文件找到tag
-	let noteText = view.data
-	let index = noteText.indexOf(pattern.TagID)
-	let length = pattern.TagID.length
-	// 处理Tag不存在的情况
-	if (index < 0) {
-		index = pattern.card.indexBuff
-		length = 0
-	}
-	// 换算位置
-	let tagpos = view.editor.offsetToPos(index)
-	let tagposEnd : EditorPosition = {
-		line: tagpos.line,
-		ch: tagpos.ch + length
-	}
-	// 滚动
-	if (view.getMode() == "preview") {
-		view.currentMode.applyScroll(tagpos.line)
-	} else {
-		view.editor.setSelection(tagpos, tagposEnd)
-		view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
-		view.editor.setSelection(tagpos, tagposEnd)
-		view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
-
-		// 避免某些情况仍然没有正确定位
-		setTimeout(function() {
-			view.editor.setSelection(tagpos, tagposEnd)
-			view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
-		}, 800)
-	}
-}
-
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	initFlag: boolean
 	lastPattern: Pattern | undefined
 	timer: NodeJS.Timeout | null = null;
+	openUnpinnedFile = async (note: TFile) => {
+		if (this.props.view instanceof MarkdownRenderChild) {
+			let leaf = app.workspace.getLeaf(true)
+			leaf.openFile(note)
+			return leaf
+		}
+		let leaf = app.workspace.getLeavesOfType("markdown").at(0)
+		if (!leaf || leaf.getViewState()?.pinned == true) {
+			leaf = app.workspace.getLeaf(true)
+		}
+		await leaf.openFile(note)
+		return leaf
+	}
+	openPatternFile = async (pattern: Pattern | undefined) => {
+		if (!pattern) {
+			return
+		}
+		// 打开文件
+		let leaf = await this.openUnpinnedFile(pattern.card.note)
+		if (!(leaf.view instanceof MarkdownView)) {
+			return
+		}
+		let view = leaf.view
+		// 读取文件找到tag
+		let noteText = view.data
+		let index = noteText.indexOf(pattern.TagID)
+		let length = pattern.TagID.length
+		// 处理Tag不存在的情况
+		if (index < 0) {
+			index = pattern.card.indexBuff
+			length = 0
+		}
+		// 换算位置
+		let tagpos = view.editor.offsetToPos(index)
+		let tagposEnd: EditorPosition = {
+			line: tagpos.line,
+			ch: tagpos.ch + length
+		}
+		// 滚动
+		if (view.getMode() == "preview") {
+			view.currentMode.applyScroll(tagpos.line)
+		} else {
+			view.editor.setSelection(tagpos, tagposEnd)
+			view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+			view.editor.setSelection(tagpos, tagposEnd)
+			view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+
+			// 避免某些情况仍然没有正确定位
+			setTimeout(function () {
+				view.editor.setSelection(tagpos, tagposEnd)
+				view.editor.scrollIntoView({ from: tagpos, to: tagposEnd }, true)
+			}, 800)
+		}
+	}
 	constructor(props: ReviewingProps) {
 		super(props)
 		this.state = {
@@ -283,52 +289,6 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			showAns: false,
 		})
 		result.value.pattern.Pronounce()
-	}
-	openPatternFile = async (pattern: Pattern | undefined) => {
-		if (!pattern) {
-			return
-		}
-		await openPatternFile(pattern)
-		// let leaf = app.workspace.getLeavesOfType("markdown").at(0)
-		// if (!leaf || leaf.getViewState()?.pinned == true) {
-		// 	leaf = app.workspace.getLeaf(true)
-		// }
-		// await leaf.openFile(pattern.card.note)
-		// let view = app.workspace.getActiveViewOfType(MarkdownView)
-		// if (!view) {
-		// 	return
-		// }
-		// // 优先使用Tag的位置，如果tag不存在，则使用卡片缓存的位置
-		// let noteText = await app.vault.read(pattern.card.note)
-		// let index = noteText.indexOf(pattern.TagID)
-		// let offset = 0
-		// let length = 0
-		// if (index >= 0) {
-		// 	offset = index
-		// 	length = pattern.TagID.length
-		// } else {
-		// 	offset = pattern.card.indexBuff
-		// 	length = pattern.card.cardText.length
-		// }
-		// let range1 = view.editor.offsetToPos(offset)
-		// let range2 = view.editor.offsetToPos(offset + length)
-		// let range2next: EditorPosition = {
-		// 	line: range2.line + 1,
-		// 	ch: 0,
-		// }
-		// let range3: EditorPosition
-		// if (index >= 0) {
-		// 	range3 = range2
-		// } else {
-		// 	range3 = range2next
-		// }
-		// view.currentMode.applyScroll(range1.line);
-		// view.editor.setSelection(range3, range1)
-		// await new Promise(resolve => setTimeout(resolve, 100));
-		// view.editor.scrollIntoView({
-		// 	from: range1,
-		// 	to: range3,
-		// }, true)
 	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
@@ -396,14 +356,18 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				</Stack>
 				<Hidden smDown><Button onClick={this.next} startIcon={<SkipNextIcon />}><Trans i18nKey="ButtonTextSkip" /></Button></Hidden>
 			</Stack>
-			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
-				<Typography variant="h3">
-					{this.state.fileName}
-				</Typography>
-			</Box>
-			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
-				<Typography variant="h6"><MarkdownRenderComponent markdown={this.state.heading} sourcePath={''} component={this.props.view} /></Typography>
-			</Box>
+			{
+				!GlobalSettings.HideContext && <>
+					<Box sx={{ marginTop: 2, marginBottom: 2 }}>
+						<Typography variant="h3">
+							{this.state.fileName}
+						</Typography>
+					</Box>
+					<Box sx={{ marginTop: 2, marginBottom: 2 }}>
+						<Typography variant="h6"><MarkdownRenderComponent markdown={this.state.heading} sourcePath={''} component={this.props.view} /></Typography>
+					</Box>
+				</>
+			}
 			<Box sx={{ minHeight: 135, marginTop: 2, marginBottom: 2 }}>
 				<this.PatternComponent></this.PatternComponent>
 			</Box>
@@ -489,6 +453,146 @@ type MaindeskState = {
 
 }
 
+interface ReviewPaperProps {
+	arrangement: Arrangement;
+	setArrangement: (name: string) => void;
+	goStage: (stage: ReviewStage) => void;
+}
+
+interface ReviewPaperStates {
+
+}
+
+class ReviewPaperComponent extends React.Component<ReviewPaperProps, ReviewPaperStates> {
+	constructor(props: ReviewPaperProps) {
+		super(props)
+	}
+	render(): React.ReactNode {
+		let emptyReview = this.props.arrangement.isOnlyAllTag()
+		return (
+			<Paper sx={{
+				color: 'var(--text-normal)',
+				bgcolor: 'var(--background-primary)',
+				margin: 2,
+			}}>
+				{this.props.arrangement.ArrangementList().length !== 0 && <>
+					<Typography variant="h6" sx={{ padding: 2 }}>
+						<Trans i18nKey="StartReview" />
+					</Typography>
+					<List>
+						{
+							this.props.arrangement.ArrangementList().map((value) => (
+								<ListItem disablePadding key={value.Name}>
+									<ListItemButton onClick={() => {
+										this.props.setArrangement(value.Name);
+										this.props.goStage(ReviewStage.Reviewing);
+									}}>
+										<ListItemText primary={`${value.Display} : ${value.Count}`} />
+									</ListItemButton>
+								</ListItem>
+							))
+						}
+					</List>
+				</>
+				}
+				{
+					emptyReview &&
+					<Box sx={{ margin: 2 }}>
+						<Trans i18nKey="StartTextEmpty" />
+					</Box>
+				}
+			</Paper>
+		);
+	}
+}
+
+// interface DeckSettingProps {
+
+// }
+
+// interface DeckSettingStates {
+// 	deckName: string
+// 	pathRegex: string
+// 	unfold: boolean
+// 	matchType: DeckMatchType
+// }
+
+// class CustomPaperComponent extends React.Component<DeckSettingProps, DeckSettingStates> {
+// 	constructor(props: DeckSettingProps | Readonly<DeckSettingProps>) {
+// 		super(props);
+// 		this.state = {
+// 			deckName: '',
+// 			pathRegex: '',
+// 			matchType: DeckMatchType.PATHREGEX,
+// 			unfold: false,
+// 		};
+// 	}
+
+// 	handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+// 		if (event.target.name == "deckName") {
+// 			this.setState({
+// 				deckName: event.target.value
+// 			})
+// 		}
+// 		if (event.target.name == "pathRegex") {
+// 			this.setState({
+// 				pathRegex: event.target.value
+// 			})
+// 		}
+// 		if (event.target.name == "matchType") {
+// 			let type: DeckMatchType = DeckMatchType[event.target.value as keyof typeof DeckMatchType];
+// 			this.setState({
+// 				matchType: type
+// 			})
+// 		}
+// 	}
+
+// 	submit = (event: FormEvent) => {
+// 		event.preventDefault();
+// 	}
+
+// 	render() {
+// 		if (!this.state.unfold) {
+// 			return <Button onClick={() => {
+// 				this.setState({
+// 					unfold: true
+// 				})
+// 			}} ><AddIcon /></Button>
+// 		}
+// 		return (
+// 			<Paper sx={{ color: 'var(--text-normal)', bgcolor: 'var(--background-primary)', margin: 2 }}>
+// 				<form onSubmit={this.submit}>
+// 					<Box p={2} sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+// 						<Typography><Trans i18nKey="DeckName" />:</Typography>
+// 						<TextField required name="deckName" value={this.state.deckName} onChange={this.handleInputChange} />
+
+// 						<Typography><Trans i18nKey="MatchType" />:</Typography>
+// 						<Select
+// 							required
+// 							defaultValue={DeckMatchType.PATHREGEX}
+// 							name="matchType"
+// 							value={this.state.matchType}
+// 							onChange={this.handleInputChange}>
+// 							<MenuItem value={DeckMatchType.PATHREGEX}><Trans i18nKey="PathRegex" /></MenuItem>
+// 						</Select>
+// 						<TextField required name="pathRegex" value={this.state.pathRegex} onChange={this.handleInputChange} />
+
+// 					</Box>
+
+// 					<Box p={2} sx={{ gap: '10px', margin: 2, display: 'flex', flexDirection: 'row' }}>
+// 						<Button onClick={() => {
+// 							this.setState({
+// 								unfold: false
+// 							})
+// 						}}><Trans i18nKey="Cancel" /></Button>
+// 						<Button type='submit'><Trans i18nKey="OK" /></Button>
+// 					</Box>
+// 				</form>
+// 			</Paper>
+// 		);
+// 	}
+// }
+
 class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 	constructor(props: any) {
 		super(props)
@@ -504,39 +608,11 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 				<Button onClick={() => {
 					this.props.goStage(ReviewStage.Loading)
 				}} ><RefreshIcon /></Button>
-				<Paper sx={{
-					color: 'var(--text-normal)',
-					bgcolor: 'var(--background-primary)',
-					margin: 2,
-				}}>
-					{this.props.arrangement.ArrangementList().length != 0 && <>
-						<Typography variant="h6" sx={{ padding: 2 }}>
-							<Trans i18nKey="StartReview" />
-						</Typography>
-						<List>
-							{
-								this.props.arrangement.ArrangementList().map((value) => (
-									<ListItem disablePadding key={value.Name}>
-										<ListItemButton onClick={() => {
-											this.props.setArrangement(value.Name);
-											this.props.goStage(ReviewStage.Reviewing);
-										}}>
-											<ListItemText primary={`${value.Display} : ${value.Count}`} />
-										</ListItemButton>
-									</ListItem>
-								))
-							}
-						</List>
-					</>
-					}
-					{
-						this.props.arrangement.ArrangementList().length == 0 &&
-						<Box sx={{ margin: 2 }}>
-							<Trans i18nKey="StartTextEmpty" />
-						</Box>
-
-					}
-				</Paper>
+				<ReviewPaperComponent
+					arrangement={this.props.arrangement}
+					setArrangement={this.props.setArrangement}
+					goStage={this.props.goStage}
+				/>
 				{
 					showStats &&
 					<Paper sx={{
@@ -560,14 +636,14 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 						</List>
 					</Paper>
 				}
-
 			</Stack>
 		</Box>
 	}
 }
 
 type ReviewProps = {
-	view: ItemView
+	view: Component
+	rule: RuleProperties | null
 }
 
 enum ReviewStage {
@@ -590,7 +666,7 @@ class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
 		}
 		this.syncFlag = true
 		let arrangement = this.state.arrangement
-		await arrangement.init()
+		await arrangement.init(this.props.rule)
 		this.setState({
 			arrangement: arrangement
 		})
@@ -648,16 +724,17 @@ class ReviewComponent extends React.Component<ReviewProps, ReviewState> {
 
 
 type props = {
-	view: ItemView
+	view: Component
+	rule: RuleProperties | null
 }
 
-function App(props: props) {
+export function App(props: props) {
 	let halfPageHeight = window.innerHeight / 2
 	return (
 		<div className="markdown-preview-view markdown-rendered is-readable-line-width allow-fold-headings">
 			<div className="markdown-preview-sizer markdown-preview-section" style={{ paddingBottom: `${halfPageHeight}px` }}>
 				<I18nextProvider i18n={i18n}>
-					<ReviewComponent view={props.view} ></ReviewComponent>
+					<ReviewComponent view={props.view} rule={props.rule} ></ReviewComponent>
 				</I18nextProvider>
 			</div>
 		</div>
@@ -677,7 +754,7 @@ export class ReviewView extends ItemView {
 		let rootDiv = this.containerEl.children[1].createDiv()
 		this.root = createRoot(rootDiv);
 		this.root.render(
-			<App view={this}></App>
+			<App view={this} rule={null}></App>
 		)
 	}
 	onunload(): void {
