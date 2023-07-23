@@ -30,6 +30,11 @@ interface elem {
 	heading: string
 }
 
+function extractStrings(inputText: string): string[] {
+	const regex = /#[\/\w]+/gm;
+	return inputText.match(regex) || [];
+}
+
 // 默认的卡片搜索
 // 搜索标签开头的一行，到该段落结束位置，该区域的内容被视为卡片Card的内容
 class defaultCardSearch implements cardSearcher {
@@ -120,15 +125,16 @@ class defaultCardSearch implements cardSearcher {
 			// 匹配注释段
 			let cardText = result.all;
 			let index = result.start || 0;
-			let tags = TagParser.parse(result.heading);
-			let idTag = tags.findTag(CardIDTag);
+			let headingtags = TagParser.parse(result.heading);
+			let idTag = headingtags.findTag(CardIDTag);
 			let blockID = idTag?.Suffix || "";
 			let annotation = "";
 			if (blockID != "") {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID);
 			}
+			let tags = extractStrings(cardText)
 			let content = result.content;
-			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, tags.getStringArray());
+			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, tags);
 			cards.push(card)
 		}
 		return cards

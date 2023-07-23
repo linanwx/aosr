@@ -1,7 +1,7 @@
 {
 	"id": "aosr",
 	"name": "Aosr",
-	"version": "1.0.36",
+	"version": "1.0.37",
 	"minAppVersion": "0.12.0",
 	"description": "Another obsidian spaced repetition",
 	"author": "linanwx",
