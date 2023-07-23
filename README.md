@@ -334,6 +334,8 @@ With Aosr's Deck functionality, you can write your own Deck rules directly in yo
 
 To use these examples, simply copy and paste the code into your Obsidian notes. If you have the Aosr plugin installed, it will automatically recognize the `aosr-deck-config` code block and transform it into a deck for review.
 
+If the code block does not automatically transform into a review card, please ensure that your cursor is not within the code block. Additionally, if any errors are prompted, check that the rule is in the correct JSON format. Any formatting errors will prevent the transformation into the correct review interface. Once correctly transformed, you should see an interface similar to the one generated when clicking the button in the sidebar. This interface will also contain the review content you need.
+
 <img width="898" alt="截屏2023-07-23 15 02 45" src="https://github.com/linanwx/aosr/assets/16589958/b05aecc8-51f6-40d0-98bc-f07a7ada6221">
 
 
