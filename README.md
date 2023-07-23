@@ -1,5 +1,8 @@
 # Aosr
 
+![GitHub all releases](https://img.shields.io/github/downloads/linanwx/aosr/total) ![release](https://img.shields.io/github/v/release/linanwx/aosr
+)
+
 Aosr is **A**nother **O**bsidian plugin for **S**paced **R**epetition.
 
 It uses flashcards to help remember knowledge.
