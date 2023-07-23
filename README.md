@@ -321,9 +321,9 @@ These examples should suffice for most use cases. However, if you need more comp
 ```
 interface FactPattern {
 	card: {
-	path: string
-	tags: string[]
-	text: string
+		path: string
+		tags: string[]
+		text: string
 	}
 }
 ```
