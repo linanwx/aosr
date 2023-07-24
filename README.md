@@ -11,7 +11,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's New
 
-- **New Deck Feature:** We've introduced a new Deck feature in Aosr. This feature allows you to define the contents of your decks based on custom rules. Simply copy and paste the provided code into your Obsidian notes, and the Aosr plugin will automatically transform it into a deck for review.
+- **New Deck Feature:** We've introduced a new [Deck feature](https://github.com/linanwx/aosr#deck-functionality-in-aosr) in Aosr. This feature allows you to define the contents of your decks based on custom rules. Simply copy and paste the provided code into your Obsidian notes, and the Aosr plugin will automatically transform it into a deck for review. 
 
 # Features
 
