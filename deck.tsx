@@ -1,6 +1,6 @@
 import { Pattern } from "Pattern";
 import { Engine, RuleProperties } from "json-rules-engine";
-import { MarkdownPostProcessorContext, MarkdownRenderChild } from "obsidian";
+import { FrontMatterCache, MarkdownPostProcessorContext, MarkdownRenderChild, getAllTags, parseFrontMatterTags } from "obsidian";
 import React from "react";
 import { Root, createRoot } from "react-dom/client";
 import { App } from "view";
@@ -16,33 +16,46 @@ interface FactPattern {
         tags: string[]
         text: string
     }
+    file: {
+        tags: string[] // from frontmatter
+    }
 }
 
 function convertToFact(p: Pattern): FactPattern {
+    let tags = parseFrontMatterTags(p.card.fileCache?.frontmatter) || []
     return {
         card: {
             path: p.card.note.path,
             tags: p.card.tags,
             text: p.card.cardText,
+        },
+        file: {
+            tags: tags
         }
     }
 }
 
 export async function ParseRule(rule: RuleProperties, allPattern: Pattern[]) {
-    console.log("开始解析规则")
     let results: Pattern[] = []
     let engine = new Engine()
     try {
         engine.addRule(rule)
         engine.addOperator('regexMatch', (factValue, regex) => {
-            if (typeof regex !== "string") {
-                return false
+            if (typeof regex !== "string") return false;
+    
+            if (typeof factValue === "string") {
+                const regexPattern = new RegExp(regex);
+                return regexPattern.test(factValue);
             }
-            if (typeof factValue != "string") {
-                return false
+        
+            if (Array.isArray(factValue)) {
+                const regexPattern = new RegExp(regex);
+                return factValue.some(item => {
+                    return typeof item === "string" && regexPattern.test(item);
+                });
             }
-            const regexPattern = new RegExp(regex);
-            return regexPattern.test(factValue);
+        
+            return false;
         })
         await Promise.all(allPattern.map(async (pattern, index) => {
             let fact = convertToFact(pattern)

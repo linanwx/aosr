@@ -30,11 +30,6 @@ interface elem {
 	heading: string
 }
 
-function extractStrings(inputText: string): string[] {
-	const regex = /#[\/\w]+/gm;
-	return inputText.match(regex) || [];
-}
-
 // 默认的卡片搜索
 // 搜索标签开头的一行，到该段落结束位置，该区域的内容被视为卡片Card的内容
 class defaultCardSearch implements cardSearcher {
@@ -121,6 +116,7 @@ class defaultCardSearch implements cardSearcher {
 	private getCardFromText(fileText: string, note: TFile): Card[] {
 		let cards: Card[] = []
 		let results = this.matchText(fileText)
+		let cache = app.metadataCache.getFileCache(note)
 		for (let result of results) {
 			// 匹配注释段
 			let cardText = result.all;
@@ -132,9 +128,8 @@ class defaultCardSearch implements cardSearcher {
 			if (blockID != "") {
 				annotation = AnnotationWrapper.findAnnotationWrapper(fileText, blockID);
 			}
-			let tags = extractStrings(cardText)
 			let content = result.content;
-			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, tags);
+			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, cache);
 			cards.push(card)
 		}
 		return cards

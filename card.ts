@@ -1,6 +1,6 @@
 import { AnnotationObject, AnnotationWrapper } from 'annotationParse';
 import { UpdateCardIDTag } from 'cardHead';
-import { TFile } from 'obsidian';
+import { CachedMetadata, TFile } from 'obsidian';
 import { CardSchedule, PatternSchedule } from 'schedule';
 import { ParserCollection } from './ParserCollection';
 import { Pattern } from './Pattern';
@@ -26,6 +26,7 @@ export interface Card {
 	// 获取卡片偏移量
 	get indexBuff(): number
 	get tags(): string[]
+	get fileCache(): CachedMetadata | null
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
 	// 更新文件
@@ -39,13 +40,18 @@ interface commitType {
 	ID?: boolean
 }
 
-export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile, tags:string[]): Card {
-	return new defaultCard(cardText, content, annotation, cardID, index, note, tags)
+export function NewCard(cardText: string, content: string, annotation: string, cardID: string, index: number, note: TFile, cache: CachedMetadata | null): Card {
+	return new defaultCard(cardText, content, annotation, cardID, index, note, cache)
 }
 
 // 更新原文
 class updateInfo {
 	updateFunc: (content: string) => string
+}
+
+function extractStrings(inputText: string): string[] {
+	const regex = /#[\/\w]+/gm;
+	return inputText.match(regex) || [];
 }
 
 // 默认卡片的实现
@@ -64,9 +70,12 @@ class defaultCard implements Card {
 	tags: string[];
 	static bodySplitReg = /\n\*{3,}\n/
 	idGenFlag: boolean = false
+	fileCache: CachedMetadata | null
 	// 1为source 2为注释
-	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile, tags: string[]) {
+	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile, cache: CachedMetadata | null) {
+		let tags = extractStrings(cardText)
 		this.tags = tags
+		this.fileCache = cache
 		this.updateList = []
 		this.indexBuff = index
 		this.cardText = cardText || ""
@@ -104,7 +113,7 @@ class defaultCard implements Card {
 		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
 		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation, "AOSRDATA")
 		if (this.annotationWrapperStr?.length > 0) {
-			fileText = fileText.replace(this.annotationWrapperStr, ()=>{return newAnnotation})
+			fileText = fileText.replace(this.annotationWrapperStr, () => { return newAnnotation })
 		} else {
 			if (fileText.at(-1) != "\n") {
 				fileText += "\n" + "\n"
@@ -133,7 +142,7 @@ class defaultCard implements Card {
 				for (let updateInfo of this.updateList) {
 					newContent = updateInfo.updateFunc(newContent)
 				}
-				fileText = fileText.replace(this.content, ()=>{return newContent})
+				fileText = fileText.replace(this.content, () => { return newContent })
 				this.updateList = []
 				this.idGenFlag = true // 确保只添加一次
 			}
