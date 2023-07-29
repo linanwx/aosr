@@ -315,6 +315,26 @@ Here are some examples of how you can define rules for your decks:
 }
 ```
 `````
+4. **Filtering Fiels with a Specific Tag in Frontmatter:**
+
+``````
+```aosr-deck-config
+{
+	"rule": {
+		"conditions": {
+			"all": [{
+				"fact": "file",
+				"path": "$.tags",
+				"operator": "regexMatch",
+				"value": "mathematics"
+			}]
+		},
+		"event": {
+			"type": "match"
+		}
+	}
+}
+``````
 
 These examples should suffice for most use cases. However, if you need more complex rules, such as including cards from a specific path that contain certain tags but not others, you may need to write more complex rules. For more information on writing rules, refer to the [json-rules-engine documentation](https://github.com/CacheControl/json-rules-engine). Also, you may need to refer to the fact of the pattern, which is defined as follows:
 
