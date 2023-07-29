@@ -315,7 +315,7 @@ Here are some examples of how you can define rules for your decks:
 }
 ```
 `````
-4. **Filtering Fiels with a Specific Tag in Frontmatter:**
+4. **Filtering Files with a Specific Tag in Frontmatter:**
 
 ``````
 ```aosr-deck-config
