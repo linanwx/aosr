@@ -345,6 +345,9 @@ interface FactPattern {
 		tags: string[]
 		text: string
 	}
+    file: {
+        tags: string[] // from frontmatter
+    }
 }
 ```
 
