@@ -215,6 +215,12 @@ export class defaultSchedule implements PatternSchedule {
         let learnCount = -2
         if (this.LearnedCount) {
             learnCount = this.LearnedCount
+        } else {
+            if (this.Opts.length > 0) {
+                if (this.Opts.at(this.Opts.length -1) === ReviewEnum.HARD.toString()) {
+                    learnCount += 1
+                }
+            }
         }
         if (opt == LearnEnum.FAIR) {
             learnCount += 1
