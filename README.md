@@ -364,13 +364,10 @@ If the code block does not automatically transform into a review card, please en
 
 # Annotation
 
-Please take note of the presence of generated comments within your document. This is a normal occurrence and is essential for the functioning of the plug-in, as it requires this data for the purpose of calculating review time.
+In versions prior to 1.0.40, review data was written at the end of the notes. In subsequent versions, the data is stored in the aosr.db file located under the .obsidian folder. When reading, the data in the db is prioritized, followed by the data in the notes. There is a tool in the settings interface designed to migrate old data into the DB, while also cleaning the notes. It is strongly recommended that you perform this migration operation with a backup of your vault.
 
 <img width="713" alt="Screenshot 2023-06-13 at 12 11 48 PM" src="https://github.com/linanwx/aosr/assets/16589958/624e627e-fa10-4234-8446-fc139b51d355">
 
-I acknowledge that the appearance of these comments may not be visually pleasing and may disrupt the document's formatting. However, at present, this arrangement suffices for my daily usage. It is possible that I may discover a solution to this matter in the future.
-
-The comments will be automatically appended to the end of the document. Furthermore, their placement can be adjusted within the same document if necessary.
 
 # Work with Dataview
 
