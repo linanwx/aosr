@@ -11,7 +11,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's New
 
-- **New Deck Feature:** We've introduced a new [Deck feature](https://github.com/linanwx/aosr#deck-functionality-in-aosr) in Aosr. This feature allows you to define the contents of your decks based on custom rules. Simply copy and paste the provided code into your Obsidian notes, and the Aosr plugin will automatically transform it into a deck for review. 
+- The new feature now writes review data separately inside the .obsidian/aosr.db file, so it no longer affects the notes. However, due to significant changes, users are advised to exercise caution when using it. When upgrading to version 1.1.1 or above, new review data will be written to the DB file, while old data will remain in the notes. If you need to immediately migrate all the old data from the notes to the new DB file and clean up the old notes, there is a migration tool available in the settings interface. If you have concerns about the 1.1.1 version, please stay on version 1.0.40. If you encounter any issues, please raise an issue immediately.
 
 # Features
 
