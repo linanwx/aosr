@@ -108,5 +108,16 @@ export class AOSRSettingTab extends PluginSettingTab {
                     GlobalSettings.WordTTSURL = value
                     await this.plugin.saveSettings();
                 }))
+
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingTextMigrateData') || "")
+            .setDesc(i18n.t('SettingTextMigrateDataDesc') || "")
+            .addButton(button => button
+                .setButtonText(i18n.t('SettingTextMigrateData') || "")
+                .onClick(async () => {
+                    await this.plugin.migrateData();
+                }
+                ))
     }
 }

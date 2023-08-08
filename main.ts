@@ -3,6 +3,7 @@ import { NewCardSearch } from 'cardSearch';
 import { handlerDeckCode } from 'deck';
 import { initLanguage } from 'language';
 import { debounce } from 'lodash';
+import { MigrateModal } from 'migrate';
 import { EventRef, MarkdownView, Notice, Plugin, TFile, addIcon } from 'obsidian';
 import { ClozeParser } from 'patternCloze';
 import { MultiLineParser, SingleLineParser } from 'patternLine';
@@ -11,7 +12,7 @@ import { emojiTagPlugin } from 'tag';
 import yaml from "yaml";
 import { ParserCollection } from "./ParserCollection";
 import { ReviewView, VIEW_TYPE_REVIEW } from './view';
-
+import { DatabaseHelper } from 'db';
 
 
 class AosrWriterHelper {
@@ -87,6 +88,7 @@ export default class AOSRPlugin extends Plugin {
 	public api: AosrAPI
 	writerHelper: AosrWriterHelper
 	async onload() {
+		let h = DatabaseHelper.getInstance()
 		this.registerEditorExtension(emojiTagPlugin)
 		await this.loadSettings();
 		initLanguage()
@@ -158,5 +160,9 @@ export default class AOSRPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(GlobalSettings);
+	}
+
+	async migrateData() {
+		new MigrateModal(this.app).open();
 	}
 }

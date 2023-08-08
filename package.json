@@ -13,7 +13,10 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/lodash": "^4.14.194",
+		"@types/lokijs": "^1.5.8",
+		"@types/nedb": "^1.8.13",
 		"@types/node": "^16.11.6",
+		"@types/pouchdb": "^6.4.0",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
@@ -31,13 +34,21 @@
 		"@mui/icons-material": "^5.10.3",
 		"@mui/lab": "^5.0.0-alpha.99",
 		"@mui/material": "^5.13.3",
+		"@types/lowdb": "^1.0.11",
 		"@types/react-dom": "^18.0.6",
 		"i18next": "^22.5.0",
 		"json-rules-engine": "^6.3.1",
 		"lodash": "^4.17.21",
+		"lodash-id": "^0.14.1",
+		"lokijs": "^1.5.12",
+		"lowdb": "^6.0.1",
+		"nedb": "^1.8.0",
+		"pouchdb": "^8.0.1",
+		"pouchdb-core": "^8.0.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-i18next": "^12.3.1",
+		"sqlite3": "^5.1.6",
 		"yaml": "^2.1.1"
 	}
 }

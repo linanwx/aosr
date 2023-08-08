@@ -11,6 +11,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
 import { Arrangement, PatternIter } from 'arrangement';
+import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
 import { MarkdownRenderComponent } from 'markdown';
@@ -132,47 +133,9 @@ function replaceSlashWithArrow(str: string) {
 	return str.replace(/\//g, ' > ');
 }
 
-function findOutline(file: TFile, offset: number): string {
+function findFileOutline(file: TFile, offset: number): string {
 	let cache = app.metadataCache.getFileCache(file)
-	if (!cache) {
-		return ""
-	}
-	if (!cache.headings || cache.headings.length == 0) {
-		return ""
-	}
-	// Find the position of the heading in the array.
-	let position = -1
-	for (let i = 0; i < cache.headings.length; i++) {
-		if (cache.headings[i].position.start.offset <= offset) {
-			position = i
-		} else {
-			break
-		}
-	}
-	if (position == -1) {
-		return ""
-	}
-	let currentOutline: string[] = []
-	let currentLevel = cache.headings[position].level
-	// Add the current heading to the outline.
-	currentOutline.push(cache.headings[position].heading)
-	// Iterate backwards through the headings.
-	for (let i = position - 1; i >= 0; i--) {
-		let heading = cache.headings[i]
-
-		// If the level is less than the current level, add it to the outline.
-		if (heading.level < currentLevel) {
-			currentOutline.unshift(heading.heading)
-			currentLevel = heading.level
-		}
-
-		// If we have reached the top level, stop searching.
-		if (currentLevel === 1) {
-			break
-		}
-	}
-
-	return currentOutline.join(" > ")
+	return findOutline(cache, offset)
 }
 
 class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
@@ -257,7 +220,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		if (!this.state.nowPattern) {
 			return
 		}
-		let heading = findOutline(this.state.nowPattern.card.note, this.state.nowPattern.card.indexBuff)
+		let heading = findFileOutline(this.state.nowPattern.card.note, this.state.nowPattern.card.indexBuff)
 		this.setState({
 			heading: heading,
 		})
@@ -274,7 +237,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}
-		let heading = findOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
+		let heading = findFileOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
 		if (heading == "") {
 			// 通过cache可能查不到缓存, 等一会再查
 			this.timer = setTimeout(this.checkHeading, 500);

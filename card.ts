@@ -5,6 +5,7 @@ import { CardSchedule, PatternSchedule } from 'schedule';
 import { ParserCollection } from './ParserCollection';
 import { Pattern } from './Pattern';
 import { cyrb53 } from './hash';
+import { DatabaseHelper } from 'db';
 
 // 卡片
 // 卡片由源码和注释两部分组成，
@@ -29,6 +30,7 @@ export interface Card {
 	get fileCache(): CachedMetadata | null
 	// 获取调度
 	getSchedule(patternID: string): PatternSchedule
+	getSchedules(): CardSchedule
 	// 更新文件
 	updateFile(info: updateInfo): void
 	// 提交文件变更
@@ -54,6 +56,48 @@ function extractStrings(inputText: string): string[] {
 	return inputText.match(regex) || [];
 }
 
+export function findOutline(cache: CachedMetadata | null, offset: number): string {
+	if (!cache) {
+		return ""
+	}
+	if (!cache.headings || cache.headings.length == 0) {
+		return ""
+	}
+	// Find the position of the heading in the array.
+	let position = -1
+	for (let i = 0; i < cache.headings.length; i++) {
+		if (cache.headings[i].position.start.offset <= offset) {
+			position = i
+		} else {
+			break
+		}
+	}
+	if (position == -1) {
+		return ""
+	}
+	let currentOutline: string[] = []
+	let currentLevel = cache.headings[position].level
+	// Add the current heading to the outline.
+	currentOutline.push(cache.headings[position].heading)
+	// Iterate backwards through the headings.
+	for (let i = position - 1; i >= 0; i--) {
+		let heading = cache.headings[i]
+
+		// If the level is less than the current level, add it to the outline.
+		if (heading.level < currentLevel) {
+			currentOutline.unshift(heading.heading)
+			currentLevel = heading.level
+		}
+
+		// If we have reached the top level, stop searching.
+		if (currentLevel === 1) {
+			break
+		}
+	}
+
+	return currentOutline.join(" > ")
+}
+
 // 默认卡片的实现
 class defaultCard implements Card {
 	annotationWrapperStr: string = ""
@@ -71,6 +115,7 @@ class defaultCard implements Card {
 	static bodySplitReg = /\n\*{3,}\n/
 	idGenFlag: boolean = false
 	fileCache: CachedMetadata | null
+	outline: string
 	// 1为source 2为注释
 	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile, cache: CachedMetadata | null) {
 		let tags = extractStrings(cardText)
@@ -82,18 +127,34 @@ class defaultCard implements Card {
 		this.bodyList = []
 		this.content = content
 		this.bodyList = content.split(defaultCard.bodySplitReg)
-		this.annotationWrapperStr = annotationWrapperStr || ""
 		this.note = note
+		this.schedules = new CardSchedule()
 		this.originalID = cardID || ""
+		this.annotationWrapperStr = annotationWrapperStr || ""
 		let annotationStr = AnnotationWrapper.deWrapper(annotationWrapperStr)
 		this.initAnnotation(annotationStr);
 
 		let parser = ParserCollection.getInstance()
 		this.patterns = parser.Parse(this)
 	}
+	getSchedules(): CardSchedule {
+		return this.schedules
+	}
 	private initAnnotation(annotationStr: string) {
-		this.annotationObj = AnnotationObject.Parse(annotationStr);
-		this.schedules = this.annotationObj.cardSchedule
+		// 尝试使用DatabaseHelper查找对应的文档，如果能找到，优先使用该文档
+		let db = DatabaseHelper.getInstance()
+		let findFlag = false
+		let doc = db.query(this.ID)
+		if (doc) {
+			this.schedules.setData(doc.CardSchedules)
+			findFlag = true
+		}
+
+		// 如果找不到，使annotationStr
+		if (findFlag === false) {
+			this.annotationObj = AnnotationObject.Parse(annotationStr);
+			this.schedules = this.annotationObj.cardSchedule
+		}
 	}
 	updateFile(info: updateInfo) {
 		this.updateList.push(info)
@@ -108,8 +169,7 @@ class defaultCard implements Card {
 		}
 		return cyrb53(this.cardText, 5);
 	}
-	// 更新注释块内容
-	private updateAnnotation(fileText: string): string {
+	private updateAnnotationOld(fileText: string): string {
 		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
 		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation, "AOSRDATA")
 		if (this.annotationWrapperStr?.length > 0) {
@@ -123,6 +183,13 @@ class defaultCard implements Card {
 			fileText = fileText + newAnnotation
 		}
 		return fileText
+	}
+	// 更新注释块内容
+	private updateAnnotation() {
+		// 使用新的数据库方式写入数据
+		let db = DatabaseHelper.getInstance()
+		db.insertOrUpdate(this.ID, this.schedules)
+		db.commit()
 	}
 	async commitFile(committype: commitType) {
 		// 首先读取原文
@@ -149,7 +216,8 @@ class defaultCard implements Card {
 		}
 		// 更新注释段内容
 		if (committype.annotation == true) {
-			fileText = this.updateAnnotation(fileText)
+			// fileText = this.updateAnnotation(fileText)
+			this.updateAnnotation()
 		}
 		// 提交变更
 		await app.vault.modify(this.note, fileText)

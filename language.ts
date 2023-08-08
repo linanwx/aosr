@@ -175,6 +175,18 @@ export function initLanguage() {
     addTranslation("StartReview", StartReview)
     addTranslation("StartTextALL", AllContents)
     addTranslation("SettingHideContext", HideContext)
+    addTranslation("SettingTextMigrateData", SettingTextMigrateData)
+    addTranslation("SettingTextMigrateDataDesc", SettingTextMigrateDataDesc)
+    addTranslation("MigrateTextStart", MigrateTextStart)
+    addTranslation("MigrateTextCardCount", MigrateTextCardCount)
+    addTranslation("MigrateTextStartMigrate", MigrateTextStartMigrate)
+    addTranslation("MigrateTextMigrateComplete", MigrateTextMigrateComplete)
+    addTranslation("MigrateTextMigrate", MigrateTextMigrate)
+    addTranslation("MigrateTextMigrateReady", MigrateTextMigrateReady)
+    addTranslation("MigrateTextStartClean", MigrateTextStartClean)
+    addTranslation("MigrateTextCleanComplete", MigrateTextCleanComplete)
+    addTranslation("MigrateTextMigrateWarning", MigrateTextMigrateWarning)
+    addTranslation("MigrateTextMigrateEnd", MigrateTextMigrateEnd)
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
         console.error('Failed to change language:', err);
@@ -1129,3 +1141,350 @@ const HideContext = {
     "am": "ሁሉም ማሳየት",
     "da": "Skjul Kontekst"
 }
+
+const SettingTextMigrateData = {
+    "en": "Migrate Data", // Migrate data from user's notes to a separate database for a clean and organized note system
+    "zh": "迁移数据", // 迁移用户的笔记中的数据到独立的数据库中，从而让笔记干净整洁
+    "ja": "データの移行", // ユーザーのノートからデータを別のデータベースに移行し、クリーンで整理されたノートシステムを実現します
+    "zh-TW": "遷移數據", // 遷移使用者的筆記中的數據到獨立的資料庫，以實現筆記系統的整潔有序
+    "ko": "데이터 이전", // 사용자의 노트에서 데이터를 별도의 데이터베이스로 이전하여 깨끗하고 조직적인 노트 시스템 구축
+    "ar": "نقل البيانات", // نقل البيانات من ملاحظات المستخدم إلى قاعدة بيانات منفصلة للحصول على نظام ملاحظات نظيف ومنظم
+    "pt": "Migrar Dados", // Migrar dados das notas do usuário para um banco de dados separado, para um sistema de notas limpo e organizado
+    "de": "Daten migrieren", // Daten aus den Notizen des Benutzers in eine separate Datenbank migrieren, um ein sauberes und organisiertes Notizsystem zu schaffen
+    "ru": "Перенос данных", // Перенос данных из заметок пользователя в отдельную базу данных для чистой и организованной системы заметок
+    "fr": "Migration des données", // Migration des données des notes de l'utilisateur vers une base de données distincte pour un système de notes propre et organisé
+    "es": "Migrar datos", // Migrar datos de las notas del usuario a una base de datos independiente para tener un sistema de notas limpio y organizado
+    "it": "Migrazione dati", // Migrazione dei dati dalle note dell'utente a un database separato per un sistema di annotazioni pulito e organizzato
+    "id": "Migrasi Data", // Memigrasi data dari catatan pengguna ke basis data terpisah untuk sistem catatan yang bersih dan terorganisir
+    "ro": "Migrație Date", // Migrați datele din notele utilizatorului într-o bază de date separată pentru un sistem de notare curat și organizat
+    "cs": "Migrace dat", // Migrace dat z poznámek uživatele do samostatné databáze pro čistý a organizovaný systém poznámek
+    "no": "Migrer data", // Migrer data fra brukerens notater til en separat database for et ryddig og organisert notatsystem
+    "pl": "Migrowanie danych", // Migracja danych z notatek użytkownika do osobnej bazy danych w celu uzyskania czystego i zorganizowanego systemu notatek
+    "uk": "Міграція даних", // Міграція даних з нотаток користувача до окремої бази даних для створення чистої та організованої системи нотаток
+    "sq": "Migro Datan", // Migrojini të dhënat nga shënimet e përdoruesit në një bazë të të dhënave të veçantë për një sistem shënimesh të pastër dhe të organizuar
+    "th": "การย้ายข้อมูล", // ย้ายข้อมูลจากบันทึกของผู้ใช้ไปยังฐานข้อมูลที่แยกออกเป็นเพื่อระบบบันทึกที่สะอาดและเรียบร้อย
+    "fa": "انتقال داده‌ها", // انتقال داده‌ها از یادداشت‌های کاربر به پایگاه داده جداگانه برای سیستم یادداشتی تمیز و منظم
+    "tr": "Veri Taşıma", // Kullanıcının notlarındaki verileri ayrı bir veritabanına taşıyarak temiz ve düzenli bir not sistemi oluşturma
+    "nl": "Gegevens migreren", // Gegevens migreren van de notities van de gebruiker naar een aparte database voor een schoon en georganiseerd notitiesysteem
+    "ms": "Migasi Data", // Memindahkan data dari nota pengguna ke pangkalan data yang berasingan untuk sistem nota yang bersih dan teratur
+    "pt-BR": "Migrar Dados", // Migrar dados das anotações do usuário para um banco de dados separado, para um sistema de anotações limpo e organizado
+    "am": "ዳታቤ ያስገባ", // የተጠበሰ የተግባር ማስታወቂያዎችን የአጠቃላይ ድጋፍን ለማስታወቂያ መውጣት
+    "da": "Migrer Data", // Migrer data fra brugerens noter til en separat database for at opnå et rent og organiseret notesystem
+};
+
+
+const SettingTextMigrateDataDesc = {
+    "zh": "如果您使用过 Aosr 1.0.40 及之前的版本，您的笔记中可能包含一些数据，这些数据将会在您点击“迁移数据”按钮后被迁移到一个独立的数据库中，以保证您的笔记干净整洁。新的数据库文件将位置位于 .obsidian 目录下的 aosr.db。",
+    "en": "If you have used Aosr 1.0.40 and earlier versions, your notes may contain some data. This data will be migrated to a separate database when you click the 'Migrate Data' button, ensuring that your notes remain clean and organized. The new database file will be located at aosr.db within the .obsidian directory.",
+    "ja": "Aosr 1.0.40 以前のバージョンを使用したことがある場合、ノートには一部のデータが含まれているかもしれません。[データの移行] ボタンをクリックすると、このデータは別のデータベースに移行され、ノートが清潔で整理された状態を維持します。新しいデータベースファイルは、.obsidian ディレクトリ内の aosr.db に配置されます。",
+    "zh-TW": "如果您使用過 Aosr 1.0.40 及之前的版本，您的筆記中可能包含一些數據，這些數據將會在您點選“遷移數據”按鈕後被遷移到一個獨立的資料庫中，以保證您的筆記整潔有序。新的資料庫文件將位於 .obsidian 目錄下的 aosr.db。",
+    "ko": "Aosr 1.0.40 버전과 이전 버전을 사용한 경우 노트에는 일부 데이터가 포함될 수 있습니다. '데이터 이전' 버튼을 클릭하면 이 데이터가 별도의 데이터베이스로 이전되어 노트가 깨끗하고 정리되어 유지됩니다. 새 데이터베이스 파일은 .obsidian 디렉터리 내의 aosr.db 위치에 저장됩니다.",
+    "ar": "إذا قمت بإستخدام Aosr 1.0.40 والإصدارات الأقدم، قد تحتوي ملاحظاتك على بعض البيانات. سيتم نقل هذه البيانات إلى قاعدة بيانات منفصلة عند النقر على زر 'نقل البيانات'، مما يضمن أن تظل ملاحظاتك نظيفة ومنظمة. سيتم وضع ملف قاعدة البيانات الجديد في المسار aosr.db داخل مجلد .obsidian.",
+    "pt": "Se você usou o Aosr 1.0.40 e versões anteriores, suas anotações podem conter alguns dados. Esses dados serão migrados para um banco de dados separado quando você clicar no botão 'Migrar Dados', garantindo que suas anotações permaneçam limpas e organizadas. O novo arquivo de banco de dados estará localizado em aosr.db dentro do diretório .obsidian.",
+    "de": "Wenn Sie Aosr 1.0.40 und frühere Versionen verwendet haben, können Ihre Notizen einige Daten enthalten. Diese Daten werden beim Klicken auf die Schaltfläche 'Daten migrieren' in eine separate Datenbank migriert, um sicherzustellen, dass Ihre Notizen sauber und organisiert bleiben. Die neue Datenbankdatei wird in aosr.db innerhalb des .obsidian-Verzeichnisses abgelegt.",
+    "ru": "Если вы использовали Aosr 1.0.40 и более ранние версии, ваши заметки могут содержать некоторые данные. Эти данные будут перенесены в отдельную базу данных при нажатии кнопки 'Перенос данных', чтобы обеспечить чистоту и организованность ваших заметок. Новый файл базы данных будет расположен в aosr.db внутри каталога .obsidian.",
+    "fr": "Si vous avez utilisé Aosr 1.0.40 et des versions antérieures, vos notes peuvent contenir certaines données. Ces données seront migrées vers une base de données distincte lorsque vous cliquerez sur le bouton 'Migration des données', assurant ainsi que vos notes restent propres et organisées. Le nouveau fichier de base de données sera situé dans aosr.db au sein du répertoire .obsidian.",
+    "es": "Si ha utilizado Aosr 1.0.40 y versiones anteriores, sus notas pueden contener algunos datos. Estos datos se migrarán a una base de datos independiente cuando haga clic en el botón 'Migrar datos', asegurando que sus notas permanezcan limpias y organizadas. El nuevo archivo de base de datos estará ubicado en aosr.db dentro del directorio .obsidian.",
+    "it": "Se hai utilizzato Aosr 1.0.40 e versioni precedenti, le tue note potrebbero contenere alcuni dati. Questi dati verranno migrati in un database separato quando cliccherai il pulsante 'Migrazione dati', garantendo che le tue note rimangano pulite e organizzate. Il nuovo file del database sarà posizionato in aosr.db all'interno della directory .obsidian.",
+    "id": "Jika Anda telah menggunakan Aosr 1.0.40 dan versi sebelumnya, catatan Anda mungkin berisi beberapa data. Data ini akan bermigrasi ke database terpisah saat Anda mengklik tombol 'Migrasi Data', memastikan catatan Anda tetap bersih dan terorganisir. File basis data baru akan berada di dalam direktori .obsidian dengan nama aosr.db.",
+    "ro": "Dacă ați utilizat Aosr 1.0.40 și versiunile anterioare, notele dvs. pot conține unele date. Aceste date vor fi migraționate către o bază de date separată atunci când veți apăsa butonul 'Migrație Date', asigurându-se că notele dvs. rămân curate și organizate. Noul fișier de bază de date va fi situat la aosr.db în cadrul directorului .obsidian.",
+    "cs": "Pokud jste použili Aosr 1.0.40 a dřívější verze, mohou vaše poznámky obsahovat některá data. Tato data budou přenesena do samostatné databáze po kliknutí na tlačítko 'Migrace dat', což zajišťuje, že vaše poznámky zůstanou čisté a organizované. Nový soubor databáze bude umístěn v aosr.db v rámci adresáře .obsidian.",
+    "no": "Hvis du har brukt Aosr 1.0.40 og tidligere versjoner, kan notatene dine inneholde noen data. Disse dataene blir migrert til en separat database når du klikker på 'Migrer data'-knappen, slik at notatene dine forblir rene og organiserte. Den nye databasefilen vil være plassert på aosr.db innenfor .obsidian-mappen.",
+    "pl": "Jeśli korzystałeś z wersji Aosr 1.0.40 i wcześniejszych, twoje notatki mogą zawierać pewne dane. Te dane zostaną przeniesione do osobnej bazy danych po kliknięciu przycisku 'Migrowanie danych', co zapewni, że twoje notatki pozostaną czyste i zorganizowane. Nowy plik bazy danych znajdzie się w aosr.db wewnątrz katalogu .obsidian.",
+    "uk": "Якщо ви використовували Aosr 1.0.40 та попередні версії, ваші нотатки можуть містити деякі дані. Ці дані будуть перенесені до окремої бази даних при натисканні кнопки 'Перенос даних', щоб забезпечити чистоту та організованість ваших нотаток. Новий файл бази даних буде розташований в aosr.db всередині каталогу .obsidian.",
+    "sq": "Nëse keni përdorur Aosr 1.0.40 dhe versionet e mëparshme, shënimet tuaja mund të përmbajnë disa të dhëna. Këto të dhëna do të zhvendosen në një bazë të dhënash të veçantë kur klikoni butonin 'Migro Datan', duke siguruar që shënimet tuaja mbeten të pastër dhe të organizuara. Skedari i ri i bazës së të dhënave do të ndodhet te aosr.db brenda direktorisë .obsidian.",
+    "th": "หากคุณใช้ Aosr 1.0.40 และเวอร์ชันก่อนหน้านี้ บันทึกของคุณอาจมีข้อมูลบางส่วน ข้อมูลเหล่านี้จะถูกย้ายไปยังฐานข้อมูลที่แยกออกเมื่อคุณคลิกที่ปุ่ม 'การย้ายข้อมูล' โดยทำให้สามารถรักษาบันทึกของคุณให้สะอาดและเรียบร้อย แฟ้มฐานข้อมูลใหม่จะตั้งอยู่ใน aosr.db ภายใต้ไดเรกทอรี .obsidian",
+    "fa": "اگر از Aosr 1.0.40 و نسخه‌های قدیمی‌تر استفاده کرده‌اید، یادداشت‌های شما ممکن است حاوی برخی از داده‌ها باشد. این داده‌ها پس از کلیک بر روی دکمه 'انتقال داده‌ها' به پایگاه داده مجزا منتقل می‌شوند، تا اطمینان حاصل شود که یادداشت‌های شما تمیز و منظم باقی می‌مانند. فایل پایگاه داده جدید در داخل دایرکتوری .obsidian به نام aosr.db قرار خواهد گرفت.",
+    "tr": "Eğer Aosr 1.0.40 ve daha eski sürümlerini kullanmışsanız, notlarınız bazı veriler içerebilir. Bu veriler, 'Veri Taşıma' düğmesine tıkladığınızda ayrı bir veritabanına taşınır, böylece notlarınızın temiz ve düzenli kalması sağlanır. Yeni veritabanı dosyası .obsidian dizini içinde aosr.db konumunda olacaktır.",
+    "nl": "Als u Aosr 1.0.40 en eerdere versies hebt gebruikt, kunnen uw notities enkele gegevens bevatten. Deze gegevens worden gemigreerd naar een aparte database wanneer u op de knop 'Gegevens migreren' klikt, zodat uw notities schoon en georganiseerd blijven. Het nieuwe databasebestand wordt geplaatst in aosr.db binnen de .obsidian-map.",
+    "ms": "Jika anda telah menggunakan Aosr 1.0.40 dan versi-versi sebelumnya, catatan anda mungkin mengandungi beberapa data. Data ini akan di-migrate ke dalam pangkalan data yang berasingan apabila anda mengklik butang 'Migasi Data', memastikan catatan anda kekal bersih dan teratur. Fail pangkalan data baru akan terletak di dalam direktori aosr.db dalam folder .obsidian.",
+    "pt-BR": "Se você usou o Aosr 1.0.40 e versões anteriores, suas anotações podem conter alguns dados. Esses dados serão migrados para um banco de dados separado quando você clicar no botão 'Migrar Dados', garantindo que suas anotações permaneçam limpas e organizadas. O novo arquivo de banco de dados estará localizado em aosr.db dentro do diretório .obsidian.",
+    "am": "የ Aosr 1.0.40 እና ቀጥታ ቀጥታውን ለመጠበቅ የሚጠቀሙት የማስታወቂያው ምንጮች ይህንን ያንብቡ። የሚጠቀሙት ምንጮች በ 'ዳታቤ ያስገባ' አደረጉም በማየት ባዶ የሆኑት የማስታወቂያዎችን ከፍተኛ ዳታቤ ያስገባቸው። ከስልኮ .obsidian ድርጊት ውስጥ የተካተቱ የአስር.db ተለይቶ ይጠበቃል።"
+};
+
+const MigrateTextMigrateReady = {
+    "zh": "迁移已就绪",
+    "en": "Migration Ready",
+    "ja": "移行準備完了",
+    "zh-TW": "遷移已準備就緒",
+    "ko": "이전 준비 완료",
+    "ar": "تم الاستعداد للنقل",
+    "pt": "Pronto para Migração",
+    "de": "Migration bereit",
+    "ru": "Готов к переносу",
+    "fr": "Migration prête",
+    "es": "Listo para migrar",
+    "it": "Migrazione pronta",
+    "id": "Migrasi Siap",
+    "ro": "Migrație Pregătită",
+    "cs": "Připraven k migraci",
+    "no": "Klar for migrering",
+    "pl": "Gotowy do migracji",
+    "uk": "Готовий до перенесення",
+    "sq": "Gati për Migrim",
+    "th": "พร้อมที่จะย้าย",
+    "fa": "آماده انتقال",
+    "tr": "Göçmeye Hazır",
+    "nl": "Migratie Klaar",
+    "ms": "Bersedia untuk Penghijrahan",
+    "pt-BR": "Pronto para Migração",
+    "am": "የውስጣት ምዝገባ ተሰጠ"
+};
+
+const MigrateTextMigrate = {
+    "zh": "开始迁移", // 开始迁移
+    "en": "Start Migration", // Start Migration
+    "ja": "移行を開始", // 移行を開始
+    "zh-TW": "開始遷移", // 開始遷移
+    "ko": "이전 시작", // 이전 시작
+    "ar": "بدء النقل", // بدء النقل
+    "pt": "Iniciar Migração", // Iniciar Migração
+    "de": "Migration starten", // Migration starten
+    "ru": "Начать миграцию", // Начать миграцию
+    "fr": "Démarrer la migration", // Démarrer la migration
+    "es": "Iniciar migración", // Iniciar migración
+    "it": "Avvia migrazione", // Avvia migrazione
+    "id": "Mulai Migrasi", // Mulai Migrasi
+    "ro": "Începeți Migrarea", // Începeți Migrarea
+    "cs": "Zahájit migraci", // Zahájit migraci
+    "no": "Start migrasjon", // Start migrasjon
+    "pl": "Rozpocznij migrację", // Rozpocznij migrację
+    "uk": "Почати міграцію", // Почати міграцію
+    "sq": "Fillo Migracionin", // Fillo Migracionin
+    "th": "เริ่มต้นการย้าย", // เริ่มต้นการย้าย
+    "fa": "شروع انتقال", // شروع انتقال
+    "tr": "Migrasyonu Başlat", // Migrasyonu Başlat
+    "nl": "Start Migratie", // Start Migratie
+    "ms": "Mulakan Migrasi", // Mulakan Migrasi
+    "pt-BR": "Iniciar Migração", // Iniciar Migração
+    "am": "መወሰን ይጀምሩ", // መወሰን ይጀምሩ
+};
+
+const MigrateTextStart = {
+    "zh": "开始读取卡片数据", // 开始读取卡片数据
+    "en": "Start Reading Card Data", // Start Reading Card Data
+    "ja": "カードデータの読み取りを開始", // カードデータの読み取りを開始
+    "zh-TW": "開始讀取卡片資料", // 開始讀取卡片資料
+    "ko": "카드 데이터 읽기 시작", // 카드 데이터 읽기 시작
+    "ar": "بدء قراءة بيانات البطاقة", // بدء قراءة بيانات البطاقة
+    "pt": "Iniciar Leitura dos Dados do Cartão", // Iniciar Leitura dos Dados do Cartão
+    "de": "Beginne mit dem Lesen der Kartendaten", // Beginne mit dem Lesen der Kartendaten
+    "ru": "Начать чтение данных карты", // Начать чтение данных карты
+    "fr": "Commencer la lecture des données de la carte", // Commencer la lecture des données de la carte
+    "es": "Iniciar lectura de datos de la tarjeta", // Iniciar lectura de datos de la tarjeta
+    "it": "Inizia a leggere i dati della carta", // Inizia a leggere i dati della carta
+    "id": "Mulai Membaca Data Kartu", // Mulai Membaca Data Kartu
+    "ro": "Începeți Citirea Datelor de Pe Cartelă", // Începeți Citirea Datelor de Pe Cartelă
+    "cs": "Začít číst údaje z karty", // Začít číst údaje z karty
+    "no": "Start Lesing av Kortdata", // Start Lesing av Kortdata
+    "pl": "Rozpocznij Odczytywanie Danych z Karty", // Rozpocznij Odczytywanie Danych z Karty
+    "uk": "Почати читання даних картки", // Почати читання даних картки
+    "sq": "Fillo Leximin e të Dhënave të Kartelës", // Fillo Leximin e të Dhënave të Kartelës
+    "th": "เริ่มการอ่านข้อมูลบัตร", // เริ่มการอ่านข้อมูลบัตร
+    "fa": "شروع خواندن داده‌های کارت", // شروع خواندن داده‌های کارت
+    "tr": "Kart Verilerini Okumaya Başla", // Kart Verilerini Okumaya Başla
+    "nl": "Begin met het lezen van kaartgegevens", // Begin met het lezen van kaartgegevens
+    "ms": "Mulakan Membaca Data Kad", // Mulakan Membaca Data Kad
+    "pt-BR": "Iniciar Leitura dos Dados do Cartão", // Iniciar Leitura dos Dados do Cartão
+    "am": "መግለጫ የተጀመረውን ይጀምሩ", // መግለጫ የተጀመረውን ይጀምሩ
+};
+
+
+const MigrateTextCardCount = {
+    "zh": "卡片数量 {{count}}", // 卡片数量 {{count}}
+    "en": "Card Count: {{count}}", // Card Count: {{count}}
+    "ja": "カード数：{{count}}", // カード数：{{count}}
+    "zh-TW": "卡片數量 {{count}}", // 卡片數量 {{count}}
+    "ko": "카드 수: {{count}}", // 카드 수: {{count}}
+    "ar": "عدد البطاقات: {{count}}", // عدد البطاقات: {{count}}
+    "pt": "Contagem de Cartões: {{count}}", // Contagem de Cartões: {{count}}
+    "de": "Kartenanzahl: {{count}}", // Kartenanzahl: {{count}}
+    "ru": "Количество карт: {{count}}", // Количество карт: {{count}}
+    "fr": "Nombre de cartes : {{count}}", // Nombre de cartes : {{count}}
+    "es": "Cantidad de Tarjetas: {{count}}", // Cantidad de Tarjetas: {{count}}
+    "it": "Conteggio delle Carte: {{count}}", // Conteggio delle Carte: {{count}}
+    "id": "Jumlah Kartu: {{count}}", // Jumlah Kartu: {{count}}
+    "ro": "Numărul de Carte: {{count}}", // Numărul de Carte: {{count}}
+    "cs": "Počet karet: {{count}}", // Počet karet: {{count}}
+    "no": "Antall Kort: {{count}}", // Antall Kort: {{count}}
+    "pl": "Liczba Kart: {{count}}", // Liczba Kart: {{count}}
+    "uk": "Кількість карток: {{count}}", // Кількість карток: {{count}}
+    "sq": "Numri i Kartave: {{count}}", // Numri i Kartave: {{count}}
+    "th": "จำนวนบัตร: {{count}}", // จำนวนบัตร: {{count}}
+    "fa": "تعداد کارت: {{count}}", // تعداد کارت: {{count}}
+    "tr": "Kart Sayısı: {{count}}", // Kart Sayısı: {{count}}
+    "nl": "Aantal Kaarten: {{count}}", // Aantal Kaarten: {{count}}
+    "ms": "Jumlah Kad: {{count}}", // Jumlah Kad: {{count}}
+    "pt-BR": "Contagem de Cartões: {{count}}", // Contagem de Cartões: {{count}}
+    "am": "የቀላሉ ቅድመ ምርት: {{count}}", // የቀላሉ ቅድመ ምርት: {{count}}
+};
+
+const MigrateTextStartMigrate = {
+    "zh": "开始写入数据库", // 开始写入数据库
+    "en": "Start Writing to Database", // Start Writing to Database
+    "ja": "データベースへの書き込みを開始", // データベースへの書き込みを開始
+    "zh-TW": "開始寫入資料庫", // 開始寫入資料庫
+    "ko": "데이터베이스에 쓰기 시작", // 데이터베이스에 쓰기 시작
+    "ar": "بدء الكتابة إلى قاعدة البيانات", // بدء الكتابة إلى قاعدة البيانات
+    "pt": "Iniciar Escrita no Banco de Dados", // Iniciar Escrita no Banco de Dados
+    "de": "Beginne mit dem Schreiben in die Datenbank", // Beginne mit dem Schreiben in die Datenbank
+    "ru": "Начать запись в базу данных", // Начать запись в базу данных
+    "fr": "Commencer l'écriture dans la base de données", // Commencer l'écriture dans la base de données
+    "es": "Iniciar escritura en la base de datos", // Iniciar escritura en la base de datos
+    "it": "Inizia a scrivere nel database", // Inizia a scrivere nel database
+    "id": "Mulai Menulis ke Basis Data", // Mulai Menulis ke Basis Data
+    "ro": "Începeți Scrierea în Bază de Date", // Începeți Scrierea în Bază de Date
+    "cs": "Začněte zápis do databáze", // Začněte zápis do databáze
+    "no": "Start Skriving til Database", // Start Skriving til Database
+    "pl": "Rozpocznij Zapisywanie do Bazy Danych", // Rozpocznij Zapisywanie do Bazy Danych
+    "uk": "Почати запис до бази даних", // Почати запис до бази даних
+    "sq": "Fillo Shkrimin në Bazën e të Dhënave", // Fillo Shkrimin në Bazën e të Dhënave
+    "th": "เริ่มเขียนลงในฐานข้อมูล", // เริ่มเขียนลงในฐานข้อมูล
+    "fa": "شروع نوشتن در پایگاه داده", // شروع نوشتن در پایگاه داده
+    "tr": "Veritabanına Yazmaya Başla", // Veritabanına Yazmaya Başla
+    "nl": "Begin met Schrijven naar de Database", // Begin met Schrijven naar de Database
+    "ms": "Mulakan Menulis ke Pangkalan Data", // Mulakan Menulis ke Pangkalan Data
+    "pt-BR": "Iniciar Escrita no Banco de Dados", // Iniciar Escrita no Banco de Dados
+    "am": "መግለጫ የተጀምረውን ይጀምሩ", // መግለጫ የተጀምረውን ይጀምሩ
+};
+
+const MigrateTextMigrateComplete = {
+    "zh": "写入数据库 {{count}} 条数据", // 写入数据库 {{count}} 条数据
+    "en": "Wrote {{count}} Entries to Database", // Wrote {{count}} Entries to Database
+    "ja": "{{count}} 件のエントリをデータベースに書き込みました", // {{count}} 件のエントリをデータベースに書き込みました
+    "zh-TW": "寫入資料庫 {{count}} 條資料", // 寫入資料庫 {{count}} 條資料
+    "ko": "{{count}} 개 항목을 데이터베이스에 기록했습니다", // {{count}} 개 항목을 데이터베이스에 기록했습니다
+    "ar": "تمت كتابة {{count}} إدخالات في قاعدة البيانات", // تمت كتابة {{count}} إدخالات في قاعدة البيانات
+    "pt": "Foram escritas {{count}} entradas no banco de dados", // Foram escritas {{count}} entradas no banco de dados
+    "de": "{{count}} Einträge in die Datenbank geschrieben", // {{count}} Einträge in die Datenbank geschrieben
+    "ru": "Записано {{count}} записей в базу данных", // Записано {{count}} записей в базу данных
+    "fr": "{{count}} entrées écrites dans la base de données", // {{count}} entrées écrites dans la base de données
+    "es": "Se escribieron {{count}} entradas en la base de datos", // Se escribieron {{count}} entradas en la base de datos
+    "it": "Scritti {{count}} elementi nel database", // Scritti {{count}} elementi nel database
+    "id": "Menulis {{count}} Entri ke Basis Data", // Menulis {{count}} Entri ke Basis Data
+    "ro": "Au fost scrise {{count}} intrări în baza de date", // Au fost scrise {{count}} intrări în baza de date
+    "cs": "Do databáze bylo zapsáno {{count}} položek", // Do databáze bylo zapsáno {{count}} položek
+    "no": "Skrevet {{count}} Oppføringer til Database", // Skrevet {{count}} Oppføringer til Database
+    "pl": "Zapisano {{count}} wpisów do bazy danych", // Zapisano {{count}} wpisów do bazy danych
+    "uk": "Записано {{count}} записів у базу даних", // Записано {{count}} записів у базу даних
+    "sq": "U janë shkruar {{count}} Hyrje në Bazën e të Dhënave", // U janë shkruar {{count}} Hyrje në Bazën e të Dhënave
+    "th": "เขียน {{count}} รายการลงในฐานข้อมูลแล้ว", // เขียน {{count}} รายการลงในฐานข้อมูลแล้ว
+    "fa": "{{count}} ورودی به پایگاه داده نوشته شد", // {{count}} ورودی به پایگاه داده نوشته شد
+    "tr": "Veritabanına {{count}} Kayıt Yazıldı", // Veritabanına {{count}} Kayıt Yazıldı
+    "nl": "{{count}} items in de database geschreven", // {{count}} items in de database geschreven
+    "ms": "Ditulis {{count}} Entri ke Pangkalan Data", // Ditulis {{count}} Entri ke Pangkalan Data
+    "pt-BR": "Foram escritas {{count}} entradas no banco de dados", // Foram escritas {{count}} entradas no banco de dados
+    "am": "{{count}} ይግለጫሉ ዳታቤ፣ የተጀመረው", // {{count}} ይግለጫሉ ዳታቤ፣ የተጀመረው
+};
+
+const MigrateTextStartClean = {
+    "zh": "开始清理笔记中多余文本", // 开始清理笔记中多余文本
+    "en": "Start Cleaning Redundant Text in Notes", // Start Cleaning Redundant Text in Notes
+    "ja": "ノート内の冗長なテキストのクリーニングを開始", // ノート内の冗長なテキストのクリーニングを開始
+    "zh-TW": "開始清理筆記中多餘文字", // 開始清理筆記中多餘文字
+    "ko": "노트 내 중복된 텍스트 정리 시작", // 노트 내 중복된 텍스트 정리 시작
+    "ar": "بدء تنظيف النصوص الزائدة في الملاحظات", // بدء تنظيف النصوص الزائدة في الملاحظات
+    "pt": "Iniciar Limpeza de Texto Redundante em Notas", // Iniciar Limpeza de Texto Redundante em Notas
+    "de": "Beginne mit der Bereinigung überflüssigen Texts in Notizen", // Beginne mit der Bereinigung überflüssigen Texts in Notizen
+    "ru": "Начать очистку избыточного текста в заметках", // Начать очистку избыточного текста в заметках
+    "fr": "Commencer le nettoyage du texte redondant dans les notes", // Commencer le nettoyage du texte redondant dans les notes
+    "es": "Iniciar la limpieza de texto redundante en las notas", // Iniciar la limpieza de texto redundante en las notas
+    "it": "Inizia a Pulire il Testo Ridondante nelle Note", // Inizia a Pulire il Testo Ridondante nelle Note
+    "id": "Mulai Membersihkan Teks yang Redundan dalam Catatan", // Mulai Membersihkan Teks yang Redundan dalam Catatan
+    "ro": "Începeți Curățarea Textului Redundant în Note", // Începeți Curățarea Textului Redundant în Note
+    "cs": "Začněte Čištění Zbytečného Textu v Poznámkách", // Začněte Čištění Zbytečného Textu v Poznámkách
+    "no": "Start Rensk av Overflødig Tekst i Notater", // Start Rensk av Overflødig Tekst i Notater
+    "pl": "Rozpocznij Czyszczenie Nadmiarowego Tekstu w Notatkach", // Rozpocznij Czyszczenie Nadmiarowego Tekstu w Notatkach
+    "uk": "Почати очищення зайвого тексту в нотатках", // Почати очищення зайвого тексту в нотатках
+    "sq": "Filloni Pastrimin e Tekstit Redundant në Shënime", // Filloni Pastrimin e Tekstit Redundant në Shënime
+    "th": "เริ่มการทำความสะอาดข้อความที่ไม่จำเป็นในบันทึก", // เริ่มการทำความสะอาดข้อความที่ไม่จำเป็นในบันทึก
+    "fa": "شروع تمیز کردن متن‌های اضافی در یادداشت‌ها", // شروع تمیز کردن متن‌های اضافی در یادداشت‌ها
+    "tr": "Notlardaki Gereksiz Metni Temizlemeye Başla", // Notlardaki Gereksiz Metni Temizlemeye Başla
+    "nl": "Begin met het Schoonmaken van Overbodige Tekst in Notities", // Begin met het Schoonmaken van Overbodige Tekst in Notities
+    "ms": "Mulakan Pembersihan Teks Berlebihan dalam Nota", // Mulakan Pembersihan Teks Berlebihan dalam Nota
+    "pt-BR": "Iniciar Limpeza de Texto Redundante em Notas", // Iniciar Limpeza de Texto Redundante em Notas
+    "am": "የአማርኛ {{count}} ቁጥሮች", // የአማርኛ {{count}} ቁጥሮች
+};
+
+const MigrateTextCleanComplete = {
+    "zh": "清理笔记中数据块数量 {{countDataComment}}，清理笔记中引用数据块链接数量 {{countLinkRef}}", // 清理笔记中多余文本完成
+    "en": "Cleaned {{countDataComment}} Data Blocks and {{countLinkRef}} Linked Data Blocks in Notes", // Cleaned {{countDataComment}} Data Blocks and {{countLinkRef}} Linked Data Blocks in Notes
+    "ja": "ノート内のデータブロック {{countDataComment}} 件およびリンクされたデータブロック {{countLinkRef}} 件をクリーニングしました", // ノート内のデータブロック {{countDataComment}} 件およびリンクされたデータブロック {{countLinkRef}} 件をクリーニングしました
+    "zh-TW": "清理筆記中資料區塊數量 {{countDataComment}}，清理筆記中引用資料區塊連結數量 {{countLinkRef}}", // 清理筆記中多餘文字完成
+    "ko": "노트 내 데이터 블록 {{countDataComment}}개와 링크된 데이터 블록 {{countLinkRef}}개를 정리했습니다", // 노트 내 데이터 블록 {{countDataComment}}개와 링크된 데이터 블록 {{countLinkRef}}개를 정리했습니다
+    "ar": "تم تنظيف {{countDataComment}} مكونات بيانات و{{countLinkRef}} مكونات بيانات مرتبطة في الملاحظات", // تم تنظيف {{countDataComment}} مكونات بيانات و{{countLinkRef}} مكونات بيانات مرتبطة في الملاحظات
+    "pt": "Limpos {{countDataComment}} Blocos de Dados e {{countLinkRef}} Blocos de Dados Ligados em Notas", // Limpos {{countDataComment}} Blocos de Dados e {{countLinkRef}} Blocos de Dados Ligados em Notas
+    "de": "Bereinigt {{countDataComment}} Datenblöcke und {{countLinkRef}} verknüpfte Datenblöcke in Notizen", // Bereinigt {{countDataComment}} Datenblöcke und {{countLinkRef}} verknüpfte Datenblöcke in Notizen
+    "ru": "Очищено {{countDataComment}} блоков данных и {{countLinkRef}} связанных блоков данных в заметках", // Очищено {{countDataComment}} блоков данных и {{countLinkRef}} связанных блоков данных в заметках
+    "fr": "Nettoyé {{countDataComment}} blocs de données et {{countLinkRef}} blocs de données liés dans les notes", // Nettoyé {{countDataComment}} blocs de données et {{countLinkRef}} blocs de données liés dans les notes
+    "es": "Se han limpiado {{countDataComment}} Bloques de Datos y {{countLinkRef}} Bloques de Datos Vinculados en las notas", // Se han limpiado {{countDataComment}} Bloques de Datos y {{countLinkRef}} Bloques de Datos Vinculados en las notas
+    "it": "Puliti {{countDataComment}} Blocchi di Dati e {{countLinkRef}} Blocchi di Dati Collegati nelle Note", // Puliti {{countDataComment}} Blocchi di Dati e {{countLinkRef}} Blocchi di Dati Collegati nelle Note
+    "id": "Membersihkan {{countDataComment}} Blok Data dan {{countLinkRef}} Blok Data Terhubung dalam Catatan", // Membersihkan {{countDataComment}} Blok Data dan {{countLinkRef}} Blok Data Terhubung dalam Catatan
+    "ro": "Curățate {{countDataComment}} Blocuri de Date și {{countLinkRef}} Blocuri de Date Legate în Note", // Curățate {{countDataComment}} Blocuri de Date și {{countLinkRef}} Blocuri de Date Legate în Note
+    "cs": "Vyčištěno {{countDataComment}} Datových Bloků a {{countLinkRef}} Propojených Datových Bloků v Poznámkách", // Vyčištěno {{countDataComment}} Datových Bloků a {{countLinkRef}} Propojených Datových Bloků v Poznámkách
+    "no": "Rensket {{countDataComment}} Data Blokker og {{countLinkRef}} Lenkede Data Blokker i Notater", // Rensket {{countDataComment}} Data Blokker og {{countLinkRef}} Lenkede Data Blokker i Notater
+    "pl": "Wyczyszczono {{countDataComment}} Bloki Danych i {{countLinkRef}} Powiązane Bloki Danych w Notatkach", // Wyczyszczono {{countDataComment}} Bloki Danych i {{countLinkRef}} Powiązane Bloki Danych w Notatkach
+    "uk": "Очищено {{countDataComment}} блоків даних та {{countLinkRef}} зв'язаних блоків даних у записках", // Очищено {{countDataComment}} блоків даних та {{countLinkRef}} зв'язаних блоків даних у записках
+    "sq": "U pastruan {{countDataComment}} Blloqe të të Dhënave dhe {{countLinkRef}} Blloqe të Dhënave të Lidhura në Shënime", // U pastruan {{countDataComment}} Blloqe të të Dhënave dhe {{countLinkRef}} Blloqe të Dhënave të Lidhura në Shënime
+    "th": "ทำความสะอาด {{countDataComment}} บล็อกข้อมูลและ {{countLinkRef}} บล็อกข้อมูลที่เชื่อมโยงในบันทึก", // ทำความสะอาด {{countDataComment}} บล็อกข้อมูลและ {{countLinkRef}} บล็อกข้อมูลที่เชื่อมโยงในบันทึก
+    "fa": "تمیز زدن از {{countDataComment}} بلوک داده و {{countLinkRef}} بلوک داده متصل در یادداشت‌ها", // تمیز زدن از {{countDataComment}} بلوک داده و {{countLinkRef}} بلوک داده متصل در یادداشت‌ها
+    "tr": "Notlardaki {{countDataComment}} Veri Bloğu ve {{countLinkRef}} Bağlantılı Veri Bloğu Temizlendi", // Notlardaki {{countDataComment}} Veri Bloğu ve {{countLinkRef}} Bağlantılı Veri Bloğu Temizlendi
+    "nl": "Gereinigd {{countDataComment}} Data Blokken en {{countLinkRef}} Gekoppelde Data Blokken in Notities", // Gereinigd {{countDataComment}} Data Blokken en {{countLinkRef}} Gekoppelde Data Blokken in Notities
+    "ms": "Dibersihkan {{countDataComment}} Blok Data dan {{countLinkRef}} Blok Data Berkaitan dalam Nota", // Dibersihkan {{countDataComment}} Blok Data dan {{countLinkRef}} Blok Data Berkaitan dalam Nota
+    "pt-BR": "Limpos {{countDataComment}} Blocos de Dados e {{countLinkRef}} Blocos de Dados Ligados em Notas", // Limpos {{countDataComment}} Blocos de Dados e {{countLinkRef}} Blocos de Dados Ligados em Notas
+    "am": "{{countDataComment}} የማብቂያ ቅድመ ቁጥሮችን፣ {{countLinkRef}} የተጠቃሚ ቅድመ ቁጥሮችን አድርግ", // {{countDataComment}} የማብቂያ ቅድመ ቁጥሮችን፣ {{countLinkRef}} የተጠቃሚ ቅድመ ቁጥሮችን አድርግ
+};
+
+const MigrateTextMigrateWarning = {
+    "zh": "警告，该操作将对你的库文件进行自动修改，可能会产生非预期的效果，强烈建议您先将整个库文件进行备份，再继续进行操作。", // 警告，该操作将对你的库文件进行自动修改，可能会产生非预期的效果，强烈建议您先将整个库文件进行备份，再继续进行操作。
+    "en": "Warning: This operation will automatically modify your vault files and may have unintended effects. It's highly recommended to create a backup of your entire vault before proceeding.", // Warning: This operation will automatically modify your vault files and may have unintended effects. It's highly recommended to create a backup of your entire vault before proceeding.
+    "ja": "警告：この操作は自動的にボールトファイルを変更します。予期せぬ効果が発生する可能性があります。続行する前に、ボールト全体のバックアップを作成することを強くお勧めします。", // 警告：この操作は自動的にボールトファイルを変更します。予期せぬ効果が発生する可能性があります。続行する前に、ボールト全体のバックアップを作成することを強くお勧めします。
+    "zh-TW": "警告，此操作將自動修改您的保險庫文件，可能會產生意外效果。強烈建議在繼續之前備份整個保險庫。", // 警告，此操作將自動修改您的保險庫文件，可能會產生意外效果。強烈建議在繼續之前備份整個保險庫。
+    "ko": "경고: 이 작업은 자동으로 보르트 파일을 수정하며 의도하지 않은 효과를 가져올 수 있습니다. 진행하기 전에 전체 보르트의 백업을 만드는 것이 강력히 권장됩니다.", // 경고: 이 작업은 자동으로 보르트 파일을 수정하며 의도하지 않은 효과를 가져올 수 있습니다. 진행하기 전에 전체 보르트의 백업을 만드는 것이 강력히 권장됩니다.
+    "ar": "تحذير: ستقوم هذه العملية بتعديل ملفات الخزانة تلقائيًا وقد تكون لها تأثيرات غير مقصودة. نوصي بشدة بإنشاء نسخة احتياطية للخزانة بأكملها قبل المتابعة.", // تحذير: ستقوم هذه العملية بتعديل ملفات الخزانة تلقائيًا وقد تكون لها تأثيرات غير مقصودة. نوصي بشدة بإنشاء نسخة احتياطية للخزانة بأكملها قبل المتابعة.
+    "pt": "Aviso: Esta operação irá modificar automaticamente os arquivos do seu cofre e pode ter efeitos não pretendidos. É altamente recomendável criar um backup de todo o seu cofre antes de prosseguir.", // Aviso: Esta operação irá modificar automaticamente os arquivos do seu cofre e pode ter efeitos não pretendidos. É altamente recomendável criar um backup de todo o seu cofre antes de prosseguir.
+    "de": "Warnung: Diese Operation wird Ihre Tresor-Dateien automatisch ändern und kann unbeabsichtigte Auswirkungen haben. Es wird dringend empfohlen, eine Sicherungskopie Ihres gesamten Tresors zu erstellen, bevor Sie fortfahren.", // Warnung: Diese Operation wird Ihre Tresor-Dateien automatisch ändern und kann unbeabsichtigte Auswirkungen haben. Es wird dringend empfohlen, eine Sicherungskopie Ihres gesamten Tresors zu erstellen, bevor Sie fortfahren.
+    "ru": "Предупреждение: Эта операция автоматически изменит ваши файлы секрета и может вызвать непредвиденные эффекты. Настоятельно рекомендуется создать резервную копию всего вашего секрета перед продолжением.", // Предупреждение: Эта операция автоматически изменит ваши файлы секрета и может вызвать непредвиденные эффекты. Настоятельно рекомендуется создать резервную копию всего вашего секрета перед продолжением.
+    "fr": "Avertissement : Cette opération modifiera automatiquement vos fichiers de coffre et peut avoir des effets non intentionnels. Il est fortement recommandé de créer une sauvegarde de l'ensemble de votre coffre avant de continuer.", // Avertissement : Cette opération modifiera automatiquement vos fichiers de coffre et peut avoir des effets non intentionnels. Il est fortement recommandé de créer une sauvegarde de l'ensemble de votre coffre avant de continuer.
+    "es": "Advertencia: Esta operación modificará automáticamente los archivos de su bóveda y puede tener efectos no deseados. Se recomienda encarecidamente crear una copia de seguridad de toda su bóveda antes de continuar.", // Advertencia: Esta operación modificará automáticamente los archivos de su bóveda y puede tener efectos no deseados. Se recomienda encarecidamente crear una copia de seguridad de toda su bóveda antes de continuar.
+    "it": "Avviso: Questa operazione modificherà automaticamente i file del tuo vault e potrebbe avere effetti indesiderati. È altamente consigliato creare un backup dell'intero vault prima di procedere.", // Avviso: Questa operazione modificherà automaticamente i file del tuo vault e potrebbe avere effetti indesiderati. È altamente consigliato creare un backup dell'intero vault prima di procedere.
+    "id": "Peringatan: Operasi ini akan secara otomatis mengubah file vault Anda dan dapat memiliki efek yang tidak diinginkan. Sangat disarankan untuk membuat cadangan dari seluruh vault Anda sebelum melanjutkan.", // Peringatan: Operasi ini akan secara otomatis mengubah file vault Anda dan dapat memiliki efek yang tidak diinginkan. Sangat disarankan untuk membuat cadangan dari seluruh vault Anda sebelum melanjutkan.
+    "ro": "Avertisment: Această operație va modifica automat fișierele din depozitul dvs. și ar putea avea efecte nedorite. Se recomandă cu tărie să creați o copie de rezervă a întregului dvs. depozit înainte de a continua.", // Avertisment: Această operație va modifica automat fișierele din depozitul dvs. și ar putea avea efecte nedorite. Se recomandă cu tărie să creați o copie de rezervă a întregului dvs. depozit înainte de a continua.
+    "cs": "Varování: Tato operace automaticky upraví vaše soubory sejfu a může mít nechtěné účinky. Před pokračováním je silně doporučeno vytvořit zálohu celého vašeho sejfu.", // Varování: Tato operace automaticky upraví vaše soubory sejfu a může mít nechtěné účinky. Před pokračováním je silně doporučeno vytvořit zálohu celého vašeho sejfu.
+    "no": "Advarsel: Denne operasjonen vil automatisk endre kiste filene dine og kan ha utilsiktede effekter. Det er sterkt anbefalt å opprette en sikkerhetskopi av hele kisten din før du fortsetter.", // Advarsel: Denne operasjonen vil automatisk endre kiste filene dine og kan ha utilsiktede effekter. Det er sterkt anbefalt å opprette en sikkerhetskopi av hele kisten din før du fortsetter.
+    "pl": "Ostrzeżenie: Ta operacja automatycznie zmodyfikuje pliki skrytki i może mieć niezamierzone skutki. Zaleca się zdecydowanie utworzenie kopii zapasowej całej skrytki przed kontynuowaniem.", // Ostrzeżenie: Ta operacja automatycznie zmodyfikuje pliki skrytki i może mieć niezamierzone skutki. Zaleca się zdecydowanie utworzenie kopii zapasowej całej skrytki przed kontynuowaniem.
+    "uk": "Попередження: Ця операція автоматично змінить ваші файли сховища і може мати непередбачувані ефекти. Настійно рекомендується створити резервну копію всього вашого сховища перед продовженням.", // Попередження: Ця операція автоматично змінить ваші файли сховища і може мати непередбачувані ефекти. Настійно рекомендується створити резервну копію всього вашого сховища перед продовженням.
+    "sq": "Paralajmërim: Kjo operacion do të ndryshojë automatikisht skedarët e sandukut tuaj dhe mund të ketë efekte të pashëndetshme. Është e rekomanduar me këmbëngulje të krijoni një kopje rezervë të tërë sandukut tuaj para se të vazhdoni.", // Paralajmërim: Kjo operacion do të ndryshojë automatikisht skedarët e sandukut tuaj dhe mund të ketë efekte të pashëndetshme. Është e rekomanduar me këmbëngulje të krijoni një kopje rezervë të tërë sandukut tuaj para se të vazhdoni.
+    "th": "คำเตือน: การดำเนินการนี้จะปรับเปลี่ยนไฟล์ห่อของคุณโดยอัตโนมัติและอาจมีผลกระทบที่ไม่ได้คาดคิด แนะนำอย่างยิ่งให้สร้างสำเนาข้อมูลของคุณทั้งหมดก่อนที่จะดำเนินการต่อ", // คำเตือน: การดำเนินการนี้จะปรับเปลี่ยนไฟล์ห่อของคุณโดยอัตโนมัติและอาจมีผลกระทบที่ไม่ได้คาดคิด แนะนำอย่างยิ่งให้สร้างสำเนาข้อมูลของคุณทั้งหมดก่อนที่จะดำเน                    an: Operasi ini akan mengubah fail kotak anda secara automatik dan mungkin mempunyai kesan tidak diingini. Ia sangat dicadangkan untuk membuat sandaran kotak sepenuhnya sebelum meneruskan.
+    "pt-BR": "Aviso: Esta operação modificará automaticamente os arquivos do seu cofre e pode ter efeitos não pretendidos. É altamente recomendado criar um backup de todo o seu cofre antes de prosseguir.", // Aviso: Esta operação modificará automaticamente os arquivos do seu cofre e pode ter efeitos não pretendidos. É altamente recomendado criar um backup de todo o seu cofre antes de prosseguir.
+    "am": "ማስተካከያ: ይህ እርምጃ በራሱ በአራተኛው ዓመት ላይ መተንፈስ ይችላሉ፣ በምስማርያ ምክር ላይ ማስተካከያውን እንዲያሳድግ ወደሚቻል ወሰን መመልከት ይፈልጋሉ።", // ማስተካከያ: ይህ እርምጃ በራሱ በአራተኛው ዓመት ላይ መተንፈስ ይችላሉ፣ በምስማርያ ምክር ላይ ማስተካከያውን እንዲያሳድግ ወደሚቻል ወሰን መመልከት ይፈልጋሉ።"
+};
+
+const MigrateTextMigrateEnd = {
+    "zh": "迁移完成", // 迁移完成
+    "en": "Migration Complete", // Migration Complete
+    "ja": "移行が完了しました", // 移行が完了しました
+    "zh-TW": "遷移完成", // 遷移完成
+    "ko": "이전이 완료되었습니다", // 이전이 완료되었습니다
+    "ar": "اكتمل الترحيل", // اكتمل الترحيل
+    "pt": "Migração Concluída", // Migração Concluída
+    "de": "Migration Abgeschlossen", // Migration Abgeschlossen
+    "ru": "Миграция завершена", // Миграция завершена
+    "fr": "Migration Terminée", // Migration Terminée
+    "es": "Migración Completa", // Migración Completa
+    "it": "Migrazione Completata", // Migrazione Completata
+    "id": "Migrasi Selesai", // Migrasi Selesai
+    "ro": "Migrare Completă", // Migrare Completă
+    "cs": "Migrace Dokončena", // Migrace Dokončena
+    "no": "Migrering Fullført", // Migrering Fullført
+    "pl": "Migracja Zakończona", // Migracja Zakończona
+    "uk": "Міграція завершена", // Міграція завершена
+    "sq": "Migrimi i Përfunduar", // Migrimi i Përfunduar
+    "th": "การย้ายข้อมูลเสร็จสิ้น", // การย้ายข้อมูลเสร็จสิ้น
+    "fa": "مهاجرت تکمیل شد", // مهاجرت تکمیل شد
+    "tr": "Göç Tamamlandı", // Göç Tamamlandı
+    "nl": "Migratie Voltooid", // Migratie Voltooid
+    "ms": "Peralihan Selesai", // Peralihan Selesai
+    "pt-BR": "Migração Concluída", // Migração Concluída
+    "am": "መደብዛችን አለቀ", // መደብዛችን አለቀ
+};

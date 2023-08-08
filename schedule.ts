@@ -68,7 +68,8 @@ export interface scheduleArrange {
     CalcLearnRate(opt: LearnEnum): number
 }
 
-export interface PatternYaml {
+export interface scheduleData {
+    id: string
     // 上次学习时间
     Last: string
     // 计划下次学习时间
@@ -80,10 +81,11 @@ export interface PatternYaml {
     // 上次被标记为忘记，之后复习的进度 默认为0 范围从-2到+2
     LearnedCount: number | null
     // 用于读取存储的schedule yaml格式 需要复制对象
-    copy(v: PatternYaml): void
+    copy(v: scheduleData): void
 }
 
-export interface PatternSchedule extends scheduleCalc, scheduleArrange, PatternYaml {
+
+export interface PatternSchedule extends scheduleCalc, scheduleArrange, scheduleData {
 }
 
 export function NewSchedule(id: string) {
@@ -96,14 +98,14 @@ function sigmod(x: number): number {
 
 // 一个模式的复习信息
 export class defaultSchedule implements PatternSchedule {
-    copy(v: PatternYaml) {
+    copy(v: scheduleData) {
         this.Opts = v.Opts
         this.Last = v.Last
         this.Next = v.Next
         this.Learned = v.Learned
         this.LearnedCount = v.LearnedCount
     }
-    private id: string
+    id: string
     Last: string
     Next: string
     Opts: string
@@ -217,7 +219,7 @@ export class defaultSchedule implements PatternSchedule {
             learnCount = this.LearnedCount
         } else {
             if (this.Opts.length > 0) {
-                if (this.Opts.at(this.Opts.length -1) === ReviewEnum.HARD.toString()) {
+                if (this.Opts.at(this.Opts.length - 1) === ReviewEnum.HARD.toString()) {
                     learnCount += 1
                 }
             }
@@ -336,6 +338,14 @@ export class CardSchedule {
             this.schedules.set(k, schedule)
         }
     }
+    // 将datas中的数据写入本地schedules: Map中
+    setData(datas: scheduleData[]) {
+        for (let data of datas) {
+            let schedule = NewSchedule(data.id)
+            schedule.copy(data)
+            this.schedules.set(data.id, schedule)
+        }
+    }
     public schedules: Map<string, PatternSchedule>
     constructor() {
         this.schedules = new Map
@@ -348,6 +358,20 @@ export class CardSchedule {
         }
         return parten
     }
+
+    // 辅助函数，将CardSchedule结构转换成PatternYaml[]结构
+    cardScheduleToPatternData(): scheduleData[] {
+        let patternData: scheduleData[] = []
+        this.schedules.forEach((schedule) => {
+            patternData.push(schedule)
+        })
+        // 然后将patternData按照id字典序排序
+        patternData.sort((a, b) => {
+            return a.id.localeCompare(b.id)
+        })
+        return patternData
+    }
+
 }
 
 abstract class scheduler {

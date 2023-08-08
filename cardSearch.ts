@@ -109,7 +109,8 @@ class defaultCardSearch implements cardSearcher {
 				cards = this.getCardFromText(fileText, note);
 			}
 		} catch (error) {
-			new Notice(`Failed to read file: ${note}, error: ${error}`);
+			console.log(`[Aosr] Failed to read file: ${note.path}, error: ${error}`)
+			new Notice(`[Aosr] Failed to read file: ${note.path}, error: ${error}`);
 		}
 		return cards;
 	}
