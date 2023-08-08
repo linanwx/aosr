@@ -33,7 +33,7 @@ class AosrWriterHelper {
 	constructor() {
 		this.event1 = app.workspace.on("active-leaf-change", async (leaf) => {
 			let view = app.workspace.getActiveViewOfType(MarkdownView)
-			if (!view) {
+			if (!view || !view.file) {
 				return
 			}
 			this.checkDebounced(view.file, view.editor.getValue())
