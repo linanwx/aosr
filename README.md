@@ -25,6 +25,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # Demo
 
+The demo shown below is from an earlier version. You can refer to its operation process. Some of the content has been optimized.
 
 ![屏幕录制2022-11-08 17 56 11](https://user-images.githubusercontent.com/16589958/200536163-9aa947ff-0898-40ec-ae6a-911fc9107098.gif)
 
