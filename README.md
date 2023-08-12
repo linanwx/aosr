@@ -233,6 +233,21 @@ Once you click one of the buttons, the review begins. Please follow the buttons 
 
 <img width="914" alt="Screenshot 2023-06-13 at 12 09 46 PM" src="https://github.com/linanwx/aosr/assets/16589958/4ce6a725-51c4-46bc-8f13-cd3e7bc216ee">
 
+# Parameter Adjustment
+
+The default parameters work quite well in most cases. If you think you need to adjust the parameters, the following information can help you.
+
+- **Initial Ease**: This parameter defaults to 250, meaning that the review interval will increase or decrease by 2.5 times. For example, if a card was last reviewed 2 days ago, then if you choose a positive option, the next review time will be 2.5 * 2 = 5 days, so it will be reviewed again after 5 days. If you choose a negative option, the next review time will be 2.5 / 2 = 1.25 days, so it will be reviewed again after 1.25 days.
+
+- **Easy Option Bonus**: This parameter defaults to 1. When you choose the easy option (meaning you chose "I know" on the first screen and "Easy" on the second screen), in this case, the review time will be postponed by an extra day. In the above situation, it is equivalent to reviewing again one more day after 5 days, that is, after 6 days.
+
+- **Hard Option Bonus**: This parameter defaults to 1. When you choose the hard option (meaning you chose "I got it wrong" or "I forgot"), in this case, the review time will be advanced by one day. In the above situation, it will be reviewed one day earlier after 1.25 days, that is, 0.25 days later.
+
+If you think you are reviewing too much content every day, it is recommended to start adjusting from the easy option bonus. You can adjust it to 2 or 3, so that you can postpone the review time for some too simple content.
+
+If you want to review those forgotten contents more, you can adjust the hard option bonus to 2 or 3. In this case, you will review the content you got wrong earlier.
+
+Generally, there is no need to adjust the initial ease, as the review ease of each card will automatically increase or decrease based on your options, with a baseline value of 250. If you want to change the review baseline of all cards, you can change this value. Generally, you can change it to a value between 200-300. It is not recommended to adjust the value beyond this range.
 
 # Deck Functionality in Aosr
 
