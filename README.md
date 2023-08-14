@@ -360,6 +360,7 @@ interface FactPattern {
 		path: string
 		tags: string[]
 		text: string
+		outline: string // outline heading string
 	}
 	file: {
 		tags: string[] // from frontmatter
