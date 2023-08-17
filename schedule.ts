@@ -307,6 +307,9 @@ export class defaultSchedule implements PatternSchedule {
         // 简单奖励
         let easeBouns = 0
         for (let opt of this.OptArr.slice(-20)) {
+            if (opt == ReviewEnum.FAIR) {
+                easeBouns += 10
+            }
             if (opt == ReviewEnum.EASY) {
                 easeBouns += 25
             }

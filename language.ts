@@ -187,6 +187,7 @@ export function initLanguage() {
     addTranslation("MigrateTextCleanComplete", MigrateTextCleanComplete)
     addTranslation("MigrateTextMigrateWarning", MigrateTextMigrateWarning)
     addTranslation("MigrateTextMigrateEnd", MigrateTextMigrateEnd)
+    addTranslation("OpenAosr", OpenAosr)
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
         console.error('Failed to change language:', err);
@@ -1487,4 +1488,33 @@ const MigrateTextMigrateEnd = {
     "ms": "Peralihan Selesai", // Peralihan Selesai
     "pt-BR": "Migração Concluída", // Migração Concluída
     "am": "መደብዛችን አለቀ", // መደብዛችን አለቀ
+};
+
+const OpenAosr = {
+    "zh": "打开Aosr", // 打开Aosr
+    "en": "Open Aosr", // Open Aosr
+    "ja": "Aosrを開く", // Aosrを開く
+    "zh-TW": "打開Aosr", // 打開Aosr
+    "ko": "Aosr 열기", // Aosr 열기
+    "ar": "افتح Aosr", // افتح Aosr
+    "pt": "Abrir Aosr", // Abrir Aosr
+    "de": "Aosr Öffnen", // Aosr Öffnen
+    "ru": "Открыть Aosr", // Открыть Aosr
+    "fr": "Ouvrir Aosr", // Ouvrir Aosr
+    "es": "Abrir Aosr", // Abrir Aosr
+    "it": "Apri Aosr", // Apri Aosr
+    "id": "Buka Aosr", // Buka Aosr
+    "ro": "Deschide Aosr", // Deschide Aosr
+    "cs": "Otevřít Aosr", // Otevřít Aosr
+    "no": "Åpne Aosr", // Åpne Aosr
+    "pl": "Otwórz Aosr", // Otwórz Aosr
+    "uk": "Відкрити Aosr", // Відкрити Aosr
+    "sq": "Hap Aosr", // Hap Aosr
+    "th": "เปิด Aosr", // เปิด Aosr
+    "fa": "باز کردن Aosr", // باز کردن Aosr
+    "tr": "Aosr Aç", // Aosr Aç
+    "nl": "Open Aosr", // Open Aosr
+    "ms": "Buka Aosr", // Buka Aosr
+    "pt-BR": "Abrir Aosr", // Abrir Aosr
+    "am": "አውስር ክፈት", // አውስር ክፈት
 };

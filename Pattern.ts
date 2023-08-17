@@ -40,7 +40,8 @@ export function prettyText (text:string):string {
 		if (tag.Head != CardIDTag) {
 			continue
 		}
-		text = text.replace(tag.Original, "")
+		text = text.replace(tag.Original, ()=>{return ""})
 	}
+	text = text.replace("#multicloze", ()=>{return ""})
 	return text
 }
