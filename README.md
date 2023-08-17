@@ -11,7 +11,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's New
 
-- **New Deck Feature:** We've introduced a new [Deck feature](https://github.com/linanwx/aosr#deck-functionality-in-aosr) in Aosr. This feature allows you to define the contents of your decks based on custom rules. Simply copy and paste the provided code into your Obsidian notes, and the Aosr plugin will automatically transform it into a deck for review. 
+- The new feature now writes review data separately inside the .obsidian/aosr.db file, so it no longer affects the notes. If you need to immediately migrate all the old data from the notes to the new DB file and clean up the old notes, there is a migration tool available in the settings interface.
 
 # Features
 
@@ -25,6 +25,7 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # Demo
 
+The demo shown below is from an earlier version. You can refer to its operation process. Some of the content has been optimized.
 
 ![屏幕录制2022-11-08 17 56 11](https://user-images.githubusercontent.com/16589958/200536163-9aa947ff-0898-40ec-ae6a-911fc9107098.gif)
 
@@ -232,6 +233,21 @@ Once you click one of the buttons, the review begins. Please follow the buttons 
 
 <img width="914" alt="Screenshot 2023-06-13 at 12 09 46 PM" src="https://github.com/linanwx/aosr/assets/16589958/4ce6a725-51c4-46bc-8f13-cd3e7bc216ee">
 
+# Parameter Adjustment
+
+The default parameters work quite well in most cases. If you think you need to adjust the parameters, the following information can help you.
+
+- **Initial Ease**: This parameter defaults to 250, meaning that the review interval will increase or decrease by 2.5 times. For example, if a card was last reviewed 2 days ago, then if you choose a positive option, the next review time will be 2.5 * 2 = 5 days, so it will be reviewed again after 5 days. If you choose a negative option, the next review time will be 2.5 / 2 = 1.25 days, so it will be reviewed again after 1.25 days.
+
+- **Easy Option Bonus**: This parameter defaults to 1. When you choose the easy option (meaning you chose "I know" on the first screen and "Easy" on the second screen), in this case, the review time will be postponed by an extra day. In the above situation, it is equivalent to reviewing again one more day after 5 days, that is, after 6 days.
+
+- **Hard Option Bonus**: This parameter defaults to 1. When you choose the hard option (meaning you chose "I got it wrong" or "I forgot"), in this case, the review time will be advanced by one day. In the above situation, it will be reviewed one day earlier after 1.25 days, that is, 0.25 days later.
+
+If you think you are reviewing too much content every day, it is recommended to start adjusting from the easy option bonus. You can adjust it to 2 or 3, so that you can postpone the review time for some too simple content.
+
+If you want to review those forgotten contents more, you can adjust the hard option bonus to 2 or 3. In this case, you will review the content you got wrong earlier.
+
+Generally, there is no need to adjust the initial ease, as the review ease of each card will automatically increase or decrease based on your options, with a baseline value of 250. If you want to change the review baseline of all cards, you can change this value. Generally, you can change it to a value between 200-300. It is not recommended to adjust the value beyond this range.
 
 # Deck Functionality in Aosr
 
@@ -344,6 +360,7 @@ interface FactPattern {
 		path: string
 		tags: string[]
 		text: string
+		outline: string // outline heading string
 	}
 	file: {
 		tags: string[] // from frontmatter
@@ -364,13 +381,10 @@ If the code block does not automatically transform into a review card, please en
 
 # Annotation
 
-Please take note of the presence of generated comments within your document. This is a normal occurrence and is essential for the functioning of the plug-in, as it requires this data for the purpose of calculating review time.
+In versions prior to 1.0.40, review data was written at the end of the notes. In subsequent versions, the data is stored in the aosr.db file located under the .obsidian folder. When reading, the data in the db is prioritized, followed by the data in the notes. There is a tool in the settings interface designed to migrate old data into the DB, while also cleaning the notes. It is strongly recommended that you perform this migration operation with a backup of your vault.
 
 <img width="713" alt="Screenshot 2023-06-13 at 12 11 48 PM" src="https://github.com/linanwx/aosr/assets/16589958/624e627e-fa10-4234-8446-fc139b51d355">
 
-I acknowledge that the appearance of these comments may not be visually pleasing and may disrupt the document's formatting. However, at present, this arrangement suffices for my daily usage. It is possible that I may discover a solution to this matter in the future.
-
-The comments will be automatically appended to the end of the document. Furthermore, their placement can be adjusted within the same document if necessary.
 
 # Work with Dataview
 
