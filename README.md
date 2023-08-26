@@ -383,9 +383,13 @@ The final note should look something like this:
 If it's not working as expected, please follow these steps:
 
 First, this code can be copied into any note; it doesn't have to be a specific one.
+
 Second, make sure the code block starts with ` ```aosr-deck-config ` and ends with ` ``` `, without any extra spaces in between.
+
 Please check that there are no extra backticks (`) at the beginning or end of the code block. This can happen if you copy the code from the GitHub page using Ctrl+C.
+
 Ensure you've removed any placeholders like “ <-- Replace with,” as these are not valid JSON and won't be recognized.
+
 Assuming you have a card tagged with #math, like this:
 
 ```markdown
