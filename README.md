@@ -380,6 +380,8 @@ The final note should look something like this:
 
 <img width="898" alt="截屏2023-07-23 15 02 45" src="https://github.com/linanwx/aosr/assets/16589958/b05aecc8-51f6-40d0-98bc-f07a7ada6221">
 
+### Troubleshooting
+
 If it's not working as expected, please follow these steps:
 
 First, this code can be copied into any note; it doesn't have to be a specific one.
@@ -420,6 +422,28 @@ The code to filter corresponding cards would be:
 ```
 
 Make sure to wrap this code with ` ```aosr-deck-config` and  ` ``` ` .
+
+Suppose you have a folder called `math` containing many notes, each with multiple cards. You can use the following code to review all the notes within the `math` folder:
+
+`````
+```aosr-deck-config
+{
+	"rule": {
+		"conditions": {
+			"all": [{
+				"fact": "card",
+				"operator": "regexMatch",
+				"value": "math", 
+				"path": "$.path"
+			}]
+		},
+		"event": {
+			"type": "match"
+		}
+	}
+}
+```
+`````
 
 After you finish editing, move the cursor out of this code block or switch Obsidian to preview mode. You should see this code block correctly transformed into a review interface.
 
