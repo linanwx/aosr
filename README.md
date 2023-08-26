@@ -376,8 +376,48 @@ To use these examples, simply copy and paste the code into your Obsidian notes. 
 
 If the code block does not automatically transform into a review card, please ensure that your cursor is not within the code block. Additionally, if any errors are prompted, check that the rule is in the correct JSON format. Any formatting errors will prevent the transformation into the correct review interface. Once correctly transformed, you should see an interface similar to the one generated when clicking the button in the sidebar. This interface will also contain the review content you need.
 
+The final note should look something like this:  
+
 <img width="898" alt="截屏2023-07-23 15 02 45" src="https://github.com/linanwx/aosr/assets/16589958/b05aecc8-51f6-40d0-98bc-f07a7ada6221">
 
+If it's not working as expected, please follow these steps:
+
+First, this code can be copied into any note; it doesn't have to be a specific one.
+Second, make sure the code block starts with ` ```aosr-deck-config ` and ends with ` ``` `, without any extra spaces in between.
+Please check that there are no extra backticks (`) at the beginning or end of the code block. This can happen if you copy the code from the GitHub page using Ctrl+C.
+Ensure you've removed any placeholders like “ <-- Replace with,” as these are not valid JSON and won't be recognized.
+Assuming you have a card tagged with #math, like this:
+
+```markdown
+#Q
+a^2 + b^2 = ? :: c^2 #math
+```
+
+The code to filter corresponding cards would be:
+
+```json
+{
+	"rule":{
+		"conditions":{
+			"all":[
+				{
+					"fact":"card",
+					"operator":"contains",
+					"value":"#math",
+					"path":"$.tags"
+				}
+			]
+		},
+		"event":{
+			"type":"match"
+		}
+	}
+}
+```
+
+Make sure to wrap this code with ` ```aosr-deck-config` and  ` ``` ` .
+
+After you finish editing, move the cursor out of this code block or switch Obsidian to preview mode. You should see this code block correctly transformed into a review interface.
 
 # Annotation
 
