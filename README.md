@@ -33,7 +33,7 @@ The demo shown below is from an earlier version. You can refer to its operation 
 
 ## Card
 
-A CARD begins with `#Q` and ends with an empty line. Cauton: #Q is case sensitive.
+A CARD begins with `#Q` and ends with an empty line. Caution: #Q is case sensitive.
 
 ```
 #Q 
