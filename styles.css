@@ -19,6 +19,17 @@
     filter: blur(0);
 }
 
+/* 增强图片模糊效果并添加噪点和压暗效果 */
+.aosr-answer img {
+    filter: blur(80px) brightness(0.3) contrast(0.8) grayscale(1);
+    transition: filter 0.2s ease-in-out;
+}
+
+.aosr-answer.aosr-show img {
+    filter: blur(0) brightness(1) contrast(1) grayscale(0);
+}
+
+/* 隐藏Markdown标签 */
 .markdown-reading-view a.tag:is([href^="#AOSR/"]), .markdown-source-view a.tag:is([href^="#AOSR/"]) {
     display: none;
 }
