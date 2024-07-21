@@ -14,6 +14,7 @@ import { Arrangement, PatternIter } from 'arrangement';
 import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
+import { getAppInstance } from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import * as React from "react";
@@ -134,7 +135,7 @@ function replaceSlashWithArrow(str: string) {
 }
 
 function findFileOutline(file: TFile, offset: number): string {
-	let cache = app.metadataCache.getFileCache(file)
+	let cache = getAppInstance().metadataCache.getFileCache(file)
 	return findOutline(cache, offset)
 }
 
@@ -145,11 +146,11 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 	openUnpinnedFile = async (note: TFile) => {
 		let leaf: WorkspaceLeaf | undefined
 		if (this.props.view instanceof MarkdownRenderChild) {
-			leaf = app.workspace.getLeaf(true)
+			leaf = getAppInstance().workspace.getLeaf(true)
 		} else {
-			leaf = app.workspace.getLeavesOfType("markdown").at(0)
+			leaf = getAppInstance().workspace.getLeavesOfType("markdown").at(0)
 			if (!leaf || leaf.getViewState()?.pinned == true) {
-				leaf = app.workspace.getLeaf(true)
+				leaf = getAppInstance().workspace.getLeaf(true)
 			}
 		}
 		await leaf.openFile(note)

@@ -6,6 +6,7 @@ import { ParserCollection } from './ParserCollection';
 import { Pattern } from './Pattern';
 import { cyrb53 } from './hash';
 import { DatabaseHelper } from 'db';
+import { getAppInstance } from 'main';
 
 // 卡片
 // 卡片由源码和注释两部分组成，
@@ -193,7 +194,7 @@ class defaultCard implements Card {
 	}
 	async commitFile(committype: commitType) {
 		// 首先读取原文
-		let fileText = await app.vault.read(this.note)
+		let fileText = await getAppInstance().vault.read(this.note)
 		if (committype.ID == true && this.idGenFlag == false) {
 			// 如果卡片内容被更改, 则阻止添加ID, 因为这会破坏卡片格式
 			if (fileText.contains(this.cardText)) {
@@ -220,7 +221,7 @@ class defaultCard implements Card {
 			this.updateAnnotation()
 		}
 		// 提交变更
-		await app.vault.modify(this.note, fileText)
+		await getAppInstance().vault.modify(this.note, fileText)
 	}
 }
 

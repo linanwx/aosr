@@ -1,5 +1,6 @@
 import { Low } from 'lowdb';
-import { Notice } from 'obsidian';
+import { getAppInstance } from 'main';
+import { App, Notice, Vault } from 'obsidian';
 import { CardSchedule, scheduleData } from 'schedule';
 
 export const DBNAME = 'aosr.db'
@@ -23,8 +24,8 @@ class ObsidianAdapter {
     async read() {
         try {
             const filePath = this.basePath + this.fileName;
-            if (await app.vault.adapter.exists(filePath)) {
-                const data = await app.vault.adapter.read(filePath);
+            if (await getAppInstance().vault.adapter.exists(filePath)) {
+                const data = await getAppInstance().vault.adapter.read(filePath);
                 return JSON.parse(data);
             }
             return { docs: [] } as Data;
@@ -37,7 +38,7 @@ class ObsidianAdapter {
     async write(data: any) {
         const filePath = this.basePath + this.fileName;
         const content = JSON.stringify(data);
-        await app.vault.adapter.write(filePath, content);
+        await getAppInstance().vault.adapter.write(filePath, content);
     }
 }
 

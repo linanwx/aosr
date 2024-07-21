@@ -1,4 +1,5 @@
 
+import { getAppInstance } from "main";
 import {
     Component,
     MarkdownRenderer, TFile
@@ -53,7 +54,7 @@ function handleEmbeds(dom: HTMLDivElement, sourcePath: string) {
             return;
         }
         const normalizedPath = getNormalizedPath(src);
-        const target = app.metadataCache.getFirstLinkpathDest(
+        const target = getAppInstance().metadataCache.getFirstLinkpathDest(
             normalizedPath.root,
             sourcePath
         );
@@ -81,7 +82,7 @@ function handleEmbeds(dom: HTMLDivElement, sourcePath: string) {
             return;
         }
         const normalizedPath = getNormalizedPath(href);
-        const target = app.metadataCache.getFirstLinkpathDest(
+        const target = getAppInstance().metadataCache.getFirstLinkpathDest(
             normalizedPath.root,
             sourcePath
         );
@@ -99,7 +100,7 @@ function handleImage(el: HTMLElement, file: TFile) {
     el.empty();
     el.createEl(
         'img',
-        { attr: { src: app.vault.getResourcePath(file) } },
+        { attr: { src: getAppInstance().vault.getResourcePath(file) } },
         (img) => {
             if (el.hasAttribute('width')) {
                 let v = el.getAttribute('width')
@@ -127,7 +128,7 @@ function handleImage(el: HTMLElement, file: TFile) {
 function handleAudio(el: HTMLElement, file: TFile) {
     el.empty();
     el.createEl('audio', {
-        attr: { controls: '', src: app.vault.getResourcePath(file) },
+        attr: { controls: '', src: getAppInstance().vault.getResourcePath(file) },
     });
     el.addClasses(['media-embed', 'is-loaded']);
 }
@@ -136,7 +137,7 @@ function handleVideo(el: HTMLElement, file: TFile) {
     el.empty();
     el.createEl(
         'video',
-        { attr: { controls: '', src: app.vault.getResourcePath(file) } },
+        { attr: { controls: '', src: getAppInstance().vault.getResourcePath(file) } },
         (video) => {
             const handleLoad = () => {
                 video.removeEventListener('loadedmetadata', handleLoad);
@@ -166,7 +167,7 @@ function handleFile(el: HTMLElement, file: TFile) {
     a.addEventListener('click', (event) => {
         event.preventDefault(); // 阻止默认的链接跳转行为
         // 手动调用 Obsidian 的 API 来打开文件
-        app.workspace.getLeaf(true).openFile(file);
+        getAppInstance().workspace.getLeaf(true).openFile(file);
     });
 }
 
@@ -185,7 +186,7 @@ function handleLink(el: HTMLElement, sourcePath: string, link: string) {
     a.addEventListener('click', (event) => {
         event.preventDefault(); // 阻止默认的链接跳转行为
         // 手动调用 Obsidian 的 API 来打开文件
-        app.workspace.openLinkText(link, sourcePath, true)
+        getAppInstance().workspace.openLinkText(link, sourcePath, true)
     });
 }
 

@@ -3,6 +3,7 @@ import { CardIDTag } from 'cardHead';
 import { Notice, TFile } from 'obsidian';
 import { TagParser } from 'tag';
 import { Card, NewCard } from "./card";
+import { getAppInstance } from 'main';
 
 // 搜索的结果
 export class SearchResult {
@@ -95,7 +96,7 @@ class defaultCardSearch implements cardSearcher {
 
 	async getCardFromVaultFile(): Promise<Card[]> {
 		let cards: Card[] = []
-		const notes: TFile[] = app.vault.getMarkdownFiles();
+		const notes: TFile[] = getAppInstance().vault.getMarkdownFiles();
 		for (const note of notes) {
 			cards.push(...await this.getCardFromFile(note))
 		}
@@ -104,7 +105,7 @@ class defaultCardSearch implements cardSearcher {
 	async getCardFromFile(note: TFile): Promise<Card[]> {
 		let cards: Card[] = []
 		try {
-			let fileText = await app.vault.read(note)
+			let fileText = await getAppInstance().vault.read(note)
 			if (fileText) {
 				cards = this.getCardFromText(fileText, note);
 			}
@@ -117,7 +118,7 @@ class defaultCardSearch implements cardSearcher {
 	private getCardFromText(fileText: string, note: TFile): Card[] {
 		let cards: Card[] = []
 		let results = this.matchText(fileText)
-		let cache = app.metadataCache.getFileCache(note)
+		let cache = getAppInstance().metadataCache.getFileCache(note)
 		for (let result of results) {
 			// 匹配注释段
 			let cardText = result.all;

@@ -2,6 +2,7 @@ import { App, Modal, Setting } from "obsidian";
 import i18n from 'i18next';
 import { NewCardSearch } from "cardSearch";
 import { DatabaseHelper } from "db";
+import { getAppInstance } from "main";
 
 export class MigrateModal extends Modal {
     div: HTMLDivElement;
@@ -76,10 +77,10 @@ export class MigrateModal extends Modal {
         let cleanLinkRefReg = /\[\[\#\^[\w|\d]+\|?.+\]\]/gm
         let countDataComment = 0
         let countLinkRef = 0
-        let files = app.vault.getMarkdownFiles()
+        let files = getAppInstance().vault.getMarkdownFiles()
         for (let i = 0; i < files.length; i++) {
             let file = files[i]
-            let fileText = await app.vault.read(file)
+            let fileText = await getAppInstance().vault.read(file)
             let newFileText = fileText.replace(cleanDataCommentReg, () => {
                 countDataComment++
                 return ""
@@ -98,7 +99,7 @@ export class MigrateModal extends Modal {
             }
             newFileText = lines.join("\n")
             if (newFileText != fileText) {
-                await app.vault.modify(file, newFileText)
+                await getAppInstance().vault.modify(file, newFileText)
             }
         }
         // 提示用户清理完成以及数量
