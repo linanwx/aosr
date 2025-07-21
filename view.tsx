@@ -238,22 +238,24 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}
-		let heading = findFileOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
-		log(() => `Displaying id: ${result.value.pattern.TagID} in from file: ${result.value.pattern.card.note.path} at index: ${result.value.index}`);
+		let patternIter : PatternIter = result.value;
+		let nextPattern : Pattern = patternIter.pattern;
+		let heading = findFileOutline(nextPattern.card.note, nextPattern.card.indexBuff)
 		if (heading == "") {
 			// 通过cache可能查不到缓存, 等一会再查
 			this.timer = setTimeout(this.checkHeading, 500);
 		}
-		await result.value.pattern.InitAosrID();
+		await nextPattern.InitAosrID();
+		log(() => `Displaying id: ${nextPattern.TagID} in from file: ${nextPattern.card.note.path} at index: ${patternIter.index}`);
 		this.setState({
-			nowPattern: result.value.pattern,
-			index: result.value.index,
-			total: result.value.total,
+			nowPattern: nextPattern,
+			index: patternIter.index,
+			total: patternIter.total,
 			heading: heading,
-			fileName: replaceSlashWithArrow(removeMdExtension(result.value.pattern.card.note.path)),
+			fileName: replaceSlashWithArrow(removeMdExtension(nextPattern.card.note.path)),
 			showAns: false,
 		})
-		result.value.pattern.Pronounce()
+		nextPattern.Pronounce()
 	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {

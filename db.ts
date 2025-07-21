@@ -1,15 +1,18 @@
 import { Low } from 'lowdb';
 import { log, getAppInstance } from 'main';
-import { App, Notice, Vault } from 'obsidian';
-import path from 'path';
+import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { CardSchedule, scheduleData } from 'schedule';
-import { GlobalSettings } from 'setting';
+import { AOSR_DEFAULT_SETTINGS, GlobalSettings } from 'setting';
+import { FileSystemAdapter } from 'obsidian';
+import { get } from 'lodash';
 
 // 存储文档的数据结构
 export interface CardDoc {
     ID: string;
     CardSchedules: scheduleData[];
 }
+
+const pathSep = '/';
 
 class ObsidianAdapter {
     private basePath: string;
@@ -39,7 +42,7 @@ class ObsidianAdapter {
         const filePath = this.basePath + this.fileName;
         const content = JSON.stringify(data);
         if (!await getAppInstance().vault.adapter.exists(this.basePath)) {
-            const noTrailingSeparatorPath = this.basePath.endsWith(path.sep)
+            const noTrailingSeparatorPath = this.basePath.endsWith(pathSep)
                 ? this.basePath.substring(0, this.basePath.length - 1)
                 : this.basePath;
             await getAppInstance().vault.adapter.mkdir(
@@ -60,15 +63,26 @@ export class DatabaseHelper {
 
     public static getInstance(): DatabaseHelper {
         if (!DatabaseHelper.instance) {
-            DatabaseHelper.instance = new DatabaseHelper(GlobalSettings.AosrDbPath);
+            try {
+                DatabaseHelper.instance = new DatabaseHelper(GlobalSettings.AosrDbPath);
+            } catch (error) {
+                console.log(error);
+                DatabaseHelper.instance = new DatabaseHelper(AOSR_DEFAULT_SETTINGS.AosrDbPath);
+                new Notice(`[Aosr] Database initialization error by path: ${GlobalSettings.AosrDbPath} using deafult one.`);
+            }
+            
         }
         return DatabaseHelper.instance;
     }
 
     constructor(dbPath: string) {
+        const slashIndex = dbPath.lastIndexOf("/");
+        const dir = slashIndex !== -1 ? dbPath.slice(0, slashIndex) : "";
+        const filename = slashIndex !== -1 ? dbPath.slice(slashIndex + 1) : dbPath;
+        
         const adapter = new ObsidianAdapter(
-            path.dirname(dbPath) + path.sep,
-            path.basename(dbPath)
+            dir.length > 0 ? dir + '/' : '',
+            filename
         );
         this.db = new Low(adapter, {});
         this.init();

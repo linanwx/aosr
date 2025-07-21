@@ -17,7 +17,7 @@ export interface AOSRSettings {
     ShowHardCardsArrangement: boolean;
 }
 
-const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
+export const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
     EasyBonus: 1,
     HardBonus: 1,
