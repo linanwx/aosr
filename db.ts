@@ -40,7 +40,7 @@ class ObsidianAdapter {
 
     async write(data: any) {
         const filePath = this.basePath + this.fileName;
-        const content = JSON.stringify(data);
+        const content = JSON.stringify(data, null, 1);
         if (!await getAppInstance().vault.adapter.exists(this.basePath)) {
             const noTrailingSeparatorPath = this.basePath.endsWith(pathSep)
                 ? this.basePath.substring(0, this.basePath.length - 1)
