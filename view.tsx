@@ -14,7 +14,7 @@ import { Arrangement, PatternIter } from 'arrangement';
 import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
-import { getAppInstance } from 'main';
+import { log, getAppInstance } from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import * as React from "react";
@@ -239,6 +239,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			return
 		}
 		let heading = findFileOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
+		log(() => `Displaying id: ${result.value.pattern.TagID} in from file: ${result.value.pattern.card.note.path} at index: ${result.value.index}`);
 		if (heading == "") {
 			// 通过cache可能查不到缓存, 等一会再查
 			this.timer = setTimeout(this.checkHeading, 500);
@@ -596,6 +597,9 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 							</ListItem>
 							<ListItem>
 								<ListItemText primary={<><Trans i18nKey="StartTextLearn" /> : {stats.LearnCount}</>}> </ListItemText>
+							</ListItem>
+							<ListItem>
+								<ListItemText primary={<><Trans i18nKey="StartTextHard" /> : {stats.HardCount}</>}> </ListItemText>
 							</ListItem>
 						</List>
 					</Paper>

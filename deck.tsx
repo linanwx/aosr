@@ -1,6 +1,7 @@
 import { Pattern } from "Pattern";
 import { findOutline } from "card";
 import { Engine, RuleProperties } from "json-rules-engine";
+import { log } from "main";
 import { FrontMatterCache, MarkdownPostProcessorContext, MarkdownRenderChild, getAllTags, parseFrontMatterTags } from "obsidian";
 import React from "react";
 import { Root, createRoot } from "react-dom/client";
@@ -24,6 +25,7 @@ interface FactPattern {
 }
 
 function convertToFact(p: Pattern): FactPattern {
+    log(() => `Converting pattern to fact: ${p.TagID}`);
     let tags = parseFrontMatterTags(p.card.fileCache?.frontmatter) || []
     let outline = findOutline(p.card.fileCache, p.card.indexBuff)
     return {

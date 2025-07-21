@@ -1,6 +1,7 @@
 import { Card } from "card";
 import { CardIDTag } from "cardHead";
 import { cyrb53 } from "hash";
+import { log } from "main";
 import { renderMarkdown } from "markdown";
 import { NodeContainer } from "nodeContainer";
 import { PatternParser } from "ParserCollection";
@@ -178,9 +179,7 @@ export class ClozeParser implements PatternParser {
                     let result = new multiclozePattern(card, body, originalID, originalID || newID)
                     results.push(result)
                 } else {
-                    console.log(`missing multicloze tag. ${body} ${bodytag}`)
-                    console.log(bodytag)
-
+                    log(() => `Ignored file: ${card.note.path} does not contain cloze pattern`);
                 }
             } else {
                 for (let i = 0; i < 10000; i++) {

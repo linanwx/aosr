@@ -3,7 +3,10 @@ import { CardIDTag } from 'cardHead';
 import { Notice, TFile } from 'obsidian';
 import { TagParser } from 'tag';
 import { Card, NewCard } from "./card";
-import { getAppInstance } from 'main';
+import { log, getAppInstance } from 'main';
+import { minimatch } from 'minimatch';
+import { GlobalSettings } from 'setting';
+import { Global } from '@emotion/react';
 
 // 搜索的结果
 export class SearchResult {
@@ -54,6 +57,7 @@ class defaultCardSearch implements cardSearcher {
 	matchText(text: string) {
 		const qTags = this.findAllQ(text);
 		const matches: elem[] = [];
+		const qBlockSepRe : RegExp = /\n\s*\n/g;
 		for (let i = 0; i < qTags.length; i++) {
 			if (qTags[i].text.startsWith('#Q')) {
 				if (matches.length > 0) {
@@ -65,7 +69,9 @@ class defaultCardSearch implements cardSearcher {
 				if (i + 1 < qTags.length && qTags[i + 1].text.startsWith('#/Q')) {
 					end = qTags[i + 1].start - 1;
 				} else {
-					const nextBlankLine = text.indexOf('\n\n', qTags[i].end);
+					qBlockSepRe.lastIndex = qTags[i].end;
+					let matched = qBlockSepRe.exec(text);
+					const nextBlankLine = matched ? matched.index : -1;
 					end = nextBlankLine !== -1 ? nextBlankLine : text.length;
 				}
 				const all = text.slice(qTags[i].start, end)
@@ -81,7 +87,7 @@ class defaultCardSearch implements cardSearcher {
 
 	async search(file?: TFile, text?: string): Promise<SearchResult> {
 		let result = new SearchResult()
-		result.SearchName = "#" + this.tagName
+		result.SearchName = this.openingTagName()
 		if (file) {
 			if (!text) {
 				result.AllCard = await this.getCardFromFile(file)
@@ -93,14 +99,43 @@ class defaultCardSearch implements cardSearcher {
 		}
 		return result
 	}
-
+	private openingTagName(): string {
+		return "#" + this.tagName;
+	}
+	isExcludedFile(file: TFile): boolean {
+		for (const pattern of GlobalSettings.ExcludeWorkingPathesPattern.split("\n")) {
+			if (!pattern || pattern.trim() === "") {
+				continue;
+			}
+			if (file.path.startsWith(pattern)
+				|| minimatch(file.path, pattern)) {
+				log(() => `Ignored file: ${file.path} due to pattern: ${pattern}`);
+				return true;
+			}
+		}
+		return false;
+	}
 	async getCardFromVaultFile(): Promise<Card[]> {
 		let cards: Card[] = []
 		const notes: TFile[] = getAppInstance().vault.getMarkdownFiles();
 		for (const note of notes) {
-			cards.push(...await this.getCardFromFile(note))
+			if (!this.isExcludedFile(note)
+				&& this.containsTag(note, this.openingTagName())) {
+				cards.push(...await this.getCardFromFile(note))
+			}
 		}
 		return cards
+	}
+	containsTag(note: TFile, tag: string) {
+		const file = getAppInstance().vault.getAbstractFileByPath(note.path);
+		if (!file) return false;
+		const metadata = getAppInstance().metadataCache.getFileCache(note);
+		const tags = metadata?.tags?.map(t => t.tag) ?? [];
+		const contains = tags.includes(tag);
+		if (!contains) {
+			log(() => `Ignored file: ${note.path} not contains tag ${tag}`);
+		}
+		return contains;
 	}
 	async getCardFromFile(note: TFile): Promise<Card[]> {
 		let cards: Card[] = []
@@ -110,7 +145,7 @@ class defaultCardSearch implements cardSearcher {
 				cards = this.getCardFromText(fileText, note);
 			}
 		} catch (error) {
-			console.log(`[Aosr] Failed to read file: ${note.path}, error: ${error}`)
+			log(() => `Failed to read file: ${note.path}, error: ${error}`);
 			new Notice(`[Aosr] Failed to read file: ${note.path}, error: ${error}`);
 		}
 		return cards;
@@ -134,6 +169,7 @@ class defaultCardSearch implements cardSearcher {
 			let card: Card = NewCard(cardText, content, annotation, blockID, index, note, cache);
 			cards.push(card)
 		}
+		log(() => `Found ${cards.length} cards in file: ${note.path}`);
 		return cards
 	}
 }

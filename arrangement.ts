@@ -4,6 +4,8 @@ import { ParseRule } from "deck"
 import i18next from "i18next"
 import { RuleProperties } from "json-rules-engine"
 import { Pattern } from "Pattern"
+import { defaultSchedule } from "schedule"
+import { GlobalSettings } from "setting"
 
 class ArrangementItem {
     Name: TAGNAME
@@ -20,6 +22,7 @@ enum TAGNAME {
     NEWTAG = "new",
     REVIEWTAG = "review",
     LEARNTAG = "learn",
+    HARDTAG = "hard",
     ALLTAG = "all",
 }
 
@@ -27,6 +30,14 @@ export class Stats {
     NewCount: number
     ReviewCount: number
     LearnCount: number
+    HardCount: number
+}
+
+export function hardPatterns(p: Pattern[]): Pattern[] {
+    return p.filter((p) => {
+        return p.schedule.Ease - defaultSchedule.MIN_EASE_VALUE
+            < 0.33 * (GlobalSettings.DefaultEase - defaultSchedule.MIN_EASE_VALUE)
+    })
 }
 
 export class PatternIter {
@@ -65,6 +76,7 @@ export class Arrangement extends ArrangementBase {
     private newPattern: Pattern[]
     private needReviewPattern: Pattern[]
     private needLearn: Pattern[]
+    private hardPatterns: Pattern[]
     // private wait:Pattern[]
     private watcher: CardsWatcher
     constructor() {
@@ -72,8 +84,9 @@ export class Arrangement extends ArrangementBase {
         this.allPattern = []
         this.newPattern = []
         this.needReviewPattern = []
+        this.hardPatterns = []
     }
-    async init(rule:RuleProperties|null) {
+    async init(rule: RuleProperties | null) {
         let search = NewCardSearch()
         let allcards = await search.search()
         this.allPattern = []
@@ -94,6 +107,7 @@ export class Arrangement extends ArrangementBase {
         let newCount = 0
         let reviewCount = 0
         let learnCount = 0
+        let hardCount = 0
         for (let p of this.allPattern) {
             if (p.schedule.Last && p.schedule.Last != "") {
                 if (isToday(p.schedule.LastTime)) {
@@ -114,6 +128,7 @@ export class Arrangement extends ArrangementBase {
         stats.LearnCount = learnCount
         stats.NewCount = newCount
         stats.ReviewCount = reviewCount
+        stats.HardCount = hardPatterns(this.allPattern).length;
         return stats
     }
     ArrangementList(): ArrangementItem[] {
@@ -126,6 +141,10 @@ export class Arrangement extends ArrangementBase {
         }
         if (this.needLearn.length > 0) {
             retlist.push(new ArrangementItem(TAGNAME.LEARNTAG, this.needLearn.length, i18next.t('StartTextLearn')))
+        }
+        if (this.hardPatterns.length > 0
+            && GlobalSettings.ShowHardCardsArrangement) {
+            retlist.push(new ArrangementItem(TAGNAME.HARDTAG, this.hardPatterns.length, i18next.t('StartTextHard')))
         }
         if (this.allPattern.length > 0) {
             retlist.push(new ArrangementItem(TAGNAME.ALLTAG, this.allPattern.length, i18next.t('StartTextALL')))
@@ -148,6 +167,7 @@ export class Arrangement extends ArrangementBase {
                 this.needLearn.push(p)
             }
         }
+        this.hardPatterns = hardPatterns(this.allPattern);
         this.newPattern.sort(() => {
             return .5 - Math.random()
         })
@@ -178,17 +198,19 @@ export class Arrangement extends ArrangementBase {
     }
     async *PatternSequence(name: string) {
         let patterns = null;
-        
+
         if (name == TAGNAME.REVIEWTAG) {
             patterns = this.needReviewPattern;
         } else if (name == TAGNAME.NEWTAG) {
             patterns = this.newPattern;
         } else if (name == TAGNAME.LEARNTAG) {
             patterns = this.needLearn;
+        } else if (name == TAGNAME.HARDTAG) {
+            patterns = this.hardPatterns;
         } else if (name == TAGNAME.ALLTAG) {
             patterns = this.allPattern;
         }
-    
+
         if (patterns) {
             for (let i = 0; i < patterns.length; i++) {
                 let p = patterns[i]
@@ -198,7 +220,7 @@ export class Arrangement extends ArrangementBase {
                 }
             }
         }
-    
+
         return true;
     }
 }

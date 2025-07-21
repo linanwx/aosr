@@ -34,6 +34,11 @@ export abstract class Pattern {
 	}
 }
 
+export const cardParserRegFlags = "gm";
+export function escapeRegExp(text: string): string {
+	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function prettyText (text:string):string {
 	let tags = TagParser.parse(text)
 	for (let tag of tags.Tags) {

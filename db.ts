@@ -1,10 +1,9 @@
 import { Low } from 'lowdb';
-import { getAppInstance } from 'main';
+import { log, getAppInstance } from 'main';
 import { App, Notice, Vault } from 'obsidian';
+import path from 'path';
 import { CardSchedule, scheduleData } from 'schedule';
-
-export const DBNAME = 'aosr.db'
-export const DBPATH = '.obsidian/'
+import { GlobalSettings } from 'setting';
 
 // 存储文档的数据结构
 export interface CardDoc {
@@ -24,6 +23,7 @@ class ObsidianAdapter {
     async read() {
         try {
             const filePath = this.basePath + this.fileName;
+            log(() => `Reading from file: ${filePath}`);
             if (await getAppInstance().vault.adapter.exists(filePath)) {
                 const data = await getAppInstance().vault.adapter.read(filePath);
                 return JSON.parse(data);
@@ -38,6 +38,14 @@ class ObsidianAdapter {
     async write(data: any) {
         const filePath = this.basePath + this.fileName;
         const content = JSON.stringify(data);
+        if (!await getAppInstance().vault.adapter.exists(this.basePath)) {
+            const noTrailingSeparatorPath = this.basePath.endsWith(path.sep)
+                ? this.basePath.substring(0, this.basePath.length - 1)
+                : this.basePath;
+            await getAppInstance().vault.adapter.mkdir(
+                noTrailingSeparatorPath
+            );
+        }
         await getAppInstance().vault.adapter.write(filePath, content);
     }
 }
@@ -52,13 +60,16 @@ export class DatabaseHelper {
 
     public static getInstance(): DatabaseHelper {
         if (!DatabaseHelper.instance) {
-            DatabaseHelper.instance = new DatabaseHelper(DBNAME);
+            DatabaseHelper.instance = new DatabaseHelper(GlobalSettings.AosrDbPath);
         }
         return DatabaseHelper.instance;
     }
 
     constructor(dbPath: string) {
-        const adapter = new ObsidianAdapter(DBPATH, dbPath);
+        const adapter = new ObsidianAdapter(
+            path.dirname(dbPath) + path.sep,
+            path.basename(dbPath)
+        );
         this.db = new Low(adapter, {});
         this.init();
     }
