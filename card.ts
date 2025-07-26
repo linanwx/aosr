@@ -114,8 +114,8 @@ class defaultCard implements Card {
 	cardText: string
 	content: string
 	tags: string[];
-	static bodySplitReg = /\n\*{3,}\n/
-	static bodySplitRegWithSpaces = /\n(?:\*{3,}\s*|\s*\n)\n/
+	static bodySplitReg = /\n\*{3,}\n/;
+	static bodySplitRegWithSpaces = /\n(?:\*{3,}\s*|\s*)\n/;
 	idGenFlag: boolean = false
 	fileCache: CachedMetadata | null
 	outline: string

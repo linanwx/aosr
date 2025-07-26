@@ -14,7 +14,7 @@ import { Arrangement, PatternIter, TAGNAME } from 'arrangement';
 import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
-import { log, getAppInstance } from 'main';
+import {log, getAppInstance, logTrueExpr} from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import * as React from "react";
@@ -249,7 +249,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		log(() => `Displaying id: ${nextPattern.TagID} 
 		at file: ${nextPattern.card.note.path} 
 		at index: ${patternIter.index} 
-		pattern: ${ (nextPattern as any)?.text ?? 'empty' }`);
+		pattern: ${ ((nextPattern as any)?.text) ?? 'empty' }`);
 		this.setState({
 			nowPattern: nextPattern,
 			index: patternIter.index,
@@ -343,9 +343,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			</Box>
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				{
-					!this.state.showAns && this.props.arrangeName in [
-						TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG
-					] &&
+					!this.state.showAns
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG].includes(this.props.arrangeName as TAGNAME)
+					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}><Trans i18nKey="ButtonTextForget" /></DelayButton>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}><Trans i18nKey="ButtonNotSure" /></DelayButton>
@@ -353,9 +353,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					</Stack>
 				}
 				{
-					this.state.showAns && this.props.arrangeName in [
-						TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG
-					] &&
+					this.state.showAns
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG].includes(this.props.arrangeName as TAGNAME)
+					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{
 							this.state.mark == markEnum.FORGET &&
