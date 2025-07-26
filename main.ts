@@ -39,14 +39,7 @@ export function log(logSupplier: () => any): void {
 }
 
 export function logTrueExpr(logSupplier: () => any): boolean {
-	if (DEBUG_ENABLED) {
-		const logParts = logSupplier();
-		if (Array.isArray(logParts)) {
-			console.info("[Aosr]", ...logParts);
-		} else {
-			console.info("[Aosr]", logParts);
-		}
-	}
+	log(logSupplier);
 	return true;
 }
 
