@@ -10,7 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
-import { Arrangement, PatternIter } from 'arrangement';
+import { Arrangement, PatternIter, TAGNAME } from 'arrangement';
 import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
@@ -246,7 +246,10 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			this.timer = setTimeout(this.checkHeading, 500);
 		}
 		await nextPattern.InitAosrID();
-		log(() => `Displaying id: ${nextPattern.TagID} in from file: ${nextPattern.card.note.path} at index: ${patternIter.index}`);
+		log(() => `Displaying id: ${nextPattern.TagID} 
+		at file: ${nextPattern.card.note.path} 
+		at index: ${patternIter.index} 
+		pattern: ${ (nextPattern as any)?.text ?? 'empty' }`);
 		this.setState({
 			nowPattern: nextPattern,
 			index: patternIter.index,
@@ -340,7 +343,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			</Box>
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				{
-					!this.state.showAns &&
+					!this.state.showAns && this.props.arrangeName in [
+						TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG
+					] &&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}><Trans i18nKey="ButtonTextForget" /></DelayButton>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}><Trans i18nKey="ButtonNotSure" /></DelayButton>
@@ -348,7 +353,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					</Stack>
 				}
 				{
-					this.state.showAns && this.props.arrangeName != "learn" &&
+					this.state.showAns && this.props.arrangeName in [
+						TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG
+					] &&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{
 							this.state.mark == markEnum.FORGET &&
@@ -374,7 +381,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					</Stack>
 				}
 				{
-					this.state.showAns && this.props.arrangeName === "learn" &&
+					this.state.showAns && this.props.arrangeName === TAGNAME.LEARNTAG &&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{
 							this.state.mark === markEnum.FORGET &&

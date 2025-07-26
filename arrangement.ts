@@ -18,7 +18,7 @@ class ArrangementItem {
     }
 }
 
-enum TAGNAME {
+export enum TAGNAME {
     NEWTAG = "new",
     REVIEWTAG = "review",
     LEARNTAG = "learn",
@@ -107,7 +107,6 @@ export class Arrangement extends ArrangementBase {
         let newCount = 0
         let reviewCount = 0
         let learnCount = 0
-        let hardCount = 0
         for (let p of this.allPattern) {
             if (p.schedule.Last && p.schedule.Last != "") {
                 if (isToday(p.schedule.LastTime)) {

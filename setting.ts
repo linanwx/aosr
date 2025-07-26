@@ -15,6 +15,7 @@ export interface AOSRSettings {
     AosrDbPath: string;
     ExcludeWorkingPathesPattern: string;
     ShowHardCardsArrangement: boolean;
+	UseNewLineAsSplitter: boolean;
 }
 
 export const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
@@ -29,7 +30,8 @@ export const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     MultiLineDelimeter: "?",
     AosrDbPath: ".obsidian/aosr.db",
     ExcludeWorkingPathesPattern: "**/*.excalidraw\\n**/*.png",
-    ShowHardCardsArrangement: false
+    ShowHardCardsArrangement: false,
+	UseNewLineAsSplitter: false
 }
 
 // i18n.t('someKey');
@@ -211,6 +213,16 @@ export class AOSRSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     GlobalSettings.ShowHardCardsArrangement = value;
                     await this.plugin.saveSettings();
-                }))
-    }
+				}))
+
+		new Setting(containerEl)
+			.setName(i18n.t('SettingsNewLineAsSplitter') || '')
+			.setDesc(i18n.t('SettingsNewLineAsSplitterDesc') || "")
+			.addToggle(toggle => toggle
+				.setValue(GlobalSettings.UseNewLineAsSplitter)
+				.onChange(async (value) => {
+					GlobalSettings.UseNewLineAsSplitter = value;
+					await this.plugin.saveSettings();
+				}))
+	}
 }

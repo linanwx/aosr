@@ -205,6 +205,8 @@ export function initLanguage() {
     addTranslation("SettingsOneLineReversedDelimeterError", SettingsOneLineReversedDelimeterError)
     addTranslation("SettingsShowHardCardsArrangement", SettingsShowHardCardsArrangement)
     addTranslation("SettingsShowHardCardsArrangementDesc", SettingsShowHardCardsArrangementDesc)
+    addTranslation("SettingsNewLineAsSplitter", SettingsNewLineAsSplitter)
+    addTranslation("SettingsNewLineAsSplitterDesc", SettingsNewLineAsSplitterDesc)
 
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
@@ -2029,4 +2031,62 @@ const SettingsOneLineReversedDelimeterError = {
     "ms": "Tidak boleh kosong atau hanya ruang kosong. Nilai lalai ':::' akan digunakan.",
     "pt-BR": "Não pode estar vazio ou conter apenas espaços. Aplicando valor padrão ':::'",
     "am": "ባዶ ወይም ብቻውን ነጭ ቦታ መሆን አይችልም። ነባሪ ዋጋ ':::' ይተገበራል።",
+};
+
+const SettingsNewLineAsSplitter = {
+    "en": "Allow empty line as a splitter",
+    "zh": "允许使用空行作为分隔符",
+    "ja": "空行を区切り文字として許可",
+    "zh-TW": "允許使用空行作為分隔符",
+    "ko": "빈 줄을 구분자로 허용",
+    "ar": "السماح باستخدام السطر الفارغ كفاصل",
+    "pt": "Permitir linha vazia como separador",
+    "de": "Leere Zeile als Trenner erlauben",
+    "ru": "Разрешить пустую строку как разделитель",
+    "fr": "Autoriser la ligne vide comme séparateur",
+    "es": "Permitir línea vacía como separador",
+    "it": "Consentire riga vuota come separatore",
+    "id": "Izinkan baris kosong sebagai pemisah",
+    "ro": "Permite linie goală ca separator",
+    "cs": "Povolit prázdný řádek jako oddělovač",
+    "no": "Tillat tom linje som skilletegn",
+    "pl": "Zezwól na pustą linię jako separator",
+    "uk": "Дозволити порожній рядок як роздільник",
+    "sq": "Lejo rresht të zbrazët si ndarës",
+    "th": "อนุญาตให้ใช้บรรทัดว่างเป็นตัวแบ่ง",
+    "fa": "اجازه استفاده از خط خالی به عنوان جداکننده",
+    "tr": "Boş satırı ayırıcı olarak kullan",
+    "nl": "Lege regel als scheidingsteken toestaan",
+    "ms": "Benarkan baris kosong sebagai pemisah",
+    "pt-BR": "Permitir linha vazia como separador",
+    "am": "ባዶ መስመርን እንደ መለያ ፍቀድ"
+};
+
+const SettingsNewLineAsSplitterDesc = {
+    "en": "By default to splitting patterns is done by '***'. Toggle it on to allow just empty line ' '",
+    "zh": "默认情况下，使用 '***' 分割模式。启用此选项将允许使用空行 ' ' 分割",
+    "ja": "デフォルトでは '***' でパターンを分割します。有効にすると空行 ' ' での分割が可能になります",
+    "zh-TW": "預設使用 '***' 分割模式。開啟此選項將允許使用空行 ' ' 分割",
+    "ko": "기본적으로 '***'로 패턴을 분할합니다. 활성화하면 빈 줄 ' '만으로도 분할이 가능합니다",
+    "ar": "يتم تقسيم الأنماط افتراضيًا باستخدام '***'. قم بتفعيله للسماح بمجرد سطر فارغ ' '",
+    "pt": "Por padrão, os padrões são divididos por '***'. Ative para permitir apenas linha vazia ' '",
+    "de": "Standardmäßig erfolgt die Mustertrennung durch '***'. Aktivieren Sie diese Option, um eine leere Zeile ' ' zu erlauben",
+    "ru": "По умолчанию разделение шаблонов выполняется с помощью '***'. Включите, чтобы разрешить просто пустую строку ' '",
+    "fr": "Par défaut, les motifs sont séparés par '***'. Activez pour permettre une simple ligne vide ' '",
+    "es": "Por defecto, los patrones se dividen mediante '***'. Actívelo para permitir solo línea vacía ' '",
+    "it": "Per impostazione predefinita, i pattern vengono divisi da '***'. Attiva per consentire solo riga vuota ' '",
+    "id": "Secara default pemisahan pola dilakukan dengan '***'. Aktifkan untuk mengizinkan hanya baris kosong ' '",
+    "ro": "Implicit, șabloanele sunt separate prin '***'. Activați pentru a permite doar linie goală ' '",
+    "cs": "Ve výchozím nastavení se vzory oddělují pomocí '***'. Zapněte pro povolení pouze prázdného řádku ' '",
+    "no": "Som standard deles mønstre med '***'. Slå på for å tillate bare tom linje ' '",
+    "pl": "Domyślnie wzorce są rozdzielane przez '***'. Włącz, aby zezwolić na samą pustą linię ' '",
+    "uk": "За замовчуванням розділення шаблонів виконується за допомогою '***'. Увімкніть, щоб дозволити просто порожній рядок ' '",
+    "sq": "Si parazgjedhje, ndarja e modeleve bëhet me '***'. Aktivizojeni për të lejuar vetëm rresht të zbrazët ' '",
+    "th": "โดยค่าเริ่มต้น รูปแบบจะถูกแบ่งด้วย '***' เปิดใช้งานเพื่อให้ใช้บรรทัดว่าง ' ' ได้",
+    "fa": "به طور پیش‌فرض، الگوها با '***' جدا می‌شوند. برای اجازه دادن به خط خالی ' ' فعال کنید",
+    "tr": "Varsayılan olarak desenler '***' ile ayrılır. Sadece boş satır ' ' kullanmak için etkinleştirin",
+    "nl": "Standaard worden patronen gescheiden door '***'. Schakel in om alleen lege regel ' ' toe te staan",
+    "ms": "Secara lalai, corak dipisahkan dengan '***'. Hidupkan untuk membenarkan hanya baris kosong ' '",
+    "pt-BR": "Por padrão, os padrões são divididos por '***'. Ative para permitir apenas linha vazia ' '",
+    "am": "በነባሪነት፣ ስርዓተ-ጥለቶች በ '***' ይከፋፈላሉ። ባዶ መስመር ' ' ብቻ እንዲፈቀድ ያብሩት"
 };

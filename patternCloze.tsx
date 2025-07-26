@@ -168,7 +168,8 @@ export class ClozeParser implements PatternParser {
     Parse(card: Card): Pattern[] {
         let reg = /==(\S[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
         let results: Pattern[] = []
-        for (let body of card.bodyList) {
+        for (let bi in card.bodyList) {
+			let body = card.bodyList[bi]
             let bodytag = TagParser.parse(body)
             let multicloze = bodytag.findTag("multicloze")
             if (multicloze) {
@@ -187,7 +188,7 @@ export class ClozeParser implements PatternParser {
                     if (regArr == null) {
                         break
                     }
-                    let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(i.toString() + regArr[0], 4)}`
+                    let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(bi + i + regArr[0], 4)}`
                     let tagInfo = TagParser.parse(regArr[2] || "")
                     let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || ""
                     let result = new clozePattern(card, body, regArr.index, regArr[0], regArr[1], originalID, originalID || newID)
