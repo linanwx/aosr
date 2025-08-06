@@ -12,6 +12,8 @@ import { NodeContainer } from "./nodeContainer";
 import MUICard from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { Box } from '@mui/system';
+import { cardParserRegFlags, escapeRegExp } from "Pattern";
+import { log } from "main";
 
 
 abstract class linePattern extends Pattern {
@@ -86,7 +88,7 @@ class multiLinePattern extends linePattern {
 		}
 		this.card.updateFile({
 			updateFunc: (content): string => {
-				let newContent = `${this.front}? ${this.TagID}\n${this.back}`
+				let newContent = `${this.front}${GlobalSettings.MultiLineDelimeter} ${this.TagID}\n${this.back}`
 				return content.replace(this.keyText, () => { return newContent })
 			}
 		})
@@ -145,32 +147,49 @@ class LinePatternComponent extends React.Component<singleLinePatternComponentPro
 	}
 }
 
-
 export class SingleLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
-		let reg = /^(.+?)(::+)(.+?)$/gm
+		const processingTimesLimit = 10000;
+		const dSepEscaped = escapeRegExp(GlobalSettings.OneLineDelimeter);
+		const rSepEscaped = escapeRegExp(GlobalSettings.OneLineReversedDelimeter);
+		let regDirect = new RegExp(
+			`^(.+?)(${dSepEscaped})(.+?)$`,
+			cardParserRegFlags);
+		let regReversed = new RegExp(
+			`^(.+?)(${rSepEscaped})(.+?)$`,
+			cardParserRegFlags);
 		let results: Pattern[] = []
 		for (let body of card.bodyList) {
-			for (let i = 0; i < 10000; i++) {
-				let regArr = reg.exec(body)
+			let i;
+			for (i = 0; i < processingTimesLimit; i++) { // Process direct patterns
+				let regArr = regDirect.exec(body);
 				if (regArr == null) {
-					break
+					break; // stop processing due to matcher resets iterator to 0
 				}
-				if (regArr[2].length == 2) {
-					let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(regArr[0], 4)}`
-					let tagInfo = TagParser.parse(regArr[0])
+				let [fullText, frontText, sepText, backText] = regArr;
+				if (sepText.length === GlobalSettings.OneLineDelimeter.length) {
+					let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(fullText, 4)}`
+					let tagInfo = TagParser.parse(fullText)
 					let originalID = tagInfo.findTag(CardIDTag, card.ID, "s")?.Original || ""
-					let result = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
+					let result = new singleLinePattern(card, fullText, frontText, backText, originalID, originalID || newID, false)
 					results.push(result)
 				}
-				if (regArr[2].length == 3) {
-					let newIDForward = `#${CardIDTag}/${card.ID}/sf/${cyrb53(regArr[0], 4)}`
-					let newIDReverse = `#${CardIDTag}/${card.ID}/sr/${cyrb53(regArr[0], 4)}`
-					let tagInfo = TagParser.parse(regArr[0])
+
+			}
+			for (i = 0; i < processingTimesLimit; i++) { // Process two-side patterns
+				let regArr = regReversed.exec(body);
+				if (regArr == null) {
+					break; // stop processing due to matcher resets iterator to 0
+				}
+				let [fullText, frontText, sepText, backText] = regArr;
+				if (sepText.length === GlobalSettings.OneLineReversedDelimeter.length) {
+					let newIDForward = `#${CardIDTag}/${card.ID}/sf/${cyrb53(fullText, 4)}`
+					let newIDReverse = `#${CardIDTag}/${card.ID}/sr/${cyrb53(fullText, 4)}`
+					let tagInfo = TagParser.parse(fullText)
 					let originalIDForward = tagInfo.findTag(CardIDTag, card.ID, "sf")?.Original || ""
 					let originalIDReverse = tagInfo.findTag(CardIDTag, card.ID, "sr")?.Original || ""
-					let result1 = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalIDForward, originalIDForward || newIDForward, false)
-					let result2 = new singleLinePattern(card, regArr[0], regArr[1], regArr[3], originalIDReverse, originalIDReverse || newIDReverse, true)
+					let result1 = new singleLinePattern(card, fullText, frontText, backText, originalIDForward, originalIDForward || newIDForward, false)
+					let result2 = new singleLinePattern(card, fullText, frontText, backText, originalIDReverse, originalIDReverse || newIDReverse, true)
 					results.push(result1, result2)
 				}
 			}
@@ -181,16 +200,23 @@ export class SingleLineParser implements PatternParser {
 
 export class MultiLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
-		let reg = /^((?:(?!\? ?).+\n)+)\?( #.+)?\n((?:.+\n?)+)$/gm
+		let sepEscaped = escapeRegExp(GlobalSettings.MultiLineDelimeter);
+		let reg = new RegExp(
+			`^((?:(?!(?:${sepEscaped}) ?).+\\n)+)(?:${sepEscaped}) *( #.+)?\\n((?:.+\\n?)+)$`,
+			cardParserRegFlags);
 		// 捕获不包含? 开头的连续行 然后捕获标签 然后捕获剩余行
 		let results: Pattern[] = []
 		for (let body of card.bodyList) {
 			let regArr = reg.exec(body)
 			while (regArr !== null) {
-				let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(regArr[0], 4)}`
-				let tagInfo = TagParser.parse(regArr[2] || "")
+				let fullText = regArr[0];
+				let frontText = regArr[1]
+				let sepText = regArr[2]
+				let backText = regArr[3]
+				let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(fullText, 4)}`
+				let tagInfo = TagParser.parse(sepText || "")
 				let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
-				let result = new multiLinePattern(card, regArr[0], regArr[1], regArr[3], originalID, originalID || newID, false)
+				let result = new multiLinePattern(card, fullText, frontText, backText, originalID, originalID || newID, false)
 				results.push(result)
 				regArr = reg.exec(body)
 			}

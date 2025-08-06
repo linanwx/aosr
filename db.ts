@@ -1,16 +1,18 @@
 import { Low } from 'lowdb';
-import { getAppInstance } from 'main';
-import { App, Notice, Vault } from 'obsidian';
+import { log, getAppInstance } from 'main';
+import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { CardSchedule, scheduleData } from 'schedule';
-
-export const DBNAME = 'aosr.db'
-export const DBPATH = '.obsidian/'
+import { AOSR_DEFAULT_SETTINGS, GlobalSettings } from 'setting';
+import { FileSystemAdapter } from 'obsidian';
+import { get } from 'lodash';
 
 // 存储文档的数据结构
 export interface CardDoc {
     ID: string;
     CardSchedules: scheduleData[];
 }
+
+const pathSep = '/';
 
 class ObsidianAdapter {
     private basePath: string;
@@ -24,6 +26,7 @@ class ObsidianAdapter {
     async read() {
         try {
             const filePath = this.basePath + this.fileName;
+            log(() => `Reading from file: ${filePath}`);
             if (await getAppInstance().vault.adapter.exists(filePath)) {
                 const data = await getAppInstance().vault.adapter.read(filePath);
                 return JSON.parse(data);
@@ -37,7 +40,15 @@ class ObsidianAdapter {
 
     async write(data: any) {
         const filePath = this.basePath + this.fileName;
-        const content = JSON.stringify(data);
+        const content = JSON.stringify(data, null, 1);
+        if (!await getAppInstance().vault.adapter.exists(this.basePath)) {
+            const noTrailingSeparatorPath = this.basePath.endsWith(pathSep)
+                ? this.basePath.substring(0, this.basePath.length - 1)
+                : this.basePath;
+            await getAppInstance().vault.adapter.mkdir(
+                noTrailingSeparatorPath
+            );
+        }
         await getAppInstance().vault.adapter.write(filePath, content);
     }
 }
@@ -52,13 +63,27 @@ export class DatabaseHelper {
 
     public static getInstance(): DatabaseHelper {
         if (!DatabaseHelper.instance) {
-            DatabaseHelper.instance = new DatabaseHelper(DBNAME);
+            try {
+                DatabaseHelper.instance = new DatabaseHelper(GlobalSettings.AosrDbPath);
+            } catch (error) {
+                console.log(error);
+                DatabaseHelper.instance = new DatabaseHelper(AOSR_DEFAULT_SETTINGS.AosrDbPath);
+                new Notice(`[Aosr] Database initialization error by path: ${GlobalSettings.AosrDbPath} using deafult one.`);
+            }
+            
         }
         return DatabaseHelper.instance;
     }
 
     constructor(dbPath: string) {
-        const adapter = new ObsidianAdapter(DBPATH, dbPath);
+        const slashIndex = dbPath.lastIndexOf("/");
+        const dir = slashIndex !== -1 ? dbPath.slice(0, slashIndex) : "";
+        const filename = slashIndex !== -1 ? dbPath.slice(slashIndex + 1) : dbPath;
+        
+        const adapter = new ObsidianAdapter(
+            dir.length > 0 ? dir + '/' : '',
+            filename
+        );
         this.db = new Low(adapter, {});
         this.init();
     }

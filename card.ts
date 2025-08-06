@@ -7,6 +7,7 @@ import { Pattern } from './Pattern';
 import { cyrb53 } from './hash';
 import { DatabaseHelper } from 'db';
 import { getAppInstance } from 'main';
+import { GlobalSettings } from "./setting";
 
 // 卡片
 // 卡片由源码和注释两部分组成，
@@ -113,10 +114,12 @@ class defaultCard implements Card {
 	cardText: string
 	content: string
 	tags: string[];
-	static bodySplitReg = /\n\*{3,}\n/
+	static bodySplitReg = /\n\*{3,}\n/;
+	static bodySplitRegWithSpaces = /\n(?:\*{3,}\s*|\s*)\n/;
 	idGenFlag: boolean = false
 	fileCache: CachedMetadata | null
 	outline: string
+
 	// 1为source 2为注释
 	constructor(cardText: string, content: string, annotationWrapperStr: string, cardID: string, index: number, note: TFile, cache: CachedMetadata | null) {
 		let tags = extractStrings(cardText)
@@ -127,7 +130,11 @@ class defaultCard implements Card {
 		this.cardText = cardText || ""
 		this.bodyList = []
 		this.content = content
-		this.bodyList = content.split(defaultCard.bodySplitReg)
+		this.bodyList = content.split(
+			GlobalSettings.UseNewLineAsSplitter
+				? defaultCard.bodySplitRegWithSpaces
+				: defaultCard.bodySplitReg
+		);
 		this.note = note
 		this.schedules = new CardSchedule()
 		this.originalID = cardID || ""
@@ -174,7 +181,9 @@ class defaultCard implements Card {
 		let newAnnotation = AnnotationObject.Stringify(this.annotationObj)
 		newAnnotation = AnnotationWrapper.enWrapper(this.ID, newAnnotation, "AOSRDATA")
 		if (this.annotationWrapperStr?.length > 0) {
-			fileText = fileText.replace(this.annotationWrapperStr, () => { return newAnnotation })
+			fileText = fileText.replace(this.annotationWrapperStr, () => {
+				return newAnnotation
+			})
 		} else {
 			if (fileText.at(-1) != "\n") {
 				fileText += "\n" + "\n"
@@ -185,6 +194,7 @@ class defaultCard implements Card {
 		}
 		return fileText
 	}
+
 	// 更新注释块内容
 	private updateAnnotation() {
 		// 使用新的数据库方式写入数据
@@ -210,7 +220,9 @@ class defaultCard implements Card {
 				for (let updateInfo of this.updateList) {
 					newContent = updateInfo.updateFunc(newContent)
 				}
-				fileText = fileText.replace(this.content, () => { return newContent })
+				fileText = fileText.replace(this.content, () => {
+					return newContent
+				})
 				this.updateList = []
 				this.idGenFlag = true // 确保只添加一次
 			}

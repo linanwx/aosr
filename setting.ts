@@ -1,5 +1,5 @@
-import AOSRPlugin from "main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import AOSRPlugin, { log } from "main";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import i18n from 'i18next';
 
 export interface AOSRSettings {
@@ -9,15 +9,29 @@ export interface AOSRSettings {
     WordTTSURL: string;
     WaitingTimeoutBase: number;
     HideContext: boolean;
+    OneLineDelimeter: string;
+    OneLineReversedDelimeter: string;
+    MultiLineDelimeter: string;
+    AosrDbPath: string;
+    ExcludeWorkingPathesPattern: string;
+    ShowHardCardsArrangement: boolean;
+	UseNewLineAsSplitter: boolean;
 }
 
-const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
+export const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     DefaultEase: 250,
     EasyBonus: 1,
     HardBonus: 1,
     WordTTSURL: "",
     WaitingTimeoutBase: 7,
     HideContext: false,
+    OneLineDelimeter: "::",
+    OneLineReversedDelimeter: ":::",
+    MultiLineDelimeter: "?",
+    AosrDbPath: ".obsidian/aosr.db",
+    ExcludeWorkingPathesPattern: "**/*.excalidraw\\n**/*.png",
+    ShowHardCardsArrangement: false,
+	UseNewLineAsSplitter: false
 }
 
 // i18n.t('someKey');
@@ -26,6 +40,7 @@ export let GlobalSettings: AOSRSettings
 
 export function setGlobalSettings(s: AOSRSettings) {
     let settings = Object.assign({}, AOSR_DEFAULT_SETTINGS, s);
+    log(() => ["GlobalSettings", settings]);
     GlobalSettings = settings
 }
 
@@ -119,5 +134,95 @@ export class AOSRSettingTab extends PluginSettingTab {
                     await this.plugin.migrateData();
                 }
                 ))
-    }
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsOneLineDelimeter') || '')
+            .setDesc(i18n.t('SettingsOneLineDelimeterDesc') || "")
+            .addText(text => text
+                .setPlaceholder('::')
+                .setValue(GlobalSettings.OneLineDelimeter)
+                .onChange(async (value) => {
+                    if (value.length > 0 && !(/^\s*$/.test(value))) {
+                        GlobalSettings.OneLineDelimeter = value
+                        await this.plugin.saveSettings();
+                    } else {
+                        new Notice(i18n.t('SettingsOneLineDelimeterError') || "Cannot be empty or whitespace only.");
+                    }
+                }))
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsOneLineReversedDelimeter') || '')
+            .setDesc(i18n.t('SettingsOneLineReversedDelimeterDesc') || "")
+            .addText(text => text
+                .setPlaceholder('::')
+                .setValue(GlobalSettings.OneLineReversedDelimeter)
+                .onChange(async (value) => {
+                    if (value.length > 0 && !(/^\s*$/.test(value))) {
+                        GlobalSettings.OneLineReversedDelimeter = value
+                        await this.plugin.saveSettings();
+                    } else {
+                        new Notice(i18n.t('SettingsOneLineReversedDelimeterError') || "Cannot be empty or whitespace only.");
+                    }
+                }))
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsMultiLineDelimeter') || '')
+            .setDesc(i18n.t('SettingsMultiLineDelimeterDesc') || "")
+            .addText(text => text
+                .setPlaceholder('?')
+                .setValue(GlobalSettings.MultiLineDelimeter)
+                .onChange(async (value) => {
+                    if (value.length > 0 && !(/^\s*$/.test(value))) {
+                        GlobalSettings.MultiLineDelimeter = value
+                        await this.plugin.saveSettings();
+                    } else {
+                        new Notice(i18n.t('SettingsMultiLineDelimeterError') || "Cannot be empty or whitespace only.");
+                    }
+                }))
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsDbPath') || '')
+            .setDesc(i18n.t('SettingsDbPathDesc') || "")
+            .addText(text => text
+                .setPlaceholder('.obsidian/aosr.db')
+                .setValue(GlobalSettings.AosrDbPath)
+                .onChange(async (value) => {
+                    if (value.length > 0 && !(/^\s*$/.test(value))) {
+                        GlobalSettings.AosrDbPath = value;
+                        await this.plugin.saveSettings();
+                    } else {
+                        new Notice(i18n.t('SettingsDbPathError') || "Cannot be empty or whitespace only.");
+                    }
+                }))
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsExcludeDirectories') || '')
+            .setDesc(i18n.t('SettingsExcludeDirectoriesDesc') || "")
+            .addTextArea(text => text
+                .setPlaceholder('**/*.excalidraw\n**/*.png')
+                .setValue(GlobalSettings.ExcludeWorkingPathesPattern)
+                .onChange(async (value) => {
+                    GlobalSettings.ExcludeWorkingPathesPattern = value;
+                    await this.plugin.saveSettings();
+                }))
+
+        new Setting(containerEl)
+            .setName(i18n.t('SettingsShowHardCardsArrangement') || '')
+            .setDesc(i18n.t('SettingsShowHardCardsArrangementDesc') || "")
+            .addToggle(toggle => toggle
+                .setValue(GlobalSettings.ShowHardCardsArrangement)
+                .onChange(async (value) => {
+                    GlobalSettings.ShowHardCardsArrangement = value;
+                    await this.plugin.saveSettings();
+				}))
+
+		new Setting(containerEl)
+			.setName(i18n.t('SettingsNewLineAsSplitter') || '')
+			.setDesc(i18n.t('SettingsNewLineAsSplitterDesc') || "")
+			.addToggle(toggle => toggle
+				.setValue(GlobalSettings.UseNewLineAsSplitter)
+				.onChange(async (value) => {
+					GlobalSettings.UseNewLineAsSplitter = value;
+					await this.plugin.saveSettings();
+				}))
+	}
 }

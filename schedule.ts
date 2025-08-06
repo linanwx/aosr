@@ -1,3 +1,4 @@
+import { log } from "main";
 import { GlobalSettings } from "setting";
 
 export enum ReviewEnum {
@@ -98,6 +99,8 @@ function sigmod(x: number): number {
 
 // 一个模式的复习信息
 export class defaultSchedule implements PatternSchedule {
+    static readonly MIN_EASE_VALUE = 101;
+
     copy(v: scheduleData) {
         this.Opts = v.Opts
         this.Last = v.Last
@@ -264,7 +267,7 @@ export class defaultSchedule implements PatternSchedule {
         } else {
             throw new Error("unknow operation");
         }
-        // console.info(`gap ${this.Gap.asDays().toFixed(2)} duration ${duration.asDays().toFixed(2)}`)
+        log(() => `gap ${this.Gap.asDays().toFixed(2)} duration ${duration.asDays().toFixed(2)}`);
         // 在原来规划的下次复习时间上叠加这次复习的结果
         // 通常NextTime为now，如果提早或晚复习，则NextTime可能为过去和将来
         // duration同样可能为正值（表示在规划之后的某天复习）负值（表示这个内容需要将下次规划的时间提早，如果提早到当前时间以前，则需要立即复习）
@@ -293,7 +296,7 @@ export class defaultSchedule implements PatternSchedule {
         return false
     }
     get Ease(): number {
-        // console.info(`opts is ${this.OptArr}`)
+        log(() => `opts is '${this.OptArr}' for ${this.id}`);
         // 困难扣除
         let hardBonus = 0
         for (let opt of this.OptArr.slice(-20)) {
@@ -324,9 +327,9 @@ export class defaultSchedule implements PatternSchedule {
         if (easeCount >= 2) {
             easeBouns += 25
         }
-        let ease = 250 - hardBonus + easeBouns
+        let ease = GlobalSettings.DefaultEase - hardBonus + easeBouns
         ease = sigmod(ease)
-        ease = Math.max(101, ease)
+        ease = Math.max(defaultSchedule.MIN_EASE_VALUE, ease)
         return ease
     }
 }

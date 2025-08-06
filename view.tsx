@@ -10,11 +10,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
-import { Arrangement, PatternIter } from 'arrangement';
+import { Arrangement, PatternIter, TAGNAME } from 'arrangement';
 import { findOutline } from 'card';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
-import { getAppInstance } from 'main';
+import {log, getAppInstance, logTrueExpr} from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import * as React from "react";
@@ -238,21 +238,27 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			this.props.goStage(ReviewStage.Loading)
 			return
 		}
-		let heading = findFileOutline(result.value.pattern.card.note, result.value.pattern.card.indexBuff)
+		let patternIter : PatternIter = result.value;
+		let nextPattern : Pattern = patternIter.pattern;
+		let heading = findFileOutline(nextPattern.card.note, nextPattern.card.indexBuff)
 		if (heading == "") {
 			// 通过cache可能查不到缓存, 等一会再查
 			this.timer = setTimeout(this.checkHeading, 500);
 		}
-		await result.value.pattern.InitAosrID();
+		await nextPattern.InitAosrID();
+		log(() => `Displaying id: ${nextPattern.TagID} 
+		at file: ${nextPattern.card.note.path} 
+		at index: ${patternIter.index} 
+		pattern: ${ ((nextPattern as any)?.text) ?? 'empty' }`);
 		this.setState({
-			nowPattern: result.value.pattern,
-			index: result.value.index,
-			total: result.value.total,
+			nowPattern: nextPattern,
+			index: patternIter.index,
+			total: patternIter.total,
 			heading: heading,
-			fileName: replaceSlashWithArrow(removeMdExtension(result.value.pattern.card.note.path)),
+			fileName: replaceSlashWithArrow(removeMdExtension(nextPattern.card.note.path)),
 			showAns: false,
 		})
-		result.value.pattern.Pronounce()
+		nextPattern.Pronounce()
 	}
 	PatternComponent = () => {
 		if (this.state.nowPattern) {
@@ -337,7 +343,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			</Box>
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				{
-					!this.state.showAns &&
+					!this.state.showAns
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG].includes(this.props.arrangeName as TAGNAME)
+					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}><Trans i18nKey="ButtonTextForget" /></DelayButton>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}><Trans i18nKey="ButtonNotSure" /></DelayButton>
@@ -345,7 +353,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					</Stack>
 				}
 				{
-					this.state.showAns && this.props.arrangeName != "learn" &&
+					this.state.showAns
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG].includes(this.props.arrangeName as TAGNAME)
+					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{
 							this.state.mark == markEnum.FORGET &&
@@ -371,7 +381,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 					</Stack>
 				}
 				{
-					this.state.showAns && this.props.arrangeName === "learn" &&
+					this.state.showAns && this.props.arrangeName === TAGNAME.LEARNTAG &&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{
 							this.state.mark === markEnum.FORGET &&
@@ -596,6 +606,9 @@ class MaindeskComponent extends React.Component<MaindeskProps, MaindeskState> {
 							</ListItem>
 							<ListItem>
 								<ListItemText primary={<><Trans i18nKey="StartTextLearn" /> : {stats.LearnCount}</>}> </ListItemText>
+							</ListItem>
+							<ListItem>
+								<ListItemText primary={<><Trans i18nKey="StartTextHard" /> : {stats.HardCount}</>}> </ListItemText>
 							</ListItem>
 						</List>
 					</Paper>
