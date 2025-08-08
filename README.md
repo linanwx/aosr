@@ -11,7 +11,21 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's New
 
-- The new feature now writes review data separately inside the .obsidian/aosr.db file, so it no longer affects the notes. If you need to immediately migrate all the old data from the notes to the new DB file and clean up the old notes, there is a migration tool available in the settings interface.
+ - Changed paper button show/hide to use an array of states
+ - Fixed ID generation for repeated cloze values at the same index
+ - Changed DB serialization to use 1-space indentation (Git plugin–friendly)
+ - Introduced 'Explore Hard Cards' mode to review and rework challenging cards
+ - Relaxed bodySplitReg rules; double newline as a separator is now optional
+ - Removed unused SQLite dependency
+ - Added support for excluding specific folders and files
+ - Skipped card scanning for files without the `#Q` tag
+ - Added support for custom database path
+ - Added translations for newly introduced fields
+ - Made online and multiline patterns configurable
+
+# Thanks
+
+Special thanks to [Aliaksei Rusetski](https://github.com/AliakseiRusetski) for major contributions in this update ([PR #50](https://github.com/linanwx/aosr/pull/50)).
 
 # Features
 
@@ -449,7 +463,7 @@ After you finish editing, move the cursor out of this code block or switch Obsid
 
 # Annotation
 
-In versions prior to 1.0.40, review data was written at the end of the notes. In subsequent versions, the data is stored in the aosr.db file located under the .obsidian folder. When reading, the data in the db is prioritized, followed by the data in the notes. There is a tool in the settings interface designed to migrate old data into the DB, while also cleaning the notes. It is strongly recommended that you perform this migration operation with a backup of your vault.
+In versions prior to 1.0.40, review data was written at the end of the notes. In subsequent versions, the data is stored in the `aosr.db` file located under the `.obsidian` folder (or a custom path you specify in settings). When reading, the data in the database is prioritized, followed by the data in the notes. A migration tool is available in the settings interface to transfer old data from notes to the database and clean up old annotations. It is strongly recommended that you perform this migration operation with a backup of your vault.
 
 <img width="713" alt="Screenshot 2023-06-13 at 12 11 48 PM" src="https://github.com/linanwx/aosr/assets/16589958/624e627e-fa10-4234-8446-fc139b51d355">
 
