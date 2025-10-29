@@ -19,6 +19,7 @@ import { syntaxTree } from "@codemirror/language";
 export class EmojiWidget extends WidgetType {
     toDOM(view: EditorView): HTMLElement {
         const span = document.createElement("span");
+		span.classList.add("aosr-emoji-widget");
         span.innerText = "🏷";
         return span;
     }
