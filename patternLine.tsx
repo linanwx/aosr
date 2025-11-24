@@ -202,7 +202,7 @@ export class MultiLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
 		let sepEscaped = escapeRegExp(GlobalSettings.MultiLineDelimeter);
 		let reg = new RegExp(
-			`^((?:(?!(?:${sepEscaped}) ?).+\\n)+)(?:${sepEscaped}) *( #.+)?\\n((?:.+\\n?)+)$`,
+			`^((?:(?!(?:${sepEscaped}) ?).*\n)+)(?:${sepEscaped}) *( #.+)?\n((?:.*\n?)+)$`,
 			cardParserRegFlags);
 		// 捕获不包含? 开头的连续行 然后捕获标签 然后捕获剩余行
 		let results: Pattern[] = []
