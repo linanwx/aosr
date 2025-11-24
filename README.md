@@ -227,6 +227,151 @@ Answer:
 #/Q
 ```
 
+# Using AI to Create Cards
+
+Creating flashcards manually can be time-consuming, especially when dealing with large amounts of content. You can leverage AI assistants (like ChatGPT, Claude, etc.) to automatically generate Aosr-formatted flashcards from your study materials.
+
+## Example Workflow
+
+Here's a real-world example of how to use AI to create flashcards for language learning:
+
+### Step 1: Prepare Your Prompt
+
+Create a comprehensive prompt that includes:
+1. The Aosr format specification
+2. Your source material
+3. Your requirements for the flashcards
+
+### Step 2: Example Prompt Template
+
+```
+I need to use this Obsidian plugin: https://github.com/linanwx/aosr
+
+Plugin syntax(simplified):
+
+CARD FORMAT:
+- A card begins with #Q and ends with an empty line
+- For cards with empty lines, use #Q ... #/Q (range cards)
+- Use *** to split into sub-cards within one #Q block
+
+PATTERN FORMATS (question-answer pairs):
+1. Single-line pattern: word::definition
+   - Use ::: for bidirectional cards (word:::definition)
+
+2. Multi-line pattern:
+   Question line 1
+   Question line 2
+   ?
+   Answer line 1
+   Answer line 2
+
+3. Cloze deletion: This is ==important== content.
+   - Use #multicloze tag to group multiple clozes together
+
+EXAMPLES:
+#Q
+word1::definition1
+word2::definition2
+
+#Q
+What is the capital of France?
+?
+Paris is the capital of France.
+
+#Q
+The ==Eiffel Tower== is located in ==Paris==. #multicloze
+
+My study material:
+[Your content here - e.g., a text passage, vocabulary list, etc.]
+
+Requirements:
+- Card front should have two lines: main title (the key term) and subtitle (the sentence containing the term)
+- Card back should include: definition, part of speech, and two relevant example sentences
+- Focus on the most important content
+
+Please generate the output in Aosr format so I can directly copy-paste it into Obsidian.
+```
+
+### Step 3: Real Example - Language Learning
+
+**Input to AI:**
+
+```
+I need to use this Obsidian plugin: https://github.com/linanwx/aosr
+
+Plugin syntax(simplified):
+
+CARD FORMAT:
+- A card begins with #Q and ends with an empty line
+- Use *** to split into sub-cards
+
+PATTERN FORMATS:
+1. Single-line: word::definition
+2. Multi-line: Question\n?\nAnswer
+3. Cloze: This is ==important==.
+
+My text:
+Norge er kjent som et vakkert land, mye på grunn av naturen.
+Hvis du reiser til de riktige stedene, kan du se vakre fjell,
+dype fjorder, varme strender eller snødekte skoger. Byene i
+Norge ligger ofte nær naturen.
+
+Key vocabulary:
+- **kjent** (known)
+- **naturen** (nature)
+- **fjorder** (fjords)
+- **snødekte** (snow-covered)
+
+Requirements:
+- Front: vocabulary word + sentence context
+- Back: meaning, part of speech, 2 example sentences
+- Use the multi-line pattern (?) format
+```
+
+**AI Output (ready to paste):**
+
+```markdown
+#Q
+**kjent**
+Norge er kjent som et vakkert land.
+?
+**Meaning:** known, famous
+**Part of speech:** adjective
+**Examples:**
+1. Han er kjent for sin vennlighet. (He is known for his kindness.)
+2. Dette er et kjent problem. (This is a well-known problem.)
+
+#Q
+**naturen**
+Norge er kjent som et vakkert land, mye på grunn av naturen.
+?
+**Meaning:** the nature
+**Part of speech:** noun (definite form)
+**Examples:**
+1. Vi må ta vare på naturen. (We must take care of nature.)
+2. Naturen er vakker om våren. (Nature is beautiful in spring.)
+
+#Q
+**fjorder**
+Du kan se vakre fjell, dype fjorder, varme strender.
+?
+**Meaning:** fjords (narrow inlets of sea between cliffs)
+**Part of speech:** noun (plural)
+**Examples:**
+1. Norges fjorder er verdenskjente. (Norway's fjords are world-famous.)
+2. Vi seilte gjennom fjordene. (We sailed through the fjords.)
+
+#Q
+**snødekte**
+Du kan se snødekte skoger.
+?
+**Meaning:** snow-covered
+**Part of speech:** adjective
+**Examples:**
+1. De snødekte fjellene er vakre. (The snow-covered mountains are beautiful.)
+2. Skogen var helt snødekt. (The forest was completely snow-covered.)
+```
+
 # Review
 
 Once you've finished your document, click on the card icon in the sidebar to start reviewing.
