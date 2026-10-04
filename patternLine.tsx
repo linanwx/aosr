@@ -31,6 +31,12 @@ abstract class linePattern extends Pattern {
 		this.reverse = reverse
 	}
 	abstract insertPatternID(): void
+	get FrontText(): string {
+		return this.front
+	}
+	get BackText(): string {
+		return this.back
+	}
 	// 界面按钮点击
 	async SubmitOpt(opt: Operation): Promise<void> {
 		// 计算调度情况

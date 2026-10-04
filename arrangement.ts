@@ -183,6 +183,26 @@ export class Arrangement extends ArrangementBase {
         }
         return retlist
     }
+    // 供预览用：按牌组取对应的 pattern 列表
+    patternsFor(name: string): Pattern[] {
+        if (name == TAGNAME.NEWTAG) {
+            return this.newPattern
+        } else if (name == TAGNAME.REVIEWTAG) {
+            return this.needReviewPattern
+        } else if (name == TAGNAME.LEARNTAG) {
+            return this.needLearn
+        } else if (name == TAGNAME.AHEAD) {
+            return this.aheadPatterns
+        } else if (name == TAGNAME.HARDTAG) {
+            return this.hardPatterns
+        } else if (name == TAGNAME.ALLTAG) {
+            return this.allPattern
+        } else if (name == TAGNAME.ALLRANDOM) {
+            // 预览始终用文件顺序，不用打乱后的
+            return this.allPattern
+        }
+        return []
+    }
     private sort() {
         let now = window.moment()
         this.newPattern = []

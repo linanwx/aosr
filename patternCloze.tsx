@@ -33,6 +33,13 @@ class multiclozePattern extends Pattern {
     Component = (props: PatternProps): JSX.Element => {
         return <ClozePatternComponent index={0} text={this.text} patternProps={props} clozeOriginal={""} clozeInner={""} path={this.card.note.path} replaceAll={true}></ClozePatternComponent>
     }
+    get FrontText(): string {
+        return this.text.replace(clozeReg, "[...]")
+    }
+    get BackText(): string {
+        // 展开所有挖空
+        return this.text.replace(clozeReg, "$1")
+    }
     text: string
     originalID: string
     constructor(card: Card, text: string, originalID: string, tagid: string) {
@@ -103,6 +110,12 @@ class clozePattern extends Pattern {
     }
     Component = (props: PatternProps): JSX.Element => {
         return <ClozePatternComponent index={this.index} text={this.text} patternProps={props} clozeOriginal={this.clozeOriginal} clozeInner={this.clozeInner} path={this.card.note.path} replaceAll={false}></ClozePatternComponent>
+    }
+    get FrontText(): string {
+        return this.text.replace(this.clozeOriginal, "[...]")
+    }
+    get BackText(): string {
+        return this.text.replace(clozeReg, "$1")
     }
     constructor(card: Card, text: string, index: number, clozeOriginal: string, clozeInner: string, originalID: string, tagid: string) {
         super(card, tagid)

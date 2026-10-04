@@ -17,6 +17,7 @@ import { RuleProperties } from 'json-rules-engine';
 import {log, getAppInstance, logTrueExpr} from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
+import { openDeckPreview } from 'deckPreview';
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
 import { I18nextProvider, Trans } from 'react-i18next';
@@ -447,7 +448,7 @@ const START_ITEM_SX = {
 	boxSizing: 'border-box',
 }
 
-// 右侧计数块：纯展示，不挂 onClick
+// 右侧计数块：点击打开该牌组的预览 tab
 const COUNT_SX = {
 	...START_ITEM_SX,
 	flexShrink: 0,
@@ -480,7 +481,7 @@ class ReviewPaperComponent extends React.Component<ReviewPaperProps, ReviewPaper
 				>
 					{display}
 				</Button>
-				<Button sx={COUNT_SX}>
+				<Button sx={COUNT_SX} onClick={() => openDeckPreview(this.props.arrangement, name, display)}>
 					{count}
 				</Button>
 			</Stack>
@@ -514,7 +515,7 @@ class ReviewPaperComponent extends React.Component<ReviewPaperProps, ReviewPaper
 										</Button>
 									))
 								}
-								<Button sx={COUNT_SX}>
+								<Button sx={COUNT_SX} onClick={() => openDeckPreview(this.props.arrangement, allItems[0].Name, allItems[0].Display)}>
 									{allItems[0].Count}
 								</Button>
 							</Stack>

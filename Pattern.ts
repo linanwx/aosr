@@ -28,6 +28,10 @@ export abstract class Pattern {
 	abstract SubmitOpt(opt: Operation): Promise<void>;
 	abstract Component(props:PatternProps): JSX.Element;
 	abstract insertPatternID(): void;
+	// 纯正面文本（不含答案），供预览用
+	abstract get FrontText(): string;
+	// 答案文本，供预览悬浮时显示
+	abstract get BackText(): string;
 	async InitAosrID() {
 		this.insertPatternID()
 		await this.card.commitFile({ID:true})
