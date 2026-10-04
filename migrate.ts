@@ -3,6 +3,7 @@ import i18n from 'i18next';
 import { NewCardSearch } from "cardSearch";
 import { DatabaseHelper } from "db";
 import { getAppInstance } from "main";
+import { convertOldIDs } from "cardHead";
 
 export class MigrateModal extends Modal {
     div: HTMLDivElement;
@@ -122,9 +123,6 @@ export class MigrateModal extends Modal {
 
 // 旧版本的卡片 ID 是标签 #AOSR/xxx，会被 Obsidian 收进标签面板；新版本写成注释 %%AOSR/xxx%%。
 // 复习数据以 #AOSR/xxx 规范写法为键（见 TagInfo.Canonical），转换只改笔记原文，不动数据库。
-// 标签前必须是行首或空白，与 Obsidian 识别标签的规则一致
-const oldIDReg = /(^|\s)#(AOSR\/[\w\/]+)/gm
-
 export class ConvertIDModal extends Modal {
     div: HTMLDivElement;
 
@@ -164,10 +162,10 @@ export class ConvertIDModal extends Modal {
         let count = 0
         for (let file of getAppInstance().vault.getMarkdownFiles()) {
             let fileText = await getAppInstance().vault.read(file)
-            let matches = fileText.match(oldIDReg)
-            if (matches) {
+            let result = convertOldIDs(fileText)
+            if (result.count > 0) {
                 files.push(file)
-                count += matches.length
+                count += result.count
             }
         }
         return { files: files, count: count }
@@ -178,13 +176,11 @@ export class ConvertIDModal extends Modal {
         let count = 0
         for (let file of files) {
             let fileText = await getAppInstance().vault.read(file)
-            let newFileText = fileText.replace(oldIDReg, (_, prefix: string, id: string) => {
-                count++
-                return `${prefix}%%${id}%%`
-            })
-            if (newFileText != fileText) {
+            let result = convertOldIDs(fileText)
+            if (result.count > 0) {
                 changedFiles++
-                await getAppInstance().vault.modify(file, newFileText)
+                count += result.count
+                await getAppInstance().vault.modify(file, result.text)
             }
         }
         this.updateConsole(i18n.t('ConvertIDTextComplete', { files: changedFiles, count: count }) || "")

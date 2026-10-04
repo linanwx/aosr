@@ -2167,17 +2167,17 @@ const SettingTextConvertID = {
 }
 
 const SettingTextConvertIDDesc = {
-    "en": "Earlier versions wrote card IDs as tags (#AOSR/xxx), which Obsidian treats as real tags and which flood the tag pane. New versions write them as comments (%%AOSR/xxx%%) instead: they stay out of the tag pane and are hidden in reading view. Click the button to convert every old-format ID in your vault to the new format; your review history is not affected. This modifies your notes and cannot be undone, so back up your entire vault first.",
-    "zh": "旧版本把卡片 ID 写成标签（#AOSR/xxx），会被 Obsidian 当作真实标签，塞满标签面板。新版本改为写成注释（%%AOSR/xxx%%），不会出现在标签面板中，阅读模式下也会自动隐藏。点击按钮将库中所有旧格式 ID 转换为新格式，复习记录不受影响。此操作会修改你的笔记且不可撤销，请先备份整个库。",
-    "ja": "以前のバージョンではカード ID をタグ（#AOSR/xxx）として書き込んでいたため、Obsidian が実際のタグとして扱い、タグパネルが埋め尽くされていました。新しいバージョンではコメント（%%AOSR/xxx%%）として書き込むため、タグパネルに表示されず、閲覧モードでも自動的に非表示になります。ボタンをクリックすると、保管庫内の旧形式の ID をすべて新形式に変換します。復習記録には影響しません。この操作はノートを変更し、元に戻せないため、先に保管庫全体をバックアップしてください。",
-    "zh-TW": "舊版本把卡片 ID 寫成標籤（#AOSR/xxx），會被 Obsidian 當作真實標籤，塞滿標籤面板。新版本改為寫成註解（%%AOSR/xxx%%），不會出現在標籤面板中，閱讀模式下也會自動隱藏。點擊按鈕將庫中所有舊格式 ID 轉換為新格式，複習紀錄不受影響。此操作會修改你的筆記且無法復原，請先備份整個庫。",
+    "en": "Earlier versions wrote card IDs as tags (#AOSR/xxx), which Obsidian treats as real tags and which flood the tag pane. New versions write them as comments (%%AOSR/xxx%%) instead: they stay out of the tag pane and are hidden in reading view. Click the button to convert every old-format ID in your vault to the new format; your review history is not affected. Before converting, update Aosr to the latest version on every device you sync with, because older versions do not recognize the new format. This modifies your notes and cannot be undone, so back up your entire vault first.",
+    "zh": "旧版本把卡片 ID 写成标签（#AOSR/xxx），会被 Obsidian 当作真实标签，塞满标签面板。新版本改为写成注释（%%AOSR/xxx%%），不会出现在标签面板中，阅读模式下也会自动隐藏。点击按钮将库中所有旧格式 ID 转换为新格式，复习记录不受影响。转换前请先把所有同步设备上的 Aosr 都更新到最新版本，旧版本无法识别新格式。此操作会修改你的笔记且不可撤销，请先备份整个库。",
+    "ja": "以前のバージョンではカード ID をタグ（#AOSR/xxx）として書き込んでいたため、Obsidian が実際のタグとして扱い、タグパネルが埋め尽くされていました。新しいバージョンではコメント（%%AOSR/xxx%%）として書き込むため、タグパネルに表示されず、閲覧モードでも自動的に非表示になります。ボタンをクリックすると、保管庫内の旧形式の ID をすべて新形式に変換します。復習記録には影響しません。変換する前に、同期しているすべてのデバイスで Aosr を最新バージョンに更新してください。旧バージョンは新形式を認識できません。この操作はノートを変更し、元に戻せないため、先に保管庫全体をバックアップしてください。",
+    "zh-TW": "舊版本把卡片 ID 寫成標籤（#AOSR/xxx），會被 Obsidian 當作真實標籤，塞滿標籤面板。新版本改為寫成註解（%%AOSR/xxx%%），不會出現在標籤面板中，閱讀模式下也會自動隱藏。點擊按鈕將庫中所有舊格式 ID 轉換為新格式，複習紀錄不受影響。轉換前請先把所有同步裝置上的 Aosr 都更新到最新版本，舊版本無法識別新格式。此操作會修改你的筆記且無法復原，請先備份整個庫。",
 }
 
 const ConvertIDTextWarning = {
-    "en": "Warning: this operation rewrites your notes directly and cannot be undone. Back up your entire vault before continuing.",
-    "zh": "警告：此操作会直接修改你的笔记，且不可撤销。请先备份整个库，再继续操作。",
-    "ja": "警告：この操作はノートを直接書き換え、元に戻すことはできません。続行する前に保管庫全体をバックアップしてください。",
-    "zh-TW": "警告：此操作會直接修改你的筆記，且無法復原。請先備份整個庫，再繼續操作。",
+    "en": "Warning: this operation rewrites your notes directly and cannot be undone. Back up your entire vault before continuing, and make sure Aosr is up to date on every device you sync with.",
+    "zh": "警告：此操作会直接修改你的笔记，且不可撤销。请先备份整个库，并确认所有同步设备上的 Aosr 都已更新到最新版本，再继续操作。",
+    "ja": "警告：この操作はノートを直接書き換え、元に戻すことはできません。続行する前に保管庫全体をバックアップし、同期しているすべてのデバイスで Aosr が最新であることを確認してください。",
+    "zh-TW": "警告：此操作會直接修改你的筆記，且無法復原。請先備份整個庫，並確認所有同步裝置上的 Aosr 都已更新到最新版本，再繼續操作。",
 }
 
 const ConvertIDTextScan = {
