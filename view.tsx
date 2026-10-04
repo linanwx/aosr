@@ -344,7 +344,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				{
 					!this.state.showAns
-					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG].includes(this.props.arrangeName as TAGNAME)
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG, TAGNAME.ALLRANDOM, TAGNAME.AHEAD].includes(this.props.arrangeName as TAGNAME)
 					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}><Trans i18nKey="ButtonTextForget" /></DelayButton>
@@ -354,7 +354,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				}
 				{
 					this.state.showAns
-					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG].includes(this.props.arrangeName as TAGNAME)
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.ALLRANDOM, TAGNAME.AHEAD].includes(this.props.arrangeName as TAGNAME)
 					&&
 					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
 						{

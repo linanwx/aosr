@@ -174,6 +174,8 @@ export function initLanguage() {
     addTranslation("TodayStats", todayStatic)
     addTranslation("StartReview", StartReview)
     addTranslation("StartTextALL", AllContents)
+    addTranslation("StartTextAllRandom", AllRandomContents)
+    addTranslation("StartTextAhead", AheadContents)
     addTranslation("SettingHideContext", HideContext)
     addTranslation("SettingTextMigrateData", SettingTextMigrateData)
     addTranslation("SettingTextMigrateDataDesc", SettingTextMigrateDataDesc)
@@ -1131,6 +1133,20 @@ const AllContents = {
     "pt-BR": "Todo o Conteúdo",
     "am": "ሁሉም ይዘት",
     "da": "Alle Indhold"
+}
+
+const AllRandomContents = {
+    "en": "All Contents (Random)",
+    "zh": "所有内容（随机）",
+    "ja": "すべてのコンテンツ（ランダム）",
+    "zh-TW": "所有內容（隨機）",
+}
+
+const AheadContents = {
+    "en": "Review Ahead",
+    "zh": "提前复习",
+    "ja": "前倒し復習",
+    "zh-TW": "提前複習",
 }
 
 const HideContext = {

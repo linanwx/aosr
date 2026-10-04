@@ -24,6 +24,8 @@ export enum TAGNAME {
     LEARNTAG = "learn",
     HARDTAG = "hard",
     ALLTAG = "all",
+    ALLRANDOM = "all_random",
+    AHEAD = "ahead",
 }
 
 export class Stats {
@@ -37,6 +39,27 @@ export function hardPatterns(p: Pattern[]): Pattern[] {
     return p.filter((p) => {
         return p.schedule.Ease - defaultSchedule.MIN_EASE_VALUE
             < 0.33 * (GlobalSettings.DefaultEase - defaultSchedule.MIN_EASE_VALUE)
+    })
+}
+
+function allRandomPatterns(p: Pattern[]): Pattern[] {
+    for (let i = p.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        const tmp = p[i]
+        p[i] = p[j]
+        p[j] = tmp
+    }
+    return p
+}
+
+function aheadPatterns(p: Pattern[], now: moment.Moment): Pattern[] {
+    return p.filter((p) => {
+        let learnInfo = p.schedule.LearnInfo
+        return !learnInfo.IsNew
+            && !learnInfo.IsLearn
+            && p.schedule.NextTime.isAfter(now)
+    }).sort((a, b) => {
+        return a.schedule.NextTime.valueOf() - b.schedule.NextTime.valueOf()
     })
 }
 
@@ -57,7 +80,7 @@ abstract class ArrangementBase {
     abstract stats(): Stats
     isOnlyAllTag(): boolean {
         for (const item of this.ArrangementList()) {
-            if (item.Name !== TAGNAME.ALLTAG) {
+            if (item.Name !== TAGNAME.ALLTAG && item.Name !== TAGNAME.ALLRANDOM && item.Name !== TAGNAME.AHEAD) {
                 return false;
             }
         }
@@ -77,6 +100,8 @@ export class Arrangement extends ArrangementBase {
     private needReviewPattern: Pattern[]
     private needLearn: Pattern[]
     private hardPatterns: Pattern[]
+    private allRandomPatterns: Pattern[]
+    private aheadPatterns: Pattern[]
     // private wait:Pattern[]
     private watcher: CardsWatcher
     constructor() {
@@ -85,6 +110,8 @@ export class Arrangement extends ArrangementBase {
         this.newPattern = []
         this.needReviewPattern = []
         this.hardPatterns = []
+        this.allRandomPatterns = []
+        this.aheadPatterns = []
     }
     async init(rule: RuleProperties | null) {
         let search = NewCardSearch()
@@ -141,12 +168,18 @@ export class Arrangement extends ArrangementBase {
         if (this.needLearn.length > 0) {
             retlist.push(new ArrangementItem(TAGNAME.LEARNTAG, this.needLearn.length, i18next.t('StartTextLearn')))
         }
+        if (this.aheadPatterns.length > 0) {
+            retlist.push(new ArrangementItem(TAGNAME.AHEAD, this.aheadPatterns.length, i18next.t('StartTextAhead')))
+        }
         if (this.hardPatterns.length > 0
             && GlobalSettings.ShowHardCardsArrangement) {
             retlist.push(new ArrangementItem(TAGNAME.HARDTAG, this.hardPatterns.length, i18next.t('StartTextHard')))
         }
         if (this.allPattern.length > 0) {
             retlist.push(new ArrangementItem(TAGNAME.ALLTAG, this.allPattern.length, i18next.t('StartTextALL')))
+        }
+        if (this.allRandomPatterns.length > 0) {
+            retlist.push(new ArrangementItem(TAGNAME.ALLRANDOM, this.allPattern.length, i18next.t('StartTextAllRandom')))
         }
         return retlist
     }
@@ -182,6 +215,8 @@ export class Arrangement extends ArrangementBase {
             }
             return -1
         })
+        this.allRandomPatterns = allRandomPatterns([...this.allPattern]);
+        this.aheadPatterns = aheadPatterns(this.allPattern, now);
     }
     async findLivePattern(p: Pattern): Promise<Pattern | undefined> {
         let liveCard = await this.watcher.getLiveCard(p.card)
@@ -208,6 +243,10 @@ export class Arrangement extends ArrangementBase {
             patterns = this.hardPatterns;
         } else if (name == TAGNAME.ALLTAG) {
             patterns = this.allPattern;
+        } else if (name == TAGNAME.ALLRANDOM) {
+            patterns = this.allRandomPatterns;
+        } else if (name == TAGNAME.AHEAD) {
+            patterns = this.aheadPatterns;
         }
 
         if (patterns) {
