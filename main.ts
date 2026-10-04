@@ -4,7 +4,7 @@ import {handlerDeckCode} from 'deck';
 import {DeckBuilderModal} from 'deckBuilder';
 import {initLanguage} from 'language';
 import {debounce} from 'lodash';
-import {MigrateModal} from 'migrate';
+import {ConvertIDModal, MigrateModal} from 'migrate';
 import {App, EventRef, MarkdownView, Notice, Plugin, TFile, addIcon} from 'obsidian';
 import {ClozeParser} from 'patternCloze';
 import {MultiLineParser, SingleLineParser} from 'patternLine';
@@ -216,6 +216,9 @@ export default class AOSRPlugin extends Plugin {
 		await this.saveData(GlobalSettings);
 	}
 
+	async convertIDs() {
+		new ConvertIDModal(this.app).open();
+	}
 	async migrateData() {
 		new MigrateModal(this.app).open();
 	}

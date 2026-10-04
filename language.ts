@@ -189,6 +189,14 @@ export function initLanguage() {
     addTranslation("MigrateTextCleanComplete", MigrateTextCleanComplete)
     addTranslation("MigrateTextMigrateWarning", MigrateTextMigrateWarning)
     addTranslation("MigrateTextMigrateEnd", MigrateTextMigrateEnd)
+    addTranslation("SettingTextConvertID", SettingTextConvertID)
+    addTranslation("SettingTextConvertIDDesc", SettingTextConvertIDDesc)
+    addTranslation("ConvertIDTextWarning", ConvertIDTextWarning)
+    addTranslation("ConvertIDTextScan", ConvertIDTextScan)
+    addTranslation("ConvertIDTextNone", ConvertIDTextNone)
+    addTranslation("ConvertIDTextFound", ConvertIDTextFound)
+    addTranslation("ConvertIDTextConvert", ConvertIDTextConvert)
+    addTranslation("ConvertIDTextComplete", ConvertIDTextComplete)
     addTranslation("OpenAosr", OpenAosr)
     addTranslation("OpenDeckBuilder", OpenDeckBuilder)
     addTranslation("StartTextHard", StartTextHard)
@@ -2149,6 +2157,63 @@ const SettingsNewLineAsSplitterDesc = {
     "pt-BR": "Por padrão, os padrões são divididos por '***'. Ative para permitir apenas linha vazia ' '",
     "am": "በነባሪነት፣ ስርዓተ-ጥለቶች በ '***' ይከፋፈላሉ። ባዶ መስመር ' ' ብቻ እንዲፈቀድ ያብሩት"
 };
+
+// 卡片 ID 格式转换（migrate.ts ConvertIDModal）
+const SettingTextConvertID = {
+    "en": "Convert Card ID Format",
+    "zh": "转换卡片 ID 格式",
+    "ja": "カード ID 形式の変換",
+    "zh-TW": "轉換卡片 ID 格式",
+}
+
+const SettingTextConvertIDDesc = {
+    "en": "Earlier versions wrote card IDs as tags (#AOSR/xxx), which Obsidian treats as real tags and which flood the tag pane. New versions write them as comments (%%AOSR/xxx%%) instead: they stay out of the tag pane and are hidden in reading view. Click the button to convert every old-format ID in your vault to the new format; your review history is not affected. This modifies your notes and cannot be undone, so back up your entire vault first.",
+    "zh": "旧版本把卡片 ID 写成标签（#AOSR/xxx），会被 Obsidian 当作真实标签，塞满标签面板。新版本改为写成注释（%%AOSR/xxx%%），不会出现在标签面板中，阅读模式下也会自动隐藏。点击按钮将库中所有旧格式 ID 转换为新格式，复习记录不受影响。此操作会修改你的笔记且不可撤销，请先备份整个库。",
+    "ja": "以前のバージョンではカード ID をタグ（#AOSR/xxx）として書き込んでいたため、Obsidian が実際のタグとして扱い、タグパネルが埋め尽くされていました。新しいバージョンではコメント（%%AOSR/xxx%%）として書き込むため、タグパネルに表示されず、閲覧モードでも自動的に非表示になります。ボタンをクリックすると、保管庫内の旧形式の ID をすべて新形式に変換します。復習記録には影響しません。この操作はノートを変更し、元に戻せないため、先に保管庫全体をバックアップしてください。",
+    "zh-TW": "舊版本把卡片 ID 寫成標籤（#AOSR/xxx），會被 Obsidian 當作真實標籤，塞滿標籤面板。新版本改為寫成註解（%%AOSR/xxx%%），不會出現在標籤面板中，閱讀模式下也會自動隱藏。點擊按鈕將庫中所有舊格式 ID 轉換為新格式，複習紀錄不受影響。此操作會修改你的筆記且無法復原，請先備份整個庫。",
+}
+
+const ConvertIDTextWarning = {
+    "en": "Warning: this operation rewrites your notes directly and cannot be undone. Back up your entire vault before continuing.",
+    "zh": "警告：此操作会直接修改你的笔记，且不可撤销。请先备份整个库，再继续操作。",
+    "ja": "警告：この操作はノートを直接書き換え、元に戻すことはできません。続行する前に保管庫全体をバックアップしてください。",
+    "zh-TW": "警告：此操作會直接修改你的筆記，且無法復原。請先備份整個庫，再繼續操作。",
+}
+
+const ConvertIDTextScan = {
+    "en": "Scanning notes...",
+    "zh": "正在扫描笔记……",
+    "ja": "ノートをスキャンしています...",
+    "zh-TW": "正在掃描筆記……",
+}
+
+const ConvertIDTextNone = {
+    "en": "No old-format IDs found. Nothing to convert.",
+    "zh": "没有找到旧格式的 ID，无需转换。",
+    "ja": "旧形式の ID は見つかりませんでした。変換は不要です。",
+    "zh-TW": "沒有找到舊格式的 ID，無需轉換。",
+}
+
+const ConvertIDTextFound = {
+    "en": "Found {{count}} old-format IDs in {{files}} notes.",
+    "zh": "在 {{files}} 篇笔记中找到 {{count}} 个旧格式 ID。",
+    "ja": "{{files}} 件のノートに旧形式の ID が {{count}} 個見つかりました。",
+    "zh-TW": "在 {{files}} 篇筆記中找到 {{count}} 個舊格式 ID。",
+}
+
+const ConvertIDTextConvert = {
+    "en": "Convert",
+    "zh": "开始转换",
+    "ja": "変換を開始",
+    "zh-TW": "開始轉換",
+}
+
+const ConvertIDTextComplete = {
+    "en": "Done: converted {{count}} IDs in {{files}} notes.",
+    "zh": "转换完成：共修改 {{files}} 篇笔记、{{count}} 个 ID。",
+    "ja": "変換完了：{{files}} 件のノートで {{count}} 個の ID を変換しました。",
+    "zh-TW": "轉換完成：共修改 {{files}} 篇筆記、{{count}} 個 ID。",
+}
 
 // 牌组规则生成器（deckBuilder.tsx）
 const DeckBuilderTitle = {

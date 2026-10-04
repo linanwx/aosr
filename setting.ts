@@ -136,6 +136,16 @@ export class AOSRSettingTab extends PluginSettingTab {
                 ))
 
         new Setting(containerEl)
+            .setName(i18n.t('SettingTextConvertID') || "")
+            .setDesc(i18n.t('SettingTextConvertIDDesc') || "")
+            .addButton(button => button
+                .setButtonText(i18n.t('SettingTextConvertID') || "")
+                .onClick(async () => {
+                    await this.plugin.convertIDs();
+                }
+                ))
+
+        new Setting(containerEl)
             .setName(i18n.t('SettingsOneLineDelimeter') || '')
             .setDesc(i18n.t('SettingsOneLineDelimeterDesc') || "")
             .addText(text => text

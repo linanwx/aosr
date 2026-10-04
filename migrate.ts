@@ -1,4 +1,4 @@
-import { App, Modal, Setting } from "obsidian";
+import { App, Modal, Setting, TFile } from "obsidian";
 import i18n from 'i18next';
 import { NewCardSearch } from "cardSearch";
 import { DatabaseHelper } from "db";
@@ -119,3 +119,83 @@ export class MigrateModal extends Modal {
 }
 
 
+
+// 旧版本的卡片 ID 是标签 #AOSR/xxx，会被 Obsidian 收进标签面板；新版本写成注释 %%AOSR/xxx%%。
+// 复习数据以 #AOSR/xxx 规范写法为键（见 TagInfo.Canonical），转换只改笔记原文，不动数据库。
+// 标签前必须是行首或空白，与 Obsidian 识别标签的规则一致
+const oldIDReg = /(^|\s)#(AOSR\/[\w\/]+)/gm
+
+export class ConvertIDModal extends Modal {
+    div: HTMLDivElement;
+
+    constructor(app: App) {
+        super(app);
+    }
+
+    async onOpen() {
+        let { contentEl } = this;
+        this.div = contentEl.createDiv()
+        this.updateConsole(i18n.t('ConvertIDTextWarning') || "")
+        this.updateConsole(i18n.t('ConvertIDTextScan') || "")
+        let { files, count } = await this.scan()
+        if (count == 0) {
+            this.updateConsole(i18n.t('ConvertIDTextNone') || "")
+            return
+        }
+        this.updateConsole(i18n.t('ConvertIDTextFound', { files: files.length, count: count }) || "")
+        new Setting(contentEl)
+            .addButton((btn) =>
+                btn
+                    .setButtonText(i18n.t('ConvertIDTextConvert') || "")
+                    .setCta()
+                    .onClick(async () => {
+                        btn.setDisabled(true)
+                        try {
+                            await this.convert(files)
+                        } catch (error) {
+                            this.updateConsole(String(error))
+                        }
+                    }));
+    }
+
+    // 找出含旧格式 ID 的笔记，只读不写
+    async scan(): Promise<{ files: TFile[], count: number }> {
+        let files: TFile[] = []
+        let count = 0
+        for (let file of getAppInstance().vault.getMarkdownFiles()) {
+            let fileText = await getAppInstance().vault.read(file)
+            let matches = fileText.match(oldIDReg)
+            if (matches) {
+                files.push(file)
+                count += matches.length
+            }
+        }
+        return { files: files, count: count }
+    }
+
+    async convert(files: TFile[]) {
+        let changedFiles = 0
+        let count = 0
+        for (let file of files) {
+            let fileText = await getAppInstance().vault.read(file)
+            let newFileText = fileText.replace(oldIDReg, (_, prefix: string, id: string) => {
+                count++
+                return `${prefix}%%${id}%%`
+            })
+            if (newFileText != fileText) {
+                changedFiles++
+                await getAppInstance().vault.modify(file, newFileText)
+            }
+        }
+        this.updateConsole(i18n.t('ConvertIDTextComplete', { files: changedFiles, count: count }) || "")
+    }
+
+    updateConsole(text: string) {
+        this.div.createEl('p', { text: text });
+    }
+
+    onClose() {
+        let { contentEl } = this;
+        contentEl.empty();
+    }
+}
