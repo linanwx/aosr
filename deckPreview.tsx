@@ -54,11 +54,14 @@ export async function openDeckPreview(arrangement: Arrangement, tagName: string,
 }
 
 // 跳到某张卡在笔记里的位置。逻辑搬自 view.tsx 的 openPatternFile
-export async function openPatternAt(pattern: Pattern | undefined): Promise<void> {
-	if (!pattern) {
+export async function openPatternAt(snapshot: Pattern | undefined, arrangement: Arrangement | null): Promise<void> {
+	if (!snapshot) {
 		return
 	}
 	try {
+		// 预览拿的是打开时的快照，复习写入 #AOSR 标签或手动编辑后 indexBuff 会过期，
+		// 跳转前重新扫描文件拿最新位置（和复习时 PatternSequence 的做法一致）
+		const pattern = (arrangement && await arrangement.findLivePattern(snapshot)) || snapshot
 		const app = getAppInstance()
 		// 优先复用已经打开、且没有钉住的 markdown 标签页；都没有才开新 tab
 		let leaf = app.workspace.getLeavesOfType("markdown").find((l) => l.getViewState()?.pinned != true)
@@ -100,7 +103,7 @@ export async function openPatternAt(pattern: Pattern | undefined): Promise<void>
 }
 
 // 单张预览卡：默认只渲染正面，悬停一小会儿后才把答案挂进 DOM
-function PreviewCard({ pattern, index, view }: { pattern: Pattern, index: number, view: Component }) {
+function PreviewCard({ pattern, arrangement, index, view }: { pattern: Pattern, arrangement: Arrangement | null, index: number, view: Component }) {
 	const [hovered, setHovered] = React.useState(false)
 	const timer = React.useRef<number | null>(null)
 
@@ -127,7 +130,7 @@ function PreviewCard({ pattern, index, view }: { pattern: Pattern, index: number
 		<Box
 			onMouseEnter={onEnter}
 			onMouseLeave={onLeave}
-			onClick={() => openPatternAt(pattern)}
+			onClick={() => openPatternAt(pattern, arrangement)}
 			sx={{
 				// 悬停的卡片抬到同层卡片之上，答案浮层才能盖住下面的卡
 				position: 'relative',
@@ -212,6 +215,7 @@ function DeckPreview({ arrangement, tagName, title, view }: { arrangement: Arran
 					<PreviewCard
 						key={pattern.TagID}
 						pattern={pattern}
+						arrangement={arrangement}
 						index={current * PAGE_SIZE + i + 1}
 						view={view}
 					/>

@@ -31,11 +31,12 @@ abstract class linePattern extends Pattern {
 		this.reverse = reverse
 	}
 	abstract insertPatternID(): void
+	// 反向卡的问题面是 back，和 LinePatternComponent 的渲染保持一致
 	get FrontText(): string {
-		return this.front
+		return this.reverse ? this.back : this.front
 	}
 	get BackText(): string {
-		return this.back
+		return this.reverse ? this.front : this.back
 	}
 	// 界面按钮点击
 	async SubmitOpt(opt: Operation): Promise<void> {

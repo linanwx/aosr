@@ -63,6 +63,17 @@ export async function ParseRule(rule: RuleProperties, allPattern: Pattern[]) {
         
             return false;
         })
+        // 内置 contains 只接受数组，card.path / card.text / card.outline 这类字符串永远不匹配
+        // 覆盖成：字符串按子串匹配，数组按元素匹配（与内置行为一致）
+        engine.addOperator('contains', (factValue, value) => {
+            if (typeof factValue === "string") {
+                return typeof value === "string" && factValue.includes(value);
+            }
+            if (Array.isArray(factValue)) {
+                return factValue.includes(value);
+            }
+            return false;
+        })
         await Promise.all(allPattern.map(async (pattern, index) => {
             let fact = convertToFact(pattern)
             try {

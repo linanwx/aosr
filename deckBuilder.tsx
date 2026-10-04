@@ -70,6 +70,20 @@ function keyOf(options: Option[], value: string): string {
     return value
 }
 
+// $.tags 的 fact 是数组，equal 拿数组和字符串比较永远不成立，不提供
+function operatorsFor(path: string): Option[] {
+    if (path == "$.tags") {
+        return OPERATORS.filter((o) => o.value != "equal")
+    }
+    return OPERATORS
+}
+
+// 换了 path 后，当前 operator 不再可用就退回默认的 regexMatch
+function withPath(c: Condition, fact: string, path: string): Partial<Condition> {
+    const allowed = operatorsFor(path).some((o) => o.value == c.operator)
+    return { fact: fact, path: path, operator: allowed ? c.operator : "regexMatch" }
+}
+
 function newCondition(): Condition {
     return { fact: "card", path: PATHS["card"][0].value, operator: "regexMatch", value: "" }
 }
@@ -140,7 +154,11 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
     }
 
     function setFact(index: number, fact: string) {
-        update(index, { fact: fact, path: PATHS[fact][0].value })
+        update(index, withPath(conditions[index], fact, PATHS[fact][0].value))
+    }
+
+    function setPath(index: number, path: string) {
+        update(index, withPath(conditions[index], conditions[index].fact, path))
     }
 
     function addCondition() {
@@ -192,7 +210,7 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                             sx={{ width: SELECT_WIDTH.path, flexShrink: 0 }}
                             value={c.path}
                             renderValue={(v) => t(keyOf(PATHS[c.fact], String(v)))}
-                            onChange={(e) => update(i, { path: e.target.value })}
+                            onChange={(e) => setPath(i, e.target.value)}
                         >
                             {PATHS[c.fact].map((p) => (
                                 <MenuItem key={p.value} value={p.value}>{t(p.key)}</MenuItem>
@@ -205,7 +223,7 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                             renderValue={(v) => t(keyOf(OPERATORS, String(v)))}
                             onChange={(e) => update(i, { operator: e.target.value })}
                         >
-                            {OPERATORS.map((o) => (
+                            {operatorsFor(c.path).map((o) => (
                                 <MenuItem key={o.value} value={o.value}>{t(o.key)}</MenuItem>
                             ))}
                         </Select>
