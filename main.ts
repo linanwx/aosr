@@ -1,6 +1,7 @@
 import {AosrAPI} from 'api';
 import {NewCardSearch} from 'cardSearch';
 import {handlerDeckCode} from 'deck';
+import {DeckBuilderModal} from 'deckBuilder';
 import {initLanguage} from 'language';
 import {debounce} from 'lodash';
 import {MigrateModal} from 'migrate';
@@ -157,6 +158,13 @@ export default class AOSRPlugin extends Plugin {
 			name: t('OpenAosr'),
 			callback: () => {
 				this.openView()
+			}
+		})
+		this.addCommand({
+			id: 'aosr-deck-builder',
+			name: t('OpenDeckBuilder'),
+			callback: () => {
+				new DeckBuilderModal(this.app).open()
 			}
 		})
 		this.addSettingTab(new AOSRSettingTab(this.app, this));

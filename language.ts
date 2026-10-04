@@ -190,6 +190,7 @@ export function initLanguage() {
     addTranslation("MigrateTextMigrateWarning", MigrateTextMigrateWarning)
     addTranslation("MigrateTextMigrateEnd", MigrateTextMigrateEnd)
     addTranslation("OpenAosr", OpenAosr)
+    addTranslation("OpenDeckBuilder", OpenDeckBuilder)
     addTranslation("StartTextHard", StartTextHard)
     addTranslation("SettingsDbPath", SettingsDbPath)
     addTranslation("SettingsDbPathDesc", SettingsDbPathDesc)
@@ -1525,6 +1526,13 @@ const MigrateTextMigrateEnd = {
     "pt-BR": "Migração Concluída", // Migração Concluída
     "am": "መደብዛችን አለቀ", // መደብዛችን አለቀ
 };
+
+const OpenDeckBuilder = {
+    "en": "Open Deck Rule Builder",
+    "zh": "打开牌组规则生成器",
+    "ja": "デッキルールビルダーを開く",
+    "zh-TW": "開啟牌組規則產生器",
+}
 
 const OpenAosr = {
     "zh": "打开Aosr", // 打开Aosr
