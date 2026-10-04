@@ -61,6 +61,43 @@ const MODE_HINTS: Record<string, string> = {
 
 const SELECT_WIDTH = {fact: 110, path: 105, operator: 150, mode: 190}
 
+// MUI 的默认主题是浅色的：text.primary / text.secondary / divider / action.disabled
+// 全是写死的黑色系，Obsidian 切到暗色主题后这些字就看不见了。本仓库没有配 MUI 主题，
+// view.tsx 的做法是在组件上直接写 Obsidian 的 CSS 变量，这里沿用同一套。
+const FIELD_SX = {
+    // InputBase 把 color 直接声明在 .MuiInputBase-input 上，父级设 color 赢不过它
+    '& .MuiInputBase-input': { color: 'var(--text-normal)' },
+    // 描边默认是 rgba(0,0,0,0.23)（MUI 默认主题按 light 算），黑底上等于没有；
+    // hover 时更会变成近黑的 text.primary，所以三个状态都得显式指定
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--background-modifier-border)' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--background-modifier-border-hover)' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--interactive-accent)' },
+}
+
+// Select 的下拉菜单是 Portal 到 document.body 的，不在组件树里，得用 MenuProps 单独给
+const MENU_PROPS = {
+    PaperProps: { sx: { bgcolor: 'var(--background-primary)' } },
+}
+
+const MENU_ITEM_SX = {
+    color: 'var(--text-normal)',
+    '&:hover': { bgcolor: 'var(--background-modifier-hover)' },
+}
+
+const DIVIDER_SX = {
+    my: 2,
+    borderColor: 'var(--background-modifier-border)',
+}
+
+const HINT_SX = {
+    color: 'var(--text-muted)',
+}
+
+const BUTTON_SX = {
+    color: 'var(--text-normal)',
+    '&.Mui-disabled': { color: 'var(--text-faint)' },
+}
+
 function keyOf(options: Option[], value: string): string {
     for (const o of options) {
         if (o.value == value) {
@@ -182,12 +219,12 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
     return (
         <Box>
             <Typography variant="h6">{t('DeckBuilderTitle')}</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={HINT_SX}>
                 {t('DeckBuilderDesc')}
             </Typography>
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={DIVIDER_SX} />
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ ...HINT_SX, mb: 1 }}>
                 {t(MODE_HINTS[mode])}
             </Typography>
 
@@ -196,46 +233,49 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                     <Stack key={i} direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap">
                         <Select
                             size="small"
-                            sx={{ width: SELECT_WIDTH.fact, flexShrink: 0 }}
+                            sx={{ width: SELECT_WIDTH.fact, flexShrink: 0, ...FIELD_SX }}
                             value={c.fact}
                             renderValue={(v) => t(keyOf(FACTS, String(v)))}
                             onChange={(e) => setFact(i, e.target.value)}
+                            MenuProps={MENU_PROPS}
                         >
                             {FACTS.map((f) => (
-                                <MenuItem key={f.value} value={f.value}>{t(f.key)}</MenuItem>
+                                <MenuItem key={f.value} value={f.value} sx={MENU_ITEM_SX}>{t(f.key)}</MenuItem>
                             ))}
                         </Select>
                         <Select
                             size="small"
-                            sx={{ width: SELECT_WIDTH.path, flexShrink: 0 }}
+                            sx={{ width: SELECT_WIDTH.path, flexShrink: 0, ...FIELD_SX }}
                             value={c.path}
                             renderValue={(v) => t(keyOf(PATHS[c.fact], String(v)))}
                             onChange={(e) => setPath(i, e.target.value)}
+                            MenuProps={MENU_PROPS}
                         >
                             {PATHS[c.fact].map((p) => (
-                                <MenuItem key={p.value} value={p.value}>{t(p.key)}</MenuItem>
+                                <MenuItem key={p.value} value={p.value} sx={MENU_ITEM_SX}>{t(p.key)}</MenuItem>
                             ))}
                         </Select>
                         <Select
                             size="small"
-                            sx={{ width: SELECT_WIDTH.operator, flexShrink: 0 }}
+                            sx={{ width: SELECT_WIDTH.operator, flexShrink: 0, ...FIELD_SX }}
                             value={c.operator}
                             renderValue={(v) => t(keyOf(OPERATORS, String(v)))}
                             onChange={(e) => update(i, { operator: e.target.value })}
+                            MenuProps={MENU_PROPS}
                         >
                             {operatorsFor(c.path).map((o) => (
-                                <MenuItem key={o.value} value={o.value}>{t(o.key)}</MenuItem>
+                                <MenuItem key={o.value} value={o.value} sx={MENU_ITEM_SX}>{t(o.key)}</MenuItem>
                             ))}
                         </Select>
                         <TextField
                             size="small"
                             placeholder={t('DeckBuilderValuePlaceholder') || ""}
-                            sx={{ flex: 1, minWidth: 120 }}
+                            sx={{ flex: 1, minWidth: 120, ...FIELD_SX }}
                             value={c.value}
                             onChange={(e) => update(i, { value: e.target.value })}
                         />
                         <Button
-                            sx={{ minWidth: 0, flexShrink: 0, px: 2 }}
+                            sx={{ ...BUTTON_SX, minWidth: 0, flexShrink: 0, px: 2 }}
                             disabled={conditions.length <= 1}
                             onClick={() => removeCondition(i)}
                         >
@@ -245,33 +285,34 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                 ))}
             </Stack>
 
-            <Button sx={{ mt: 1 }} onClick={addCondition}>{t('DeckBuilderAddCondition')}</Button>
+            <Button sx={{ ...BUTTON_SX, mt: 1 }} onClick={addCondition}>{t('DeckBuilderAddCondition')}</Button>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={DIVIDER_SX} />
 
             <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap" sx={{ mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">{t('DeckBuilderMatch')}</Typography>
+                <Typography variant="body2" sx={HINT_SX}>{t('DeckBuilderMatch')}</Typography>
                 <Select
                     size="small"
-                    sx={{ width: SELECT_WIDTH.mode, flexShrink: 0 }}
+                    sx={{ width: SELECT_WIDTH.mode, flexShrink: 0, ...FIELD_SX }}
                     value={mode}
                     renderValue={(v) => t(keyOf(MODES, String(v)))}
                     onChange={(e) => setMode(e.target.value)}
+                    MenuProps={MENU_PROPS}
                 >
                     {MODES.map((m) => (
-                        <MenuItem key={m.value} value={m.value}>{t(m.key)}</MenuItem>
+                        <MenuItem key={m.value} value={m.value} sx={MENU_ITEM_SX}>{t(m.key)}</MenuItem>
                     ))}
                 </Select>
             </Stack>
 
             {error
-                ? <Typography color="error" variant="body2">{t('DeckBuilderInvalidRegex', { error: error })}</Typography>
+                ? <Typography variant="body2" sx={{ color: 'var(--text-error)' }}>{t('DeckBuilderInvalidRegex', { error: error })}</Typography>
                 : <Typography variant="body2">
                     {t('DeckBuilderMatches', { matched: count === null ? "..." : count, total: patterns.length })}
                 </Typography>}
 
             <TextField
-                sx={{ mt: 2, fontFamily: "monospace" }}
+                sx={{ mt: 2, fontFamily: "monospace", ...FIELD_SX }}
                 multiline
                 fullWidth
                 minRows={8}
@@ -294,7 +335,7 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                 }}
             >
                 <Button variant="contained" onClick={copyCodeBlock}>{t('DeckBuilderCopy')}</Button>
-                <Button onClick={insertCodeBlock}>{t('DeckBuilderInsert')}</Button>
+                <Button sx={BUTTON_SX} onClick={insertCodeBlock}>{t('DeckBuilderInsert')}</Button>
             </Stack>
         </Box>
     )
