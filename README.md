@@ -11,21 +11,27 @@ This plugin is similar to [spaced repetition](https://github.com/st3v3nmw/obsidi
 
 # What's New
 
- - Changed paper button show/hide to use an array of states
- - Fixed ID generation for repeated cloze values at the same index
- - Changed DB serialization to use 1-space indentation (Git plugin–friendly)
- - Introduced 'Explore Hard Cards' mode to review and rework challenging cards
- - Relaxed bodySplitReg rules; double newline as a separator is now optional
- - Removed unused SQLite dependency
- - Added support for excluding specific folders and files
- - Skipped card scanning for files without the `#Q` tag
- - Added support for custom database path
- - Added translations for newly introduced fields
- - Made online and multiline patterns configurable
+### 1.2.1
+
+- Security update: upgraded `json-rules-engine` (and its `jsonpath-plus` dependency), `lodash` and `@babel/runtime`. No functional changes.
+
+### 1.2.0
+
+> [!IMPORTANT]
+> If you sync your vault across devices, update Aosr on **all** of them before reviewing. Older versions cannot read the new card ID format.
+
+- **Card IDs no longer clutter your tags.** New IDs are written as Obsidian comments (`%%AOSR/...%%`) instead of tags (`#AOSR/...`), so they stay out of the tag pane and graph view. Existing `#AOSR/...` tags keep working. See [Card IDs](#card-ids).
+- **Convert old IDs**: a new setting converts existing `#AOSR/...` tags to the comment format in one pass. It cannot be undone, so back up your vault first.
+- **Deck Rule Builder**: build deck rules with a form instead of writing JSON. See [Deck Rule Builder](#deck-rule-builder).
+- **Card preview**: click the count next to a review category to browse its cards and jump to them in your notes.
+- **Review Ahead** and **All Contents (Random)** review modes.
+- Fixes: reversed (`:::`) cards showed the wrong side in the preview; the `contains` rule operator didn't work on text fields such as `$.path`; jumping from the preview could land on an outdated position.
+
+See [Releases](https://github.com/linanwx/aosr/releases) for the full history.
 
 # Thanks
 
-Special thanks to [Aliaksei Rusetski](https://github.com/AliakseiRusetski) for major contributions in this update ([PR #50](https://github.com/linanwx/aosr/pull/50)).
+Special thanks to [Aliaksei Rusetski](https://github.com/AliakseiRusetski) for major contributions in 1.1.6 ([PR #50](https://github.com/linanwx/aosr/pull/50)), and to [RethinkWu](https://github.com/RethinkWu) for the deck rule builder, card preview and new review modes in 1.2.0 ([PR #63](https://github.com/linanwx/aosr/pull/63)).
 
 # Features
 
@@ -35,7 +41,8 @@ Special thanks to [Aliaksei Rusetski](https://github.com/AliakseiRusetski) for m
 - **Three Basic Learning Types**: The plugin supports three basic learning types - single line, multi-line, and cloze deletion.
 - **Mobile Optimization for Review Interface:** The plugin now supports mobile devices, providing an optimized review interface specifically designed for mobile users. This ensures a seamless and user-friendly experience when reviewing cards on your mobile device.
 - **Multi-language support**: Supports virtually all languages within Obsidian. Translated by ChatGPT.
-- **Deck Functionality**: Aosr now includes a powerful Deck feature that allows you to manage your flashcards in a highly customizable manner. You can define your own rules to manage your decks, providing a tailored review experience.
+- **Deck Functionality**: Aosr now includes a powerful Deck feature that allows you to manage your flashcards in a highly customizable manner. You can define your own rules to manage your decks, providing a tailored review experience. A built-in rule builder lets you create decks without writing JSON.
+- **Clean Tags**: Card IDs are stored as hidden comments, so they don't show up in your tag list or graph.
 
 # Demo
 
@@ -388,6 +395,10 @@ Review means something needs to review.
 
 Reinforcement learning means you need to consolidate some concepts.
 
+There are also **Review Ahead** (review cards that aren't due yet, soonest first) and **All Contents** / **All Contents (Random)** (go through every card, in order or shuffled).
+
+Click the number next to a category to open a preview tab listing its cards. From there you can jump to any card in your notes.
+
 Once you click one of the buttons, the review begins. Please follow the buttons and instructions on the screen to review.
 
 <img width="914" alt="Screenshot 2023-06-13 at 12 09 46 PM" src="https://github.com/linanwx/aosr/assets/16589958/4ce6a725-51c4-46bc-8f13-cd3e7bc216ee">
@@ -419,6 +430,17 @@ Users have different preferences when it comes to managing their flashcards. Som
 ### How Deck Works
 
 The Deck feature in Aosr leverages a rule-based system powered by "json-rules-engine". This allows users to define the contents of their decks based on custom rules. These rules can be freely defined to customize the inclusion of flashcards in a deck.
+
+### Deck Rule Builder
+
+The easiest way to create a deck is the builder. Open the command palette and run **Aosr: Open Deck Rule Builder**.
+
+- Add one or more conditions. Each condition picks a source (card or file), a field (file path, card tags, card text, headings, or frontmatter tags), an operator (matches regex, contains, equals) and a value.
+- Choose how conditions combine: **all**, **any**, or **none** (exclude matching cards).
+- The builder shows live how many of your cards the rule matches.
+- Click **Insert into note** to add the `aosr-deck-config` block to the current note, or **Copy code block** to paste it yourself.
+
+If you need something the builder can't express, write the rule by hand as shown below.
 
 ### Rule Examples
 
@@ -605,6 +627,27 @@ Suppose you have a folder called `math` containing many notes, each with multipl
 `````
 
 After you finish editing, move the cursor out of this code block or switch Obsidian to preview mode. You should see this code block correctly transformed into a review interface.
+
+# Card IDs
+
+When you review a card for the first time, Aosr writes a short ID next to it so it can find the card's review data later. Since 1.2.0, IDs are written as Obsidian comments:
+
+```
+#Q %%AOSR/abc123%%
+apple::苹果 %%AOSR/abc123/s/f00d%%
+```
+
+Comments are hidden in reading view, and in the editor Aosr shows them as a small badge. Unlike the old `#AOSR/...` tags, they don't appear in the tag pane or graph view. Please don't edit or delete them, or the card will lose its review history.
+
+Older versions wrote IDs as tags (`#AOSR/abc123`). Those are still read and keep working, so you don't have to change anything.
+
+### Converting old IDs
+
+If you want to get rid of the old `#AOSR/...` tags, go to **Settings → Aosr → Convert Card ID Format**. It scans your vault, shows how many IDs it found in how many notes, and converts them all to the comment format. Your review progress is kept. IDs inside code blocks and existing `%%` comments are left untouched.
+
+> [!WARNING]
+> - The conversion rewrites your notes and **cannot be undone**. Back up your vault first.
+> - If you sync your vault, update Aosr on **every device** to 1.2.0 or later first. Older versions cannot read the comment format and would treat converted cards as new.
 
 # Annotation
 
