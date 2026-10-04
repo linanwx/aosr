@@ -17,6 +17,7 @@ import { RuleProperties } from 'json-rules-engine';
 import {log, getAppInstance, logTrueExpr} from 'main';
 import { MarkdownRenderComponent } from 'markdown';
 import { Component, EditorPosition, ItemView, MarkdownRenderChild, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
+import { openDeckPreview } from 'deckPreview';
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
 import { I18nextProvider, Trans } from 'react-i18next';
@@ -344,9 +345,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 			<Box sx={{ marginTop: 2, marginBottom: 2 }}>
 				{
 					!this.state.showAns
-					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG].includes(this.props.arrangeName as TAGNAME)
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.LEARNTAG, TAGNAME.ALLRANDOM, TAGNAME.AHEAD].includes(this.props.arrangeName as TAGNAME)
 					&&
-					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ '& .MuiButton-root': { flex: { sm: 1 }, minWidth: 0, whiteSpace: 'normal' } }}>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase} color="error" size="large" onClick={() => this.markAs(markEnum.FORGET)}><Trans i18nKey="ButtonTextForget" /></DelayButton>
 						<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_CHECK} color="info" size="large" onClick={() => this.markAs(markEnum.NOTSURE)}><Trans i18nKey="ButtonNotSure" /></DelayButton>
 						<Button color="success" size="large" onClick={() => this.markAs(markEnum.KNOWN)}><Trans i18nKey="ButtonTextKnown" /></Button>
@@ -354,9 +355,9 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				}
 				{
 					this.state.showAns
-					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG].includes(this.props.arrangeName as TAGNAME)
+					&& [TAGNAME.NEWTAG, TAGNAME.ALLTAG, TAGNAME.REVIEWTAG, TAGNAME.ALLRANDOM, TAGNAME.AHEAD].includes(this.props.arrangeName as TAGNAME)
 					&&
-					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ '& .MuiButton-root': { flex: { sm: 1 }, minWidth: 0, whiteSpace: 'normal' } }}>
 						{
 							this.state.mark == markEnum.FORGET &&
 							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new ReviewOpt(ReviewEnum.FORGET))}><Trans i18nKey="ButtonTextForget2" /> {this.getOptDate(ReviewEnum.FORGET)}</DelayButton>
@@ -382,7 +383,7 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 				}
 				{
 					this.state.showAns && this.props.arrangeName === TAGNAME.LEARNTAG &&
-					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+					<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ '& .MuiButton-root': { flex: { sm: 1 }, minWidth: 0, whiteSpace: 'normal' } }}>
 						{
 							this.state.mark === markEnum.FORGET &&
 							<DelayButton initTime={GlobalSettings.WaitingTimeoutBase * DURATION_FORGET} color="error" size="large" onClick={() => this.submit(new LearnOpt(LearnEnum.FORGET))}><Trans i18nKey="ButtonTextForget2" /> {this.getOptRate(LearnEnum.FORGET)}</DelayButton>
@@ -437,41 +438,94 @@ interface ReviewPaperStates {
 
 }
 
+// 「所有内容」和「所有内容(随机)」并排显示时共用的样式
+const START_ITEM_SX = {
+	justifyContent: 'center',
+	textTransform: 'none',
+	color: 'var(--text-normal)',
+	border: '1px solid var(--background-modifier-border)',
+	borderRadius: 1,
+	boxSizing: 'border-box',
+}
+
+// 右侧计数块：点击打开该牌组的预览 tab
+const COUNT_SX = {
+	...START_ITEM_SX,
+	flexShrink: 0,
+	minWidth: 56,
+	paddingX: 1,
+}
+
 class ReviewPaperComponent extends React.Component<ReviewPaperProps, ReviewPaperStates> {
 	constructor(props: ReviewPaperProps) {
 		super(props)
 	}
 	render(): React.ReactNode {
 		let emptyReview = this.props.arrangement.isOnlyAllTag()
+		const items = this.props.arrangement.ArrangementList()
+		const allTags = [TAGNAME.ALLTAG, TAGNAME.ALLRANDOM]
+		const singleItems = items.filter((value) => allTags.indexOf(value.Name) < 0)
+		const allItems = items.filter((value) => allTags.indexOf(value.Name) >= 0)
+
+		const pick = (name: string) => {
+			this.props.setArrangement(name);
+			this.props.goStage(ReviewStage.Reviewing);
+		}
+
+		// 一个条目 = 左侧可点的标签按钮 + 右侧纯展示的计数块
+		const renderRow = (name: string, display: string, count: number) => (
+			<Stack key={name} direction="row" spacing={1} sx={{ boxSizing: 'border-box' }}>
+				<Button
+					onClick={() => pick(name)}
+					sx={{ ...START_ITEM_SX, flex: 1, minWidth: 0, whiteSpace: 'normal' }}
+				>
+					{display}
+				</Button>
+				<Button sx={COUNT_SX} onClick={() => openDeckPreview(this.props.arrangement, name, display)}>
+					{count}
+				</Button>
+			</Stack>
+		)
+
 		return (
 			<Paper sx={{
 				color: 'var(--text-normal)',
 				bgcolor: 'var(--background-primary)',
 				margin: 2,
+				boxSizing: 'border-box',
+				maxWidth: '100%',
 			}}>
-				{this.props.arrangement.ArrangementList().length !== 0 && <>
+				{items.length !== 0 && <>
 					<Typography variant="h6" sx={{ padding: 2 }}>
 						<Trans i18nKey="StartReview" />
 					</Typography>
-					<List>
+					<Stack spacing={1} sx={{ paddingX: 2, paddingBottom: 2, boxSizing: 'border-box' }}>
+						{ singleItems.map((value) => renderRow(value.Name, value.Display, value.Count)) }
 						{
-							this.props.arrangement.ArrangementList().map((value) => (
-								<ListItem disablePadding key={value.Name}>
-									<ListItemButton onClick={() => {
-										this.props.setArrangement(value.Name);
-										this.props.goStage(ReviewStage.Reviewing);
-									}}>
-										<ListItemText primary={`${value.Display} : ${value.Count}`} />
-									</ListItemButton>
-								</ListItem>
-							))
+							allItems.length > 0 &&
+							<Stack direction="row" spacing={1} sx={{ boxSizing: 'border-box' }}>
+								{
+									allItems.map((value) => (
+										<Button
+											key={value.Name}
+											onClick={() => pick(value.Name)}
+											sx={{ ...START_ITEM_SX, flex: 1, minWidth: 0, whiteSpace: 'normal' }}
+										>
+											{value.Display}
+										</Button>
+									))
+								}
+								<Button sx={COUNT_SX} onClick={() => openDeckPreview(this.props.arrangement, allItems[0].Name, allItems[0].Display)}>
+									{allItems[0].Count}
+								</Button>
+							</Stack>
 						}
-					</List>
+					</Stack>
 				</>
 				}
 				{
 					emptyReview &&
-					<Box sx={{ margin: 2 }}>
+					<Box sx={{ padding: 2 }}>
 						<Trans i18nKey="StartTextEmpty" />
 					</Box>
 				}
