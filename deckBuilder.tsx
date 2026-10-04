@@ -2,6 +2,7 @@ import { Box, Button, Divider, MenuItem, Select, Stack, TextField, Typography } 
 import { RuleProperties, TopLevelCondition } from "json-rules-engine"
 import { App, MarkdownView, Modal, Notice } from "obsidian"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { createRoot, Root } from "react-dom/client"
 
 import { AosrAPI } from "api"
@@ -17,52 +18,53 @@ interface Condition {
 
 interface Option {
     value: string
-    label: string
+    // 下拉框的文案走 i18n，这里只存 key，实际文字在 language.ts 里
+    key: string
 }
 
-// value 必须与 deck.tsx 里 convertToFact() 产出的 fact 一致，label 只是给人看的
+// value 必须与 deck.tsx 里 convertToFact() 产出的 fact 一致
 const FACTS: Option[] = [
-    { value: "card", label: "Card" },
-    { value: "file", label: "File" },
+    { value: "card", key: "DeckBuilderFactCard" },
+    { value: "file", key: "DeckBuilderFactFile" },
 ]
 
 const PATHS: Record<string, Option[]> = {
     card: [
-        { value: "$.path", label: "file path" },
-        { value: "$.tags", label: "card tags" },
-        { value: "$.text", label: "card text" },
-        { value: "$.outline", label: "headings" },
+        { value: "$.path", key: "DeckBuilderPathFilePath" },
+        { value: "$.tags", key: "DeckBuilderPathCardTags" },
+        { value: "$.text", key: "DeckBuilderPathCardText" },
+        { value: "$.outline", key: "DeckBuilderPathHeadings" },
     ],
     file: [
-        { value: "$.tags", label: "frontmatter tags" },
+        { value: "$.tags", key: "DeckBuilderPathFrontmatterTags" },
     ],
 }
 
 const OPERATORS: Option[] = [
-    { value: "regexMatch", label: "matches regex" },
-    { value: "contains", label: "contains" },
-    { value: "equal", label: "equals" },
+    { value: "regexMatch", key: "DeckBuilderOpRegexMatch" },
+    { value: "contains", key: "DeckBuilderOpContains" },
+    { value: "equal", key: "DeckBuilderOpEqual" },
 ]
 
 // 对应 json-rules-engine 的 all / any / not
 const MODES: Option[] = [
-    { value: "all", label: "all (whitelist)" },
-    { value: "any", label: "any (whitelist)" },
-    { value: "not", label: "none (blacklist)" },
+    { value: "all", key: "DeckBuilderModeAll" },
+    { value: "any", key: "DeckBuilderModeAny" },
+    { value: "not", key: "DeckBuilderModeNot" },
 ]
 
 const MODE_HINTS: Record<string, string> = {
-    all: "Keep cards that match every condition below.",
-    any: "Keep cards that match at least one condition below.",
-    not: "Keep cards that match none of the conditions below.",
+    all: "DeckBuilderHintAll",
+    any: "DeckBuilderHintAny",
+    not: "DeckBuilderHintNot",
 }
 
 const SELECT_WIDTH = {fact: 110, path: 105, operator: 150, mode: 190}
 
-function labelOf(options: Option[], value: string): string {
+function keyOf(options: Option[], value: string): string {
     for (const o of options) {
         if (o.value == value) {
-            return o.label
+            return o.key
         }
     }
     return value
@@ -107,6 +109,7 @@ interface BuilderProps {
 }
 
 function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
+    const { t } = useTranslation()
     const [conditions, setConditions] = useState<Condition[]>([newCondition()])
     const [mode, setMode] = useState<string>("all")
     const [count, setCount] = useState<number | null>(null)
@@ -150,24 +153,24 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
 
     async function copyCodeBlock() {
         await navigator.clipboard.writeText(codeBlock)
-        new Notice("Aosr: deck rule copied")
+        new Notice(t('DeckBuilderNoticeCopied') || "")
     }
 
     function insertCodeBlock() {
         insertIntoNote(codeBlock + "\n")
-        new Notice("Aosr: deck rule inserted")
+        new Notice(t('DeckBuilderNoticeInserted') || "")
     }
 
     return (
         <Box>
-            <Typography variant="h6">Deck Rule Builder</Typography>
+            <Typography variant="h6">{t('DeckBuilderTitle')}</Typography>
             <Typography variant="body2" color="text.secondary">
-                Build an aosr-deck-config rule and see how many cards it matches.
+                {t('DeckBuilderDesc')}
             </Typography>
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {MODE_HINTS[mode]}
+                {t(MODE_HINTS[mode])}
             </Typography>
 
             <Stack spacing={1}>
@@ -177,38 +180,38 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                             size="small"
                             sx={{ width: SELECT_WIDTH.fact, flexShrink: 0 }}
                             value={c.fact}
-                            renderValue={(v) => labelOf(FACTS, String(v))}
+                            renderValue={(v) => t(keyOf(FACTS, String(v)))}
                             onChange={(e) => setFact(i, e.target.value)}
                         >
                             {FACTS.map((f) => (
-                                <MenuItem key={f.value} value={f.value}>{f.label}</MenuItem>
+                                <MenuItem key={f.value} value={f.value}>{t(f.key)}</MenuItem>
                             ))}
                         </Select>
                         <Select
                             size="small"
                             sx={{ width: SELECT_WIDTH.path, flexShrink: 0 }}
                             value={c.path}
-                            renderValue={(v) => labelOf(PATHS[c.fact], String(v))}
+                            renderValue={(v) => t(keyOf(PATHS[c.fact], String(v)))}
                             onChange={(e) => update(i, { path: e.target.value })}
                         >
                             {PATHS[c.fact].map((p) => (
-                                <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
+                                <MenuItem key={p.value} value={p.value}>{t(p.key)}</MenuItem>
                             ))}
                         </Select>
                         <Select
                             size="small"
                             sx={{ width: SELECT_WIDTH.operator, flexShrink: 0 }}
                             value={c.operator}
-                            renderValue={(v) => labelOf(OPERATORS, String(v))}
+                            renderValue={(v) => t(keyOf(OPERATORS, String(v)))}
                             onChange={(e) => update(i, { operator: e.target.value })}
                         >
                             {OPERATORS.map((o) => (
-                                <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
+                                <MenuItem key={o.value} value={o.value}>{t(o.key)}</MenuItem>
                             ))}
                         </Select>
                         <TextField
                             size="small"
-                            placeholder="value"
+                            placeholder={t('DeckBuilderValuePlaceholder') || ""}
                             sx={{ flex: 1, minWidth: 120 }}
                             value={c.value}
                             onChange={(e) => update(i, { value: e.target.value })}
@@ -218,35 +221,35 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                             disabled={conditions.length <= 1}
                             onClick={() => removeCondition(i)}
                         >
-                            x
+                            ✕
                         </Button>
                     </Stack>
                 ))}
             </Stack>
 
-            <Button sx={{ mt: 1 }} onClick={addCondition}>+ condition</Button>
+            <Button sx={{ mt: 1 }} onClick={addCondition}>{t('DeckBuilderAddCondition')}</Button>
 
             <Divider sx={{ my: 2 }} />
 
             <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap" sx={{ mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">Match</Typography>
+                <Typography variant="body2" color="text.secondary">{t('DeckBuilderMatch')}</Typography>
                 <Select
                     size="small"
                     sx={{ width: SELECT_WIDTH.mode, flexShrink: 0 }}
                     value={mode}
-                    renderValue={(v) => labelOf(MODES, String(v))}
+                    renderValue={(v) => t(keyOf(MODES, String(v)))}
                     onChange={(e) => setMode(e.target.value)}
                 >
                     {MODES.map((m) => (
-                        <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
+                        <MenuItem key={m.value} value={m.value}>{t(m.key)}</MenuItem>
                     ))}
                 </Select>
             </Stack>
 
             {error
-                ? <Typography color="error" variant="body2">Invalid regex: {error}</Typography>
+                ? <Typography color="error" variant="body2">{t('DeckBuilderInvalidRegex', { error: error })}</Typography>
                 : <Typography variant="body2">
-                    Matches <b>{count === null ? "..." : count}</b> of {patterns.length} card(s)
+                    {t('DeckBuilderMatches', { matched: count === null ? "..." : count, total: patterns.length })}
                 </Typography>}
 
             <TextField
@@ -272,14 +275,15 @@ function DeckBuilder({ patterns, insertIntoNote }: BuilderProps) {
                     borderTop: "1px solid var(--background-modifier-border)",
                 }}
             >
-                <Button variant="contained" onClick={copyCodeBlock}>Copy code block</Button>
-                <Button onClick={insertCodeBlock}>Insert into note</Button>
+                <Button variant="contained" onClick={copyCodeBlock}>{t('DeckBuilderCopy')}</Button>
+                <Button onClick={insertCodeBlock}>{t('DeckBuilderInsert')}</Button>
             </Stack>
         </Box>
     )
 }
 
 function DeckBuilderHost({ app }: { app: App }) {
+    const { t } = useTranslation()
     const [patterns, setPatterns] = useState<Pattern[] | null>(null)
 
     useEffect(() => {
@@ -289,14 +293,14 @@ function DeckBuilderHost({ app }: { app: App }) {
     function insertIntoNote(text: string) {
         const view = app.workspace.getActiveViewOfType(MarkdownView)
         if (!view) {
-            new Notice("Aosr: no active markdown note")
+            new Notice(t('DeckBuilderNoticeNoNote') || "")
             return
         }
         view.editor.replaceSelection(text)
     }
 
     if (patterns === null) {
-        return <Typography>Loading cards...</Typography>
+        return <Typography>{t('DeckBuilderLoading')}</Typography>
     }
     return <DeckBuilder patterns={patterns} insertIntoNote={insertIntoNote} />
 }

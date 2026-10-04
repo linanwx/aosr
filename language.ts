@@ -210,6 +210,41 @@ export function initLanguage() {
     addTranslation("SettingsShowHardCardsArrangementDesc", SettingsShowHardCardsArrangementDesc)
     addTranslation("SettingsNewLineAsSplitter", SettingsNewLineAsSplitter)
     addTranslation("SettingsNewLineAsSplitterDesc", SettingsNewLineAsSplitterDesc)
+    addTranslation("DeckBuilderTitle", DeckBuilderTitle)
+    addTranslation("DeckBuilderDesc", DeckBuilderDesc)
+    addTranslation("DeckBuilderFactCard", DeckBuilderFactCard)
+    addTranslation("DeckBuilderFactFile", DeckBuilderFactFile)
+    addTranslation("DeckBuilderPathFilePath", DeckBuilderPathFilePath)
+    addTranslation("DeckBuilderPathCardTags", DeckBuilderPathCardTags)
+    addTranslation("DeckBuilderPathCardText", DeckBuilderPathCardText)
+    addTranslation("DeckBuilderPathHeadings", DeckBuilderPathHeadings)
+    addTranslation("DeckBuilderPathFrontmatterTags", DeckBuilderPathFrontmatterTags)
+    addTranslation("DeckBuilderOpRegexMatch", DeckBuilderOpRegexMatch)
+    addTranslation("DeckBuilderOpContains", DeckBuilderOpContains)
+    addTranslation("DeckBuilderOpEqual", DeckBuilderOpEqual)
+    addTranslation("DeckBuilderModeAll", DeckBuilderModeAll)
+    addTranslation("DeckBuilderModeAny", DeckBuilderModeAny)
+    addTranslation("DeckBuilderModeNot", DeckBuilderModeNot)
+    addTranslation("DeckBuilderHintAll", DeckBuilderHintAll)
+    addTranslation("DeckBuilderHintAny", DeckBuilderHintAny)
+    addTranslation("DeckBuilderHintNot", DeckBuilderHintNot)
+    addTranslation("DeckBuilderValuePlaceholder", DeckBuilderValuePlaceholder)
+    addTranslation("DeckBuilderAddCondition", DeckBuilderAddCondition)
+    addTranslation("DeckBuilderMatch", DeckBuilderMatch)
+    addTranslation("DeckBuilderInvalidRegex", DeckBuilderInvalidRegex)
+    addTranslation("DeckBuilderMatches", DeckBuilderMatches)
+    addTranslation("DeckBuilderCopy", DeckBuilderCopy)
+    addTranslation("DeckBuilderInsert", DeckBuilderInsert)
+    addTranslation("DeckBuilderLoading", DeckBuilderLoading)
+    addTranslation("DeckBuilderNoticeCopied", DeckBuilderNoticeCopied)
+    addTranslation("DeckBuilderNoticeInserted", DeckBuilderNoticeInserted)
+    addTranslation("DeckBuilderNoticeNoNote", DeckBuilderNoticeNoNote)
+    addTranslation("DeckPreviewTab", DeckPreviewTab)
+    addTranslation("DeckPreviewNoData", DeckPreviewNoData)
+    addTranslation("DeckPreviewNoCards", DeckPreviewNoCards)
+    addTranslation("DeckPreviewSummary", DeckPreviewSummary)
+    addTranslation("DeckPreviewPrev", DeckPreviewPrev)
+    addTranslation("DeckPreviewNext", DeckPreviewNext)
 
     const lang = window.localStorage.getItem('language') || "en"
     i18n.changeLanguage(lang).catch(err => {
@@ -2114,3 +2149,250 @@ const SettingsNewLineAsSplitterDesc = {
     "pt-BR": "Por padrão, os padrões são divididos por '***'. Ative para permitir apenas linha vazia ' '",
     "am": "በነባሪነት፣ ስርዓተ-ጥለቶች በ '***' ይከፋፈላሉ። ባዶ መስመር ' ' ብቻ እንዲፈቀድ ያብሩት"
 };
+
+// 牌组规则生成器（deckBuilder.tsx）
+const DeckBuilderTitle = {
+    "en": "Deck Rule Builder",
+    "zh": "牌组规则生成器",
+    "ja": "デッキルールビルダー",
+    "zh-TW": "牌組規則產生器",
+}
+
+const DeckBuilderDesc = {
+    "en": "Build an aosr-deck-config rule and see how many cards it matches.",
+    "zh": "生成一条 aosr-deck-config 规则，并预览它能匹配多少张卡。",
+    "ja": "aosr-deck-config ルールを作成し、一致するカード数を確認できます。",
+    "zh-TW": "產生一條 aosr-deck-config 規則，並預覽它能匹配多少張卡。",
+}
+
+const DeckBuilderFactCard = {
+    "en": "Card",
+    "zh": "卡片",
+    "ja": "カード",
+    "zh-TW": "卡片",
+}
+
+const DeckBuilderFactFile = {
+    "en": "File",
+    "zh": "文件",
+    "ja": "ファイル",
+    "zh-TW": "檔案",
+}
+
+const DeckBuilderPathFilePath = {
+    "en": "file path",
+    "zh": "文件路径",
+    "ja": "ファイルパス",
+    "zh-TW": "檔案路徑",
+}
+
+const DeckBuilderPathCardTags = {
+    "en": "card tags",
+    "zh": "卡片标签",
+    "ja": "カードタグ",
+    "zh-TW": "卡片標籤",
+}
+
+const DeckBuilderPathCardText = {
+    "en": "card text",
+    "zh": "卡片正文",
+    "ja": "カード本文",
+    "zh-TW": "卡片正文",
+}
+
+const DeckBuilderPathHeadings = {
+    "en": "headings",
+    "zh": "标题层级",
+    "ja": "見出し",
+    "zh-TW": "標題層級",
+}
+
+const DeckBuilderPathFrontmatterTags = {
+    "en": "frontmatter tags",
+    "zh": "frontmatter 标签",
+    "ja": "frontmatter タグ",
+    "zh-TW": "frontmatter 標籤",
+}
+
+const DeckBuilderOpRegexMatch = {
+    "en": "matches regex",
+    "zh": "正则匹配",
+    "ja": "正規表現に一致",
+    "zh-TW": "正規表達式匹配",
+}
+
+const DeckBuilderOpContains = {
+    "en": "contains",
+    "zh": "包含",
+    "ja": "を含む",
+    "zh-TW": "包含",
+}
+
+const DeckBuilderOpEqual = {
+    "en": "equals",
+    "zh": "等于",
+    "ja": "と等しい",
+    "zh-TW": "等於",
+}
+
+const DeckBuilderModeAll = {
+    "en": "all (whitelist)",
+    "zh": "全部满足（白名单）",
+    "ja": "すべて一致（許可リスト）",
+    "zh-TW": "全部滿足（白名單）",
+}
+
+const DeckBuilderModeAny = {
+    "en": "any (whitelist)",
+    "zh": "任意满足（白名单）",
+    "ja": "いずれか一致（許可リスト）",
+    "zh-TW": "任意滿足（白名單）",
+}
+
+const DeckBuilderModeNot = {
+    "en": "none (blacklist)",
+    "zh": "全部不满足（黑名单）",
+    "ja": "すべて不一致（拒否リスト）",
+    "zh-TW": "全部不滿足（黑名單）",
+}
+
+const DeckBuilderHintAll = {
+    "en": "Keep cards that match every condition below.",
+    "zh": "保留同时满足以下所有条件的卡片。",
+    "ja": "以下のすべての条件に一致するカードを残します。",
+    "zh-TW": "保留同時滿足以下所有條件的卡片。",
+}
+
+const DeckBuilderHintAny = {
+    "en": "Keep cards that match at least one condition below.",
+    "zh": "保留满足以下任意一个条件的卡片。",
+    "ja": "以下のいずれか1つに一致するカードを残します。",
+    "zh-TW": "保留滿足以下任一條件的卡片。",
+}
+
+const DeckBuilderHintNot = {
+    "en": "Keep cards that match none of the conditions below.",
+    "zh": "保留不满足以下任何条件的卡片。",
+    "ja": "以下のどの条件にも一致しないカードを残します。",
+    "zh-TW": "保留不滿足以下任何條件的卡片。",
+}
+
+const DeckBuilderValuePlaceholder = {
+    "en": "value",
+    "zh": "值",
+    "ja": "値",
+    "zh-TW": "值",
+}
+
+const DeckBuilderAddCondition = {
+    "en": "+ condition",
+    "zh": "+ 条件",
+    "ja": "+ 条件",
+    "zh-TW": "+ 條件",
+}
+
+const DeckBuilderMatch = {
+    "en": "Match",
+    "zh": "匹配方式",
+    "ja": "一致方法",
+    "zh-TW": "匹配方式",
+}
+
+const DeckBuilderInvalidRegex = {
+    "en": "Invalid regex: {{error}}",
+    "zh": "正则表达式无效：{{error}}",
+    "ja": "正規表現が無効です：{{error}}",
+    "zh-TW": "正規表達式無效：{{error}}",
+}
+
+const DeckBuilderMatches = {
+    "en": "Matches {{matched}} of {{total}} card(s)",
+    "zh": "匹配 {{total}} 张卡片中的 {{matched}} 张",
+    "ja": "{{total}} 枚中 {{matched}} 枚に一致",
+    "zh-TW": "匹配 {{total}} 張卡片中的 {{matched}} 張",
+}
+
+const DeckBuilderCopy = {
+    "en": "Copy code block",
+    "zh": "复制代码块",
+    "ja": "コードブロックをコピー",
+    "zh-TW": "複製程式碼區塊",
+}
+
+const DeckBuilderInsert = {
+    "en": "Insert into note",
+    "zh": "插入到笔记",
+    "ja": "ノートに挿入",
+    "zh-TW": "插入到筆記",
+}
+
+const DeckBuilderLoading = {
+    "en": "Loading cards...",
+    "zh": "正在加载卡片…",
+    "ja": "カードを読み込み中…",
+    "zh-TW": "正在載入卡片…",
+}
+
+const DeckBuilderNoticeCopied = {
+    "en": "Aosr: deck rule copied",
+    "zh": "Aosr：规则已复制",
+    "ja": "Aosr：ルールをコピーしました",
+    "zh-TW": "Aosr：規則已複製",
+}
+
+const DeckBuilderNoticeInserted = {
+    "en": "Aosr: deck rule inserted",
+    "zh": "Aosr：规则已插入",
+    "ja": "Aosr：ルールを挿入しました",
+    "zh-TW": "Aosr：規則已插入",
+}
+
+const DeckBuilderNoticeNoNote = {
+    "en": "Aosr: no active markdown note",
+    "zh": "Aosr：没有打开的笔记",
+    "ja": "Aosr：開いているノートがありません",
+    "zh-TW": "Aosr：沒有開啟的筆記",
+}
+
+// 卡包预览页（deckPreview.tsx）
+const DeckPreviewTab = {
+    "en": "Aosr preview",
+    "zh": "Aosr 预览",
+    "ja": "Aosr プレビュー",
+    "zh-TW": "Aosr 預覽",
+}
+
+const DeckPreviewNoData = {
+    "en": "No arrangement data. Open the Aosr review view first, then click a count button.",
+    "zh": "没有牌组数据。请先打开 Aosr 复习视图，再点击计数按钮。",
+    "ja": "デッキデータがありません。先に Aosr の復習ビューを開き、カウントボタンをクリックしてください。",
+    "zh-TW": "沒有牌組資料。請先開啟 Aosr 複習檢視，再點擊計數按鈕。",
+}
+
+const DeckPreviewNoCards = {
+    "en": "No cards for tag {{tag}}",
+    "zh": "标签 {{tag}} 下没有卡片",
+    "ja": "タグ {{tag}} にカードがありません",
+    "zh-TW": "標籤 {{tag}} 下沒有卡片",
+}
+
+const DeckPreviewSummary = {
+    "en": "{{total}} card(s) · page {{page}} / {{pages}} · tag: {{tag}}",
+    "zh": "共 {{total}} 张 · 第 {{page}} / {{pages}} 页 · 标签：{{tag}}",
+    "ja": "{{total}} 枚 · {{page}} / {{pages}} ページ · タグ：{{tag}}",
+    "zh-TW": "共 {{total}} 張 · 第 {{page}} / {{pages}} 頁 · 標籤：{{tag}}",
+}
+
+const DeckPreviewPrev = {
+    "en": "Prev",
+    "zh": "上一页",
+    "ja": "前へ",
+    "zh-TW": "上一頁",
+}
+
+const DeckPreviewNext = {
+    "en": "Next",
+    "zh": "下一页",
+    "ja": "次へ",
+    "zh-TW": "下一頁",
+}

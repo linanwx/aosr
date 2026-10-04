@@ -1,7 +1,9 @@
 import { Box, Button, Divider, Stack, Typography } from "@mui/material"
+import i18next from "i18next"
 import { Component, ItemView, MarkdownView } from "obsidian"
 import React from "react"
 import { createRoot, Root } from "react-dom/client"
+import { useTranslation } from "react-i18next"
 
 import { Arrangement } from "arrangement"
 import { getAppInstance } from "main"
@@ -179,6 +181,7 @@ function PreviewCard({ pattern, index, view }: { pattern: Pattern, index: number
 }
 
 function DeckPreview({ arrangement, tagName, title, view }: { arrangement: Arrangement | null, tagName: string | undefined, title: string | undefined, view: Component }) {
+	const { t } = useTranslation()
 	const [page, setPage] = React.useState(0)
 	const patterns = (arrangement && tagName) ? arrangement.patternsFor(tagName) : []
 	const pageCount = Math.max(1, Math.ceil(patterns.length / PAGE_SIZE))
@@ -189,19 +192,19 @@ function DeckPreview({ arrangement, tagName, title, view }: { arrangement: Arran
 		<Box sx={{ padding: 2, boxSizing: 'border-box' }}>
 			<Typography variant="h6">{title}</Typography>
 			<Typography variant="body2" sx={{ color: 'var(--text-muted)' }}>
-				{patterns.length} card(s) · page {current + 1} / {pageCount} · tag: {String(tagName)}
+				{t('DeckPreviewSummary', { total: patterns.length, page: current + 1, pages: pageCount, tag: String(tagName) })}
 			</Typography>
 			<Divider sx={{ my: 2 }} />
 			{
 				arrangement == null &&
 				<Typography variant="body2" sx={{ color: 'var(--text-error)' }}>
-					No arrangement data. Open the Aosr review view first, then click a count button.
+					{t('DeckPreviewNoData')}
 				</Typography>
 			}
 			{
 				arrangement != null && patterns.length == 0 &&
 				<Typography variant="body2" sx={{ color: 'var(--text-muted)' }}>
-					No cards for tag {String(tagName)}
+					{t('DeckPreviewNoCards', { tag: String(tagName) })}
 				</Typography>
 			}
 			{
@@ -232,8 +235,8 @@ function DeckPreview({ arrangement, tagName, title, view }: { arrangement: Arran
 						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
 					}}
 				>
-					<Button size="small" sx={PAGE_BTN_SX} disabled={current <= 0} onClick={() => setPage(current - 1)}>Prev</Button>
-					<Button size="small" sx={PAGE_BTN_SX} disabled={current >= pageCount - 1} onClick={() => setPage(current + 1)}>Next</Button>
+					<Button size="small" sx={PAGE_BTN_SX} disabled={current <= 0} onClick={() => setPage(current - 1)}>{t('DeckPreviewPrev')}</Button>
+					<Button size="small" sx={PAGE_BTN_SX} disabled={current >= pageCount - 1} onClick={() => setPage(current + 1)}>{t('DeckPreviewNext')}</Button>
 				</Stack>
 			}
 		</Box>
@@ -252,7 +255,7 @@ export class DeckPreviewView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "Aosr preview"
+		return i18next.t('DeckPreviewTab')
 	}
 
 	// 复用已开的 tab：换掉数据源重画，不依赖 Obsidian 会不会再走一次 setState
