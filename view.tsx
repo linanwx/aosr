@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import { Pattern } from "Pattern";
 import { Arrangement, PatternIter, TAGNAME } from 'arrangement';
 import { findOutline } from 'card';
+import { IDComment } from 'cardHead';
 import i18n from 'i18next';
 import { RuleProperties } from 'json-rules-engine';
 import {log, getAppInstance, logTrueExpr} from 'main';
@@ -169,8 +170,14 @@ class Reviewing extends React.Component<ReviewingProps, ReviewingState> {
 		let view = leaf.view
 		// 读取文件找到tag
 		let noteText = view.data
-		let index = noteText.indexOf(pattern.TagID)
-		let length = pattern.TagID.length
+		// TagID 是 #AOSR/xxx 规范写法；笔记里可能是注释写法 %%AOSR/xxx%%
+		let idText = pattern.TagID
+		let index = noteText.indexOf(idText)
+		if (index < 0) {
+			idText = IDComment(pattern.TagID)
+			index = noteText.indexOf(idText)
+		}
+		let length = idText.length
 		// 处理Tag不存在的情况
 		if (index < 0) {
 			index = pattern.card.indexBuff

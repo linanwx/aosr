@@ -49,6 +49,21 @@ export class emojiplugin implements PluginValue {
                 from,
                 to,
                 enter(node) {
+                    // 注释写法 %%AOSR/xxx%%：语法树里是 comment-start / comment / comment-end 三个节点，
+                    // 从 comment-start 起整段替换
+                    if (node.name.contains("comment-start")) {
+                        let m = docText.slice(node.from, node.from + 200).match(/^%%AOSR\/[\/\w]+%%/)
+                        if (m && !inSelection(view.state.selection, node.from, node.from + m[0].length)) {
+                            builder.add(
+                                node.from,
+                                node.from + m[0].length,
+                                Decoration.replace({
+                                    widget: new EmojiWidget()
+                                })
+                            )
+                        }
+                        return
+                    }
                     if (node.name.startsWith("hashtag") && node.name.contains("AOSR")) {
                         let text = docText.substring(node.from, node.to)
                         if (text.startsWith("AOSR/")) {
@@ -92,11 +107,14 @@ class TagInfo {
     Head: string
     Suffix: string
     SubTag: TagInfo
+    // 规范写法 #a/b/c，作为复习数据的键；Original 是笔记里的原文（可能是 %%a/b/c%%）
+    Canonical: string
     constructor(original: string, tagstr: string) {
         this.Original = original
         if (tagstr.at(0) == "#") {
             tagstr = tagstr.substring(1)
         }
+        this.Canonical = "#" + tagstr
         if (tagstr.contains("/")) {
             let idx = tagstr.indexOf('/');
             let head = tagstr.slice(0, idx);
@@ -143,9 +161,10 @@ class TagsInfo {
 export class TagParser {
     static parse(str: string) {
         let tags: TagInfo[] = []
-        let results = str.matchAll(/#[\/\w]+/gm)
+        // #tag 或 %%AOSR/xxx%%（注释写法的卡片 ID）
+        let results = str.matchAll(/#[\/\w]+|%%(AOSR\/[\/\w]+)%%/gm)
         for (let result of results) {
-            tags.push(new TagInfo(result[0], result[0]))
+            tags.push(new TagInfo(result[0], result[1] || result[0]))
         }
         return new TagsInfo(tags)
     }

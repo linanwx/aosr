@@ -1,5 +1,5 @@
 import { Card } from "card";
-import { CardIDTag } from "cardHead";
+import { CardIDTag, IDComment } from "cardHead";
 import { cyrb53 } from "hash";
 import { PatternParser } from "ParserCollection";
 import { Pattern, PatternProps, prettyText } from "Pattern";
@@ -81,7 +81,7 @@ class singleLinePattern extends linePattern {
 		}
 		this.card.updateFile({
 			updateFunc: (content): string => {
-				let newContent = this.keyText + " " + this.TagID;
+				let newContent = this.keyText + " " + IDComment(this.TagID);
 				return content.replace(this.keyText, () => { return newContent });
 			}
 		})
@@ -95,7 +95,7 @@ class multiLinePattern extends linePattern {
 		}
 		this.card.updateFile({
 			updateFunc: (content): string => {
-				let newContent = `${this.front}${GlobalSettings.MultiLineDelimeter} ${this.TagID}\n${this.back}`
+				let newContent = `${this.front}${GlobalSettings.MultiLineDelimeter} ${IDComment(this.TagID)}\n${this.back}`
 				return content.replace(this.keyText, () => { return newContent })
 			}
 		})
@@ -177,8 +177,9 @@ export class SingleLineParser implements PatternParser {
 				if (sepText.length === GlobalSettings.OneLineDelimeter.length) {
 					let newID = `#${CardIDTag}/${card.ID}/s/${cyrb53(fullText, 4)}`
 					let tagInfo = TagParser.parse(fullText)
-					let originalID = tagInfo.findTag(CardIDTag, card.ID, "s")?.Original || ""
-					let result = new singleLinePattern(card, fullText, frontText, backText, originalID, originalID || newID, false)
+					let idTag = tagInfo.findTag(CardIDTag, card.ID, "s")
+					let originalID = idTag?.Original || ""
+					let result = new singleLinePattern(card, fullText, frontText, backText, originalID, idTag?.Canonical || newID, false)
 					results.push(result)
 				}
 
@@ -193,10 +194,12 @@ export class SingleLineParser implements PatternParser {
 					let newIDForward = `#${CardIDTag}/${card.ID}/sf/${cyrb53(fullText, 4)}`
 					let newIDReverse = `#${CardIDTag}/${card.ID}/sr/${cyrb53(fullText, 4)}`
 					let tagInfo = TagParser.parse(fullText)
-					let originalIDForward = tagInfo.findTag(CardIDTag, card.ID, "sf")?.Original || ""
-					let originalIDReverse = tagInfo.findTag(CardIDTag, card.ID, "sr")?.Original || ""
-					let result1 = new singleLinePattern(card, fullText, frontText, backText, originalIDForward, originalIDForward || newIDForward, false)
-					let result2 = new singleLinePattern(card, fullText, frontText, backText, originalIDReverse, originalIDReverse || newIDReverse, true)
+					let idTagForward = tagInfo.findTag(CardIDTag, card.ID, "sf")
+					let idTagReverse = tagInfo.findTag(CardIDTag, card.ID, "sr")
+					let originalIDForward = idTagForward?.Original || ""
+					let originalIDReverse = idTagReverse?.Original || ""
+					let result1 = new singleLinePattern(card, fullText, frontText, backText, originalIDForward, idTagForward?.Canonical || newIDForward, false)
+					let result2 = new singleLinePattern(card, fullText, frontText, backText, originalIDReverse, idTagReverse?.Canonical || newIDReverse, true)
 					results.push(result1, result2)
 				}
 			}
@@ -209,7 +212,7 @@ export class MultiLineParser implements PatternParser {
 	Parse(card: Card): Pattern[] {
 		let sepEscaped = escapeRegExp(GlobalSettings.MultiLineDelimeter);
 		let reg = new RegExp(
-			`^((?:(?!(?:${sepEscaped}) ?).+\\n)+)(?:${sepEscaped}) *( #.+)?\\n((?:.+\\n?)+)$`,
+			`^((?:(?!(?:${sepEscaped}) ?).+\\n)+)(?:${sepEscaped}) *( (?:#|%%).+)?\\n((?:.+\\n?)+)$`,
 			cardParserRegFlags);
 		// 捕获不包含? 开头的连续行 然后捕获标签 然后捕获剩余行
 		let results: Pattern[] = []
@@ -222,8 +225,9 @@ export class MultiLineParser implements PatternParser {
 				let backText = regArr[3]
 				let newID = `#${CardIDTag}/${card.ID}/m/${cyrb53(fullText, 4)}`
 				let tagInfo = TagParser.parse(sepText || "")
-				let originalID = tagInfo.findTag(CardIDTag, card.ID, "m")?.Original || ""
-				let result = new multiLinePattern(card, fullText, frontText, backText, originalID, originalID || newID, false)
+				let idTag = tagInfo.findTag(CardIDTag, card.ID, "m")
+				let originalID = idTag?.Original || ""
+				let result = new multiLinePattern(card, fullText, frontText, backText, originalID, idTag?.Canonical || newID, false)
 				results.push(result)
 				regArr = reg.exec(body)
 			}

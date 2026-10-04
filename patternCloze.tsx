@@ -1,5 +1,5 @@
 import { Card } from "card";
-import { CardIDTag } from "cardHead";
+import { CardIDTag, IDComment } from "cardHead";
 import { cyrb53 } from "hash";
 import { log } from "main";
 import { renderMarkdown } from "markdown";
@@ -20,7 +20,7 @@ class multiclozePattern extends Pattern {
         }
         this.card.updateFile({
             updateFunc: (contentText): string => {
-                let newtext = this.text.replace("#multicloze", ()=>{return `#multicloze ${this.TagID} `})
+                let newtext = this.text.replace("#multicloze", ()=>{return `#multicloze ${IDComment(this.TagID)} `})
                 return contentText.replace(this.text, ()=>{return newtext})
             }
         })
@@ -102,7 +102,7 @@ class clozePattern extends Pattern {
         }
         this.card.updateFile({
             updateFunc: (content): string => {
-                let addtag = `${this.clozeOriginal} ${this.TagID} `
+                let addtag = `${this.clozeOriginal} ${IDComment(this.TagID)} `
                 let newtext = replaceClosestSubstring(this.text, this.clozeOriginal, addtag, this.index)
                 return content.replace(this.text, ()=>{return newtext})
             }
@@ -179,7 +179,7 @@ class ClozePatternComponent extends React.Component<clozePatternComponentProps, 
 
 export class ClozeParser implements PatternParser {
     Parse(card: Card): Pattern[] {
-        let reg = /==(\S[\s\S]*?)==((?: #[\w\/]+\b)*)/gm
+        let reg = /==(\S[\s\S]*?)==((?: (?:#[\w\/]+\b|%%AOSR\/[\w\/]+%%))*)/gm
         let results: Pattern[] = []
         for (let bi in card.bodyList) {
 			let body = card.bodyList[bi]
@@ -189,8 +189,9 @@ export class ClozeParser implements PatternParser {
                 let has = hasClozeReg.test(body)
                 if (has) {
                     let newID = `#${CardIDTag}/${card.ID}/mc/${cyrb53(body, 4)}`
-                    let originalID = bodytag.findTag(CardIDTag, card.ID, "mc")?.Original || ""
-                    let result = new multiclozePattern(card, body, originalID, originalID || newID)
+                    let idTag = bodytag.findTag(CardIDTag, card.ID, "mc")
+                    let originalID = idTag?.Original || ""
+                    let result = new multiclozePattern(card, body, originalID, idTag?.Canonical || newID)
                     results.push(result)
                 } else {
                     log(() => `Ignored file: ${card.note.path} does not contain cloze pattern`);
@@ -203,8 +204,9 @@ export class ClozeParser implements PatternParser {
                     }
                     let newID = `#${CardIDTag}/${card.ID}/c/${cyrb53(bi + i + regArr[0], 4)}`
                     let tagInfo = TagParser.parse(regArr[2] || "")
-                    let originalID = tagInfo.findTag(CardIDTag, card.ID, "c")?.Original || ""
-                    let result = new clozePattern(card, body, regArr.index, regArr[0], regArr[1], originalID, originalID || newID)
+                    let idTag = tagInfo.findTag(CardIDTag, card.ID, "c")
+                    let originalID = idTag?.Original || ""
+                    let result = new clozePattern(card, body, regArr.index, regArr[0], regArr[1], originalID, idTag?.Canonical || newID)
                     results.push(result)
                 }
             }
