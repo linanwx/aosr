@@ -5,7 +5,7 @@ import { TagParser } from 'tag';
 import { Card, NewCard } from "./card";
 import { log, getAppInstance } from 'main';
 import { minimatch } from 'minimatch';
-import { GlobalSettings } from 'setting';
+import { GlobalSettings, parseExcludePatterns } from 'setting';
 import { Global } from '@emotion/react';
 
 // 搜索的结果
@@ -103,10 +103,7 @@ class defaultCardSearch implements cardSearcher {
 		return "#" + this.tagName;
 	}
 	isExcludedFile(file: TFile): boolean {
-		for (const pattern of GlobalSettings.ExcludeWorkingPathesPattern.split("\n")) {
-			if (!pattern || pattern.trim() === "") {
-				continue;
-			}
+		for (const pattern of parseExcludePatterns(GlobalSettings.ExcludeWorkingPathesPattern)) {
 			if (file.path.startsWith(pattern)
 				|| minimatch(file.path, pattern)) {
 				log(() => `Ignored file: ${file.path} due to pattern: ${pattern}`);

@@ -419,6 +419,21 @@ If you want to review those forgotten contents more, you can adjust the hard opt
 
 Generally, there is no need to adjust the initial ease, as the review ease of each card will automatically increase or decrease based on your options, with a baseline value of 250. If you want to change the review baseline of all cards, you can change this value. Generally, you can change it to a value between 200-300. It is not recommended to adjust the value beyond this range.
 
+# Excluding Files
+
+To stop Aosr from scanning some notes (templates, archives, drafts…), list them in **Settings → Aosr → Exclude Patterns**, one pattern per line:
+
+```
+Archive/
+**/Templates/**
+Notes/Todo.md
+```
+
+- Paths are written from the vault root, without a leading `/`. `Archive/` excludes the top-level `Archive` folder only; use `**/Archive/**` to exclude a folder with that name anywhere.
+- A line matches any path that starts with it, or any path that matches it as a glob (`*` matches within one folder level, `**` across levels). Note that `Arch` would also exclude `Architecture/`, so end folder names with `/`.
+- Matching is case-sensitive. Leading/trailing spaces are ignored.
+- After changing the patterns, click the refresh button in the review view.
+
 # Deck Functionality in Aosr
 
 Aosr offers a unique feature known as "Deck" that allows users to manage their flashcards in a highly customizable manner. This feature is designed to cater to the diverse needs of users, providing flexibility in how flashcards are organized and reviewed.

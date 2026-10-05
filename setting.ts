@@ -29,17 +29,27 @@ export const AOSR_DEFAULT_SETTINGS: AOSRSettings = {
     OneLineReversedDelimeter: ":::",
     MultiLineDelimeter: "?",
     AosrDbPath: ".obsidian/aosr.db",
-    ExcludeWorkingPathesPattern: "**/*.excalidraw\\n**/*.png",
+    ExcludeWorkingPathesPattern: "",
     ShowHardCardsArrangement: false,
 	UseNewLineAsSplitter: false
 }
 
 // i18n.t('someKey');
 
+// 排除规则一行一条。Obsidian 的路径相对 vault 根目录、不带开头的 /、分隔符是 /，
+// 所以顺手去掉首尾空白和开头的 / 或 ./，并把 Windows 风格的 \ 换成 /
+export function parseExcludePatterns(setting: string): string[] {
+    return setting.split("\n")
+        .map((p) => p.trim().replace(/\\/g, "/").replace(/^\.?\/+/, ""))
+        .filter((p) => p.length > 0)
+}
+
 export let GlobalSettings: AOSRSettings
 
 export function setGlobalSettings(s: AOSRSettings) {
     let settings = Object.assign({}, AOSR_DEFAULT_SETTINGS, s);
+    // 1.1.6 的默认值把换行写成了字面量 "\\n"，设置框里显示成一行，用户照着在后面接 "\\nXXX" 就整串失效（#61）
+    settings.ExcludeWorkingPathesPattern = settings.ExcludeWorkingPathesPattern.replace(/\\n/g, "\n");
     log(() => ["GlobalSettings", settings]);
     GlobalSettings = settings
 }
@@ -207,13 +217,17 @@ export class AOSRSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName(i18n.t('SettingsExcludeDirectories') || '')
             .setDesc(i18n.t('SettingsExcludeDirectoriesDesc') || "")
-            .addTextArea(text => text
-                .setPlaceholder('**/*.excalidraw\n**/*.png')
-                .setValue(GlobalSettings.ExcludeWorkingPathesPattern)
-                .onChange(async (value) => {
-                    GlobalSettings.ExcludeWorkingPathesPattern = value;
-                    await this.plugin.saveSettings();
-                }))
+            .addTextArea(text => {
+                // 一行一条，默认两行高会把后面的规则藏起来
+                text.inputEl.rows = 5
+                return text
+                    .setPlaceholder('Archive/\n**/Templates/**\nNotes/Todo.md')
+                    .setValue(GlobalSettings.ExcludeWorkingPathesPattern)
+                    .onChange(async (value) => {
+                        GlobalSettings.ExcludeWorkingPathesPattern = value;
+                        await this.plugin.saveSettings();
+                    })
+            })
 
         new Setting(containerEl)
             .setName(i18n.t('SettingsShowHardCardsArrangement') || '')

@@ -1724,10 +1724,10 @@ const SettingsExcludeDirectories = {
 };
 
 const SettingsExcludeDirectoriesDesc = {
-    "zh": "从扫描中排除目录或文件模式。建议添加元数据文件或资产目录。",
-    "en": "Exclude directories or file patters from scanning. Recommended to add metadata files or assets directories.",
-    "ja": "スキャンから除外するディレクトリまたはファイルパターン。メタデータファイルやアセットディレクトリを追加することをお勧めします。",
-    "zh-TW": "從掃描中排除目錄或檔案模式。建議添加元數據檔案或資產目錄。",
+    "zh": "不扫描这些文件里的卡片。一行一条，路径从库的根目录写起，区分大小写，支持 * 和 ** 通配符。例：Archive/（根目录下的 Archive 文件夹）、**/Templates/**（任意位置的 Templates 文件夹）、Notes/Todo.md（单个文件）。修改后在复习界面点刷新生效。",
+    "en": "Cards in these files are not scanned. One pattern per line, written from the vault root, case-sensitive, with * and ** wildcards. Examples: Archive/ (the top-level Archive folder), **/Templates/** (a Templates folder anywhere), Notes/Todo.md (a single file). Click refresh in the review view to apply.",
+    "ja": "これらのファイル内のカードはスキャンされません。1 行に 1 つ、Vault のルートからのパスで記述します（大文字と小文字を区別、* と ** のワイルドカード可）。例：Archive/（ルート直下の Archive フォルダ）、**/Templates/**（任意の場所の Templates フォルダ）、Notes/Todo.md（単一のファイル）。変更後は復習画面で更新をクリックしてください。",
+    "zh-TW": "不掃描這些檔案裡的卡片。一行一條，路徑從庫的根目錄寫起，區分大小寫，支援 * 和 ** 萬用字元。例：Archive/（根目錄下的 Archive 資料夾）、**/Templates/**（任意位置的 Templates 資料夾）、Notes/Todo.md（單一檔案）。修改後在複習介面點重新整理生效。",
     "ko": "스캔에서 제외할 디렉토리 또는 파일 패턴. 메타데이터 파일이나 자산 디렉토리를 추가하는 것이 좋습니다.",
     "ar": "استبعاد الدلائل أو أنماط الملفات من الفحص. يوصى بإضافة ملفات التعريف أو دلائل الأصول.",
     "pt": "Excluir diretórios ou padrões de arquivos da varredura. Recomenda-se adicionar arquivos de metadados ou diretórios de ativos.",
