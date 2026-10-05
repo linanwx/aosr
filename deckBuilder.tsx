@@ -67,6 +67,10 @@ const SELECT_WIDTH = {fact: 110, path: 105, operator: 150, mode: 190}
 const FIELD_SX = {
     // InputBase 把 color 直接声明在 .MuiInputBase-input 上，父级设 color 赢不过它
     '& .MuiInputBase-input': { color: 'var(--text-normal)' },
+    // 占位文字默认是 currentColor + 0.42 透明度，叠在 Obsidian 输入框底色上几乎看不见
+    '& .MuiInputBase-input::placeholder': { color: 'var(--text-faint)', opacity: 1 },
+    // Select 的下拉箭头单独取 palette.action.active（浅色主题的 rgba(0,0,0,0.54)），不跟随文字颜色
+    '& .MuiSelect-icon': { color: 'var(--text-muted)' },
     // 描边默认是 rgba(0,0,0,0.23)（MUI 默认主题按 light 算），黑底上等于没有；
     // hover 时更会变成近黑的 text.primary，所以三个状态都得显式指定
     '& .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--background-modifier-border)' },
