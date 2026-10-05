@@ -18,10 +18,14 @@ const PAGE_SIZE = 20
 const HOVER_DELAY = 350
 
 // 悬浮翻页按钮：竖排定宽，别被 MUI 的默认 padding 撑变形
+// 颜色必须显式指定 —— MUI 默认主题是浅色的，按钮文字是写死的蓝/黑，
+// 禁用态更是 rgba(0,0,0,0.38)，在 Obsidian 暗色主题下几乎看不见
 const PAGE_BTN_SX = {
 	minWidth: 64,
 	textTransform: 'none',
 	boxSizing: 'border-box',
+	color: 'var(--text-normal)',
+	'&.Mui-disabled': { color: 'var(--text-faint)' },
 }
 
 // 新建视图时的一次性交接。setViewState 的 state 会被序列化进工作区文件，
@@ -197,7 +201,7 @@ function DeckPreview({ arrangement, tagName, title, view }: { arrangement: Arran
 			<Typography variant="body2" sx={{ color: 'var(--text-muted)' }}>
 				{t('DeckPreviewSummary', { total: patterns.length, page: current + 1, pages: pageCount, tag: String(tagName) })}
 			</Typography>
-			<Divider sx={{ my: 2 }} />
+			<Divider sx={{ my: 2, borderColor: 'var(--background-modifier-border)' }} />
 			{
 				arrangement == null &&
 				<Typography variant="body2" sx={{ color: 'var(--text-error)' }}>
